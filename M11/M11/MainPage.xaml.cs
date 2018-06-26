@@ -54,6 +54,7 @@ namespace M11
 
         private void EntryButton_OnClicked(object sender, EventArgs e)
         {
+            Navigation.PushAsync(new InfoPage());
         }
     }
 }
