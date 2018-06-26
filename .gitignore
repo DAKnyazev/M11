@@ -3,3 +3,7 @@ M11/M11.iOS/obj
 M11/M11/bin
 M11/M11/obj
 .vs/M11/v15
+M11.Common/obj
+M11.Services/obj
+M11.Services/bin
+M11.Common/bin/Debug/netstandard2.0/M11.Common.deps.json

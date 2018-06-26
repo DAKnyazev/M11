@@ -1,20 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿using M11.Common.Models;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
 namespace M11
 {
-	[XamlCompilation(XamlCompilationOptions.Compile)]
+    [XamlCompilation(XamlCompilationOptions.Compile)]
 	public partial class InfoPage : ContentPage
 	{
-		public InfoPage ()
+		public InfoPage(Info info)
 		{
-			InitializeComponent ();
+			InitializeComponent();
+            var stack = new StackLayout();
+            stack.Children.Add(new Label { Text = "Номер договора" });
+            stack.Children.Add(new Label { Text = info.ContractNumber });
+            Content = stack;
 		}
 	}
 }

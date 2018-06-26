@@ -1,4 +1,5 @@
-﻿using System;
+﻿using M11.Services;
+using System;
 using Xamarin.Forms;
 
 namespace M11
@@ -52,9 +53,16 @@ namespace M11
             Content = grid;
         }
 
-        private void EntryButton_OnClicked(object sender, EventArgs e)
+        private async void EntryButton_OnClicked(object sender, EventArgs e)
         {
-            Navigation.PushAsync(new InfoPage());
+            if(string.IsNullOrWhiteSpace(_loginEntry.Text) || string.IsNullOrWhiteSpace(_passwordEntry.Text))
+            {
+                await DisplayAlert("Ошибка", "Необходимо ввести корректные логин и пароль", "Закрыть");
+
+                return;
+            }
+            var info = new AuthService().GetParticipantInfo(_loginEntry.Text, _passwordEntry.Text);
+            await Navigation.PushAsync(new InfoPage(info));
         }
     }
 }
