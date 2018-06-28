@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using M11.Common.Models;
 
 namespace M11.Services
@@ -16,11 +17,10 @@ namespace M11.Services
         private string _submitParameterName = "submit";
         private string _submitParameterValue = "Вход";
 
-        public Info GetParticipantInfo(string login, string password)
+        public async Task<Info> GetParticipantInfo(string login, string password)
         {
             try
             {
-
                 var client = new HttpClient();
                 var formContent = new FormUrlEncodedContent(new[]
                 {
@@ -28,16 +28,16 @@ namespace M11.Services
                     new KeyValuePair<string, string>(_passwordParameterName, password),
                     new KeyValuePair<string, string>(_submitParameterName, _submitParameterValue)
                 });
-                var response = client.PostAsync($"{_baseUrl}/{_authPath}", formContent).Result;
+                var response = await client.PostAsync($"{_baseUrl}/{_authPath}", formContent);
 
-                var stringContent = response.Content.ReadAsStringAsync().Result;
+                var stringContent = await response.Content.ReadAsStringAsync();
 
                 if (string.IsNullOrEmpty(stringContent))
                 {
                     return new Info();
                 }
-
-                var values = GetInfoValus(GetTagValue(stringContent, "<table class=\"infoblock fullwidth\">", "</table>"));
+                var table = GetTagValue(stringContent, "<table class=\"infoblock fullwidth\">", "</table>");
+                var values = GetInfoValus(table);
                 if (values == null)
                 {
                     return new Info();
@@ -45,9 +45,9 @@ namespace M11.Services
 
                 return new Info
                 {
-                    ContractNumber = values.Any(x => x.Key == "Договор") ? values.First(x => x.Key == "Договор").Value : string.Empty,
-                    Status = values.Any(x => x.Key == "Статус") ? values.First(x => x.Key == "Статус").Value : string.Empty,
-                    Balance = values.Any(x => x.Key == "Баланс") ? values.First(x => x.Key == "Баланс").Value : string.Empty
+                    ContractNumber = values.Any(x => x.Item1 == "Договор") ? values.First(x => x.Item1 == "Договор").Item2 : string.Empty,
+                    Status = values.Any(x => x.Item1 == "Статус") ? values.First(x => x.Item1 == "Статус").Item2 : string.Empty,
+                    Balance = values.Any(x => x.Item1 == "Баланс") ? values.First(x => x.Item1 == "Баланс").Item2 : string.Empty
                 };
             }
             catch (Exception e)
@@ -71,18 +71,20 @@ namespace M11.Services
             return string.Empty;
         }
 
-        private static IList<KeyValuePair<string, string>> GetInfoValus(string tableInnerHtml)
+        private static IList<Tuple<string, string>> GetInfoValus(string tableInnerHtml)
         {
             var trRegex = new Regex(@"<tr.*?>(.*?)</tr>", RegexOptions.Singleline);
             var tdRegex = new Regex(@"<td.*?>(.*?)</td>", RegexOptions.Singleline);
-            var result = new List<KeyValuePair<string, string>>();
+            var result = new List<Tuple<string, string>>();
 
             foreach (var tr in trRegex.Matches(tableInnerHtml))
             {
                 var tds = tdRegex.Matches(tr.ToString());
                 if (tds.Count == 2)
                 {
-                    result.Add(new KeyValuePair<string, string>(tds[0].Groups[0].ToString(), tds[1].Groups[0].ToString()));
+                    var key = tds[0].Groups[1].ToString();
+                    var value = tds[1].Groups[1].ToString();
+                    result.Add(new Tuple<string, string>(key, value));
                 }
             }
 

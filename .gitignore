@@ -1,4 +1,5 @@
 M11/M11.Android/obj
+M11/M11.Android/bin
 M11/M11.iOS/obj
 M11/M11/bin
 M11/M11/obj
@@ -8,3 +9,4 @@ M11.Services/obj
 M11.Services/bin
 M11.Common/bin/Debug/netstandard2.0/M11.Common.deps.json
 .vs/
+packages

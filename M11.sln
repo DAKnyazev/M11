@@ -9,9 +9,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "M11.iOS", "M11\M11.iOS\M11.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "M11", "M11\M11\M11.csproj", "{4FC08968-A8FE-4D42-A4A2-A3E885B5DDF2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "M11.Services", "M11.Services\M11.Services.csproj", "{5F3324B6-C6DD-4C14-9958-95984E192D7C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "M11.Services", "M11.Services\M11.Services.csproj", "{5F3324B6-C6DD-4C14-9958-95984E192D7C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "M11.Common", "M11.Common\M11.Common.csproj", "{1FA68791-26B0-440A-A0A1-191317DF32F7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "M11.Common", "M11.Common\M11.Common.csproj", "{1FA68791-26B0-440A-A0A1-191317DF32F7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -17,17 +17,20 @@ namespace M11
 	        InitializeComponent();
             _loginLabel = new Label
             {
-                Text = "Логин"
+                Text = "Логин",
+                FontSize = 28
             };
-            _loginEntry = new Entry { Keyboard = Keyboard.Telephone, Text = "" };
+            _loginEntry = new Entry { Keyboard = Keyboard.Telephone, Text = "", FontSize = 28 };
             _passwordLabel = new Label
             {
-                Text = "Пароль"
+                Text = "Пароль",
+                FontSize = 28
             };
-            _passwordEntry = new Entry { Text = "", IsPassword = true };
+            _passwordEntry = new Entry { Text = "", IsPassword = true, FontSize = 28 };
             _entryButton = new Button
             {
-                Text = "Войти"
+                Text = "Войти",
+                FontSize = 28
             };
             _entryButton.Clicked += EntryButton_OnClicked;
 
@@ -61,7 +64,11 @@ namespace M11
 
                 return;
             }
-            var info = new AuthService().GetParticipantInfo(_loginEntry.Text, _passwordEntry.Text);
+            var info = await new AuthService().GetParticipantInfo(_loginEntry.Text, _passwordEntry.Text);
+            if (string.IsNullOrWhiteSpace(info.ContractNumber))
+            {
+                info.ContractNumber = "123";
+            }
             await Navigation.PushAsync(new InfoPage(info));
         }
     }
