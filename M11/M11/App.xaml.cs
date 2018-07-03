@@ -1,10 +1,11 @@
 using System.Threading.Tasks;
 using M11.Common.Models;
 using M11.Services;
+using Plugin.SecureStorage;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
-[assembly: XamlCompilation (XamlCompilationOptions.Compile)]
+[assembly: XamlCompilation (XamlCompilationOptions.Skip)]
 namespace M11
 {
 	public partial class App : Application
@@ -21,22 +22,24 @@ namespace M11
         public App()
 		{
 			InitializeComponent();
-		    Credentials.Login = App.Current.Properties.ContainsKey("Login") ? App.Current.Properties["Login"].ToString() : string.Empty;
-		    Credentials.Password = App.Current.Properties.ContainsKey("Password") ? App.Current.Properties["Password"].ToString() : string.Empty;
-		    if (string.IsNullOrWhiteSpace(Credentials.Login) || string.IsNullOrWhiteSpace(Credentials.Password))
+            
+		    Credentials.Login = CrossSecureStorage.Current.HasKey("Login") ? CrossSecureStorage.Current.GetValue("Login") : string.Empty;
+		    Credentials.Password = CrossSecureStorage.Current.HasKey("Password") ? CrossSecureStorage.Current.GetValue("Password") : string.Empty;
+		    if (!string.IsNullOrWhiteSpace(Credentials.Login) 
+		        && !string.IsNullOrWhiteSpace(Credentials.Password))
 		    {
-		        MainPage = new NavigationPage(new AuthPage());
+		        MainPage = new NavigationPage(new MainPage());
             }
 		    else
 		    {
-		        MainPage = new NavigationPage(new MainPage());
+		        MainPage = new NavigationPage(new AuthPage());
             }
 		}
 
 		protected override void OnStart()
 		{
-			// Handle when your app starts
-		}
+		    // Handle when your app starts
+        }
 
 		protected override void OnSleep()
 		{
@@ -48,13 +51,20 @@ namespace M11
 			// Handle when your app resumes
 		}
 
+	    public static async Task<bool> TryGetInfo()
+	    {
+	        return await TryGetInfo(Credentials.Login, Credentials.Password);
+	    }
+
 	    public static async Task<bool> TryGetInfo(string login, string password)
 	    {
 	        var info = await new AuthService().GetParticipantInfo(login, password);
 	        if (!string.IsNullOrWhiteSpace(info.ContractNumber))
 	        {
 	            Info = info;
-	            Credentials.Login = login;
+	            CrossSecureStorage.Current.SetValue("Login", login);
+	            CrossSecureStorage.Current.SetValue("Password", password);
+                Credentials.Login = login;
 	            Credentials.Password = password;
 
 	            return true;
@@ -62,5 +72,5 @@ namespace M11
 
 	        return false;
 	    }
-	}
+    }
 }
