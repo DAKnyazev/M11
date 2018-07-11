@@ -22,7 +22,7 @@ namespace M11
         public App()
 		{
 			InitializeComponent();
-            
+
 		    Credentials.Login = CrossSecureStorage.Current.HasKey("Login") ? CrossSecureStorage.Current.GetValue("Login") : string.Empty;
 		    Credentials.Password = CrossSecureStorage.Current.HasKey("Password") ? CrossSecureStorage.Current.GetValue("Password") : string.Empty;
 		    if (!string.IsNullOrWhiteSpace(Credentials.Login) 

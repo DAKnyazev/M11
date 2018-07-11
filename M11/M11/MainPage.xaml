@@ -1,42 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="M11.MainPage">
-    <StackLayout>
-        <StackLayout Orientation="Horizontal" VerticalOptions="Start">
-            <Label Text="Общее" FontSize="20"/>
-        </StackLayout>
-        <StackLayout VerticalOptions="CenterAndExpand">
-            <Label Text="Номер договора" FontSize="20"/>
-            <Label x:Name="ContractNumberLabel" FontSize="20"/>
-            <Label Text="Статус" FontSize="20"/>
-            <Label x:Name="StatusLabel" FontSize="20"/>
-            <Label Text="Баланс" FontSize="20"/>
-            <Label x:Name="BalanceLabel" FontSize="20"/>
-        </StackLayout>
-        <StackLayout Orientation="Horizontal" VerticalOptions="End" BackgroundColor="LightGray" HorizontalOptions="CenterAndExpand" HeightRequest="50">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="64"/>
-                    <ColumnDefinition Width="64"/>
-                    <ColumnDefinition Width="64"/>
-                    <ColumnDefinition Width="64"/>
-                </Grid.ColumnDefinitions>
-                <Image Source="home.png" HorizontalOptions="CenterAndExpand" Grid.Column="0" Grid.Row="0" HeightRequest="30"/>
-                <Label Text="Главная" Grid.Column="0" Grid.Row="0" VerticalOptions="EndAndExpand" HorizontalOptions="CenterAndExpand"/>
-
-                <Image Source="statistic.png" HorizontalOptions="CenterAndExpand" Grid.Column="1" Grid.Row="0" HeightRequest="30" Opacity="0.30"/>
-                <Label Text="Траты" Grid.Column="1" Grid.Row="0" VerticalOptions="EndAndExpand" HorizontalOptions="CenterAndExpand" IsVisible="False"/>
-
-                <Image Source="pay.png" HorizontalOptions="CenterAndExpand" Grid.Column="2" Grid.Row="0" HeightRequest="30" Opacity="0.30"/>
-                <Label Text="Пополнение" Grid.Column="2" Grid.Row="0" VerticalOptions="EndAndExpand" HorizontalOptions="CenterAndExpand" IsVisible="False"/>
-
-                <Image Source="settings.png" HorizontalOptions="CenterAndExpand" Grid.Column="3" Grid.Row="0" HeightRequest="30" Opacity="0.30"/>
-                <Label Text="Настройки" Grid.Column="3" Grid.Row="0" VerticalOptions="EndAndExpand" HorizontalOptions="CenterAndExpand" IsVisible="False"/>
-            </Grid>
-        </StackLayout>
+             x:Class="M11.MainPage"
+             ControlTemplate="{StaticResource MainPageTemplate}">
+    <StackLayout VerticalOptions="CenterAndExpand">
+        <Label Text="Номер договора" FontSize="20"/>
+        <Label x:Name="ContractNumberLabel" FontSize="20"/>
+        <Label Text="Статус" FontSize="20"/>
+        <Label x:Name="StatusLabel" FontSize="20"/>
+        <Label Text="Баланс" FontSize="20"/>
+        <Label x:Name="BalanceLabel" FontSize="20"/>
     </StackLayout>
 </ContentPage>
