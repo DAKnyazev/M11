@@ -12,19 +12,35 @@ namespace M11
 	{
         public static Credentials Credentials { get; set; }
         public static Info Info { get; set; }
+        public static bool IsMainPageVisible { get; set; }
+        public static bool IsStatisticPageVisible { get; set; }
+        public static bool IsPaymentPageVisible { get; set; }
+        public static bool IsSettingsPageVisible { get; set; }
 
-	    static App()
+        static App()
 	    {
 	        Credentials = new Credentials();
 	        Info = new Info();
+	        IsMainPageVisible = true;
+	        IsStatisticPageVisible = false;
+	        IsPaymentPageVisible = false;
+	        IsSettingsPageVisible = false;
         }
 
         public App()
 		{
 			InitializeComponent();
-
-		    Credentials.Login = CrossSecureStorage.Current.HasKey("Login") ? CrossSecureStorage.Current.GetValue("Login") : string.Empty;
-		    Credentials.Password = CrossSecureStorage.Current.HasKey("Password") ? CrossSecureStorage.Current.GetValue("Password") : string.Empty;
+            try
+		    {
+		        Credentials.Login = CrossSecureStorage.Current.HasKey("Login") ? CrossSecureStorage.Current.GetValue("Login") : string.Empty;
+		        Credentials.Password = CrossSecureStorage.Current.HasKey("Password") ? CrossSecureStorage.Current.GetValue("Password") : string.Empty;
+            }
+		    catch
+		    {
+		        Credentials.Login = string.Empty;
+		        Credentials.Password = string.Empty;
+		    }
+		    
 		    if (!string.IsNullOrWhiteSpace(Credentials.Login) 
 		        && !string.IsNullOrWhiteSpace(Credentials.Password))
 		    {

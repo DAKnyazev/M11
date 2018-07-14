@@ -13,7 +13,7 @@
             <ColumnDefinition/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <Label x:Name="LoginLabel" Text="Логин" Grid.Row="0" Grid.Column="0"/>
+        <Label x:Name="LoginLabel" Text="Логин" Grid.Row="0" Grid.Column="0" FontSize="28"/>
         <Entry x:Name="LoginEntry" Text="" Grid.Row="0" Grid.Column="1" Keyboard="Keyboard.Telephone" FontSize="28"/>
         <Label x:Name="PasswordLabel" Text="Пароль" FontSize="28" Grid.Row="1" Grid.Column="0"/>
         <Entry x:Name="PasswordEntry" Text="" IsPassword="True" FontSize="28" Grid.Row="1" Grid.Column="1"/>
