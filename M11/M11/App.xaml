@@ -6,55 +6,62 @@
 	<Application.Resources>
 	    <ResourceDictionary>
             <ControlTemplate x:Key="MainPageTemplate">
-                <StackLayout VerticalOptions="EndAndExpand" BackgroundColor="Khaki">
+                <StackLayout VerticalOptions="FillAndExpand">
                     <StackLayout Orientation="Horizontal" VerticalOptions="Start">
-                        <Label Text="Общее" FontSize="20"/>
+                        <ContentPresenter />
                     </StackLayout>
-                    <ContentPresenter />
-                    <StackLayout Orientation="Horizontal" VerticalOptions="End" BackgroundColor="LightGray" HorizontalOptions="Fill">
-                        <StackLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="60"/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Image Source="home.png" HorizontalOptions="CenterAndExpand" Grid.Column="0" Grid.Row="0" HeightRequest="30"/>
-                                <Label Text="Главная" 
-                                       Grid.Column="0" 
-                                       Grid.Row="0" 
-                                       VerticalOptions="EndAndExpand" 
-                                       HorizontalOptions="CenterAndExpand" 
-                                       IsVisible="{Binding Source={x:Static local:App.IsMainPageVisible}}" />
+                    <StackLayout VerticalOptions="EndAndExpand">
+                        <StackLayout Orientation="Horizontal" VerticalOptions="End" BackgroundColor="LightGray" HorizontalOptions="Fill">
+                            <StackLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="60"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
 
-                                <Image Source="statistic.png" HorizontalOptions="CenterAndExpand" Grid.Column="1" Grid.Row="0" HeightRequest="30" Opacity="0.30"/>
-                                <Label Text="Траты" 
+                                    <Image Source="home.png" HorizontalOptions="CenterAndExpand" Grid.Column="0" Grid.Row="0" HeightRequest="30"/>
+                                    <Label Text="Главная" 
+                                        Grid.Column="0" 
+                                        Grid.Row="0" 
+                                        VerticalOptions="EndAndExpand"
+                                        HorizontalOptions="CenterAndExpand" 
+                                        IsVisible="{Binding Source={x:Static local:App.IsMainPageVisible}}" />
+                                    <Button Grid.Column="0" Grid.Row="0" BackgroundColor="Transparent" TextColor="Transparent" Clicked="MainButton_OnClicked"/>
+
+
+                                    <Image Source="statistic.png" HorizontalOptions="CenterAndExpand" Grid.Column="1" Grid.Row="0" HeightRequest="30" Opacity="0.30"/>
+                                    <Label Text="Траты" 
                                        Grid.Column="1" 
                                        Grid.Row="0" 
                                        VerticalOptions="EndAndExpand" 
                                        HorizontalOptions="CenterAndExpand" 
                                        IsVisible="{Binding Source={x:Static local:App.IsStatisticPageVisible}}"/>
+                                    <Button Grid.Column="1" Grid.Row="0" BackgroundColor="Transparent" TextColor="Transparent" Clicked="StatisticButton_OnClicked"/>
 
-                                <Image Source="pay.png" HorizontalOptions="CenterAndExpand" Grid.Column="2" Grid.Row="0" HeightRequest="30" Opacity="0.30"/>
-                                <Label Text="Пополнение" 
+                                    <Image Source="pay.png" HorizontalOptions="CenterAndExpand" Grid.Column="2" Grid.Row="0" HeightRequest="30" Opacity="0.30"/>
+                                    <Label Text="Пополнение" 
                                        Grid.Column="2" 
                                        Grid.Row="0" 
                                        VerticalOptions="EndAndExpand" 
                                        HorizontalOptions="CenterAndExpand" 
                                        IsVisible="{Binding Source={x:Static local:App.IsPaymentPageVisible}}"/>
+                                    <Button Grid.Column="2" Grid.Row="0" BackgroundColor="Transparent" TextColor="Transparent" Clicked="PaymentButton_OnClicked"/>
 
-                                <Image Source="settings.png" HorizontalOptions="CenterAndExpand" Grid.Column="3" Grid.Row="0" HeightRequest="30" Opacity="0.30"/>
-                                <Label Text="Настройки" 
+                                    <Image Source="settings.png" HorizontalOptions="CenterAndExpand" Grid.Column="3" Grid.Row="0" HeightRequest="30" Opacity="0.30"/>
+                                    <Label Text="Настройки" 
                                        Grid.Column="3" 
                                        Grid.Row="0" 
                                        VerticalOptions="EndAndExpand" 
                                        HorizontalOptions="CenterAndExpand" 
                                        IsVisible="{Binding Source={x:Static local:App.IsSettingsPageVisible}}"/>
-                            </Grid>
+                                    <Button Grid.Column="3" Grid.Row="0" BackgroundColor="Transparent" TextColor="Transparent" Clicked="SettingsButton_OnClicked"/>
+                                </Grid>
+                            </StackLayout>
                         </StackLayout>
                     </StackLayout>
                 </StackLayout>

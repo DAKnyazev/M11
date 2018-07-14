@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using M11.Common.Models;
 using M11.Services;
@@ -88,5 +89,37 @@ namespace M11
 
 	        return false;
 	    }
-    }
+
+	    private void MainButton_OnClicked(object sender, EventArgs e)
+	    {
+	        ClearMenu();
+	        IsMainPageVisible = true;
+	    }
+
+	    private void StatisticButton_OnClicked(object sender, EventArgs e)
+	    {
+	        ClearMenu();
+	        IsStatisticPageVisible = true;
+	    }
+
+	    private void PaymentButton_OnClicked(object sender, EventArgs e)
+	    {
+	        ClearMenu();
+	        IsPaymentPageVisible = true;
+	    }
+
+	    private void SettingsButton_OnClicked(object sender, EventArgs e)
+	    {
+	        ClearMenu();
+	        IsSettingsPageVisible = true;
+	    }
+
+	    private static void ClearMenu()
+	    {
+	        IsMainPageVisible = false;
+	        IsStatisticPageVisible = false;
+	        IsPaymentPageVisible = false;
+	        IsSettingsPageVisible = false;
+	    }
+	}
 }
