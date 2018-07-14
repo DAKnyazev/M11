@@ -13,10 +13,10 @@ namespace M11
 	{
         public static Credentials Credentials { get; set; }
         public static Info Info { get; set; }
-        public static bool IsMainPageVisible { get; set; }
-        public static bool IsStatisticPageVisible { get; set; }
-        public static bool IsPaymentPageVisible { get; set; }
-        public static bool IsSettingsPageVisible { get; set; }
+        private static bool IsMainPageVisible { get; set; }
+	    private static bool IsStatisticPageVisible { get; set; }
+	    private static bool IsPaymentPageVisible { get; set; }
+	    private static bool IsSettingsPageVisible { get; set; }
 
         static App()
 	    {
@@ -94,25 +94,29 @@ namespace M11
 	    {
 	        ClearMenu();
 	        IsMainPageVisible = true;
-	    }
+	        MainPage = new NavigationPage(new MainPage());
+        }
 
 	    private void StatisticButton_OnClicked(object sender, EventArgs e)
 	    {
 	        ClearMenu();
 	        IsStatisticPageVisible = true;
+	        MainPage = new NavigationPage(new StatisticPage());
 	    }
 
 	    private void PaymentButton_OnClicked(object sender, EventArgs e)
 	    {
 	        ClearMenu();
 	        IsPaymentPageVisible = true;
+	        MainPage = new NavigationPage(new PaymentPage());
 	    }
 
 	    private void SettingsButton_OnClicked(object sender, EventArgs e)
 	    {
 	        ClearMenu();
 	        IsSettingsPageVisible = true;
-	    }
+	        MainPage = new NavigationPage(new SettingsPage());
+        }
 
 	    private static void ClearMenu()
 	    {
