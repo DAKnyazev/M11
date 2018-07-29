@@ -8,6 +8,16 @@ namespace M11.Common.Models
     /// </summary>
     public class Info
     {
+        public Info()
+        {
+            Tickets = new List<Ticket>();
+        }
+
+        /// <summary>
+        /// Дата запроса информации (для опеределения свежести данных)
+        /// </summary>
+        public DateTime RequestDate { get; set; }
+
         /// <summary>
         /// Номер договора
         /// </summary>

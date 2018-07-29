@@ -2,8 +2,8 @@
 
 namespace M11
 {
-	public partial class StatisticPage : ContentPage
-	{
+	public partial class StatisticPage : BaseContentPage
+    {
 		public StatisticPage()
 		{
 			InitializeComponent();

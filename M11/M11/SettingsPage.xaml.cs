@@ -1,20 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
 namespace M11
 {
 	[XamlCompilation(XamlCompilationOptions.Compile)]
-	public partial class SettingsPage : ContentPage
-	{
+	public partial class SettingsPage : BaseContentPage
+    {
 		public SettingsPage ()
 		{
 			InitializeComponent ();
 		}
-	}
+
+        private async void Button_OnClicked(object sender, EventArgs e)
+        {
+            App.Exit();
+            await Navigation.PushAsync(new AuthPage());
+        }
+    }
 }

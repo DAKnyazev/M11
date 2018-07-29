@@ -11,16 +11,20 @@ namespace M11
 {
 	public partial class App : Application
 	{
+	    private const string LoginKeyName = "Login";
+	    private const string PasswordKeyName = "Password";
+	    public static int CachingTimeInMinutes { get; set; }
         public static Credentials Credentials { get; set; }
         public static Info Info { get; set; }
         private static bool IsMainPageVisible { get; set; }
 	    private static bool IsStatisticPageVisible { get; set; }
 	    private static bool IsPaymentPageVisible { get; set; }
 	    private static bool IsSettingsPageVisible { get; set; }
-
+        
         static App()
-	    {
-	        Credentials = new Credentials();
+        {
+            CachingTimeInMinutes = 3;
+            Credentials = new Credentials();
 	        Info = new Info();
 	        IsMainPageVisible = true;
 	        IsStatisticPageVisible = false;
@@ -33,8 +37,8 @@ namespace M11
 			InitializeComponent();
             try
 		    {
-		        Credentials.Login = CrossSecureStorage.Current.HasKey("Login") ? CrossSecureStorage.Current.GetValue("Login") : string.Empty;
-		        Credentials.Password = CrossSecureStorage.Current.HasKey("Password") ? CrossSecureStorage.Current.GetValue("Password") : string.Empty;
+		        Credentials.Login = CrossSecureStorage.Current.HasKey(LoginKeyName) ? CrossSecureStorage.Current.GetValue(LoginKeyName) : string.Empty;
+		        Credentials.Password = CrossSecureStorage.Current.HasKey(PasswordKeyName) ? CrossSecureStorage.Current.GetValue(PasswordKeyName) : string.Empty;
             }
 		    catch
 		    {
@@ -68,6 +72,14 @@ namespace M11
 			// Handle when your app resumes
 		}
 
+	    public static void Exit()
+	    {
+	        CrossSecureStorage.Current.DeleteKey(LoginKeyName);
+	        CrossSecureStorage.Current.DeleteKey(PasswordKeyName);
+            Info = new Info();
+            Credentials = new Credentials();
+        }
+
 	    public static async Task<bool> TryGetInfo()
 	    {
 	        return await TryGetInfo(Credentials.Login, Credentials.Password);
@@ -75,11 +87,15 @@ namespace M11
 
 	    public static async Task<bool> TryGetInfo(string login, string password)
 	    {
+	        if (Info.RequestDate > DateTime.Now.AddMinutes(-CachingTimeInMinutes))
+	        {
+	            return true;
+	        }
 	        var info = await new InfoService().GetInfo(login, password);
 	        if (!string.IsNullOrWhiteSpace(info.ContractNumber))
 	        {
 	            Info = info;
-	            CrossSecureStorage.Current.SetValue("Login", login);
+	            CrossSecureStorage.Current.SetValue(LoginKeyName, login);
 	            CrossSecureStorage.Current.SetValue("Password", password);
                 Credentials.Login = login;
 	            Credentials.Password = password;

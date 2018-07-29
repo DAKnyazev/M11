@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+<m11:BaseContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:m11="clr-namespace:M11;assembly=M11"
              x:Class="M11.SettingsPage"
              ControlTemplate="{StaticResource MainPageTemplate}">
     <StackLayout>
@@ -8,5 +9,6 @@
             VerticalOptions="CenterAndExpand" 
             HorizontalOptions="CenterAndExpand"
             FontSize="40"/>
+        <Button FontSize="40" Text="Выход" Clicked="Button_OnClicked"/>
     </StackLayout>
-</ContentPage>
+</m11:BaseContentPage>
