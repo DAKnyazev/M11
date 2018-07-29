@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Globalization;
+using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace M11
@@ -24,9 +25,10 @@ namespace M11
                 return;
             }
 
-	        ContractNumberLabel.Text = App.Info.ContractNumber;
-	        BalanceLabel.Text = App.Info.Balance;
-	        StatusLabel.Text = App.Info.Status;
+	        //ContractNumberLabel.Text = App.Info.ContractNumber;
+	        BalanceLabel.FormattedText.Spans[0].Text = App.Info.Balance;
+            BalanceLabel.FormattedText.Spans[1].Text = " Р";
+	        //StatusLabel.Text = App.Info.Status;
 	    }
     }
 }

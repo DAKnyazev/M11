@@ -7,9 +7,9 @@
 	    <ResourceDictionary>
             <ControlTemplate x:Key="MainPageTemplate">
                 <StackLayout VerticalOptions="FillAndExpand">
-                    <StackLayout Orientation="Horizontal" VerticalOptions="Start">
+                    <FlexLayout VerticalOptions="StartAndExpand" BackgroundColor="DarkSalmon" Direction="Column">
                         <ContentPresenter />
-                    </StackLayout>
+                    </FlexLayout>
                     <StackLayout VerticalOptions="EndAndExpand">
                         <StackLayout Orientation="Horizontal" VerticalOptions="End" BackgroundColor="LightGray" HorizontalOptions="Fill">
                             <StackLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">

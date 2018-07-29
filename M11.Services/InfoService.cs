@@ -4,11 +4,12 @@ using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using HtmlAgilityPack;
 using M11.Common.Models;
 
 namespace M11.Services
 {
-    public class AuthService
+    public class InfoService
     {
         private string _baseUrl = "https://private.15-58m11.ru";
         private string _authPath = "onyma/";
@@ -17,7 +18,13 @@ namespace M11.Services
         private string _submitParameterName = "submit";
         private string _submitParameterValue = "Вход";
 
-        public async Task<Info> GetParticipantInfo(string login, string password)
+        /// <summary>
+        /// Получение информации о договоре клиента
+        /// </summary>
+        /// <param name="login">Логин</param>
+        /// <param name="password">Пароль</param>
+        /// <returns></returns>
+        public async Task<Info> GetInfo(string login, string password)
         {
             try
             {
@@ -36,24 +43,32 @@ namespace M11.Services
                 {
                     return new Info();
                 }
-                var table = GetTagValue(stringContent, "<table class=\"infoblock fullwidth\">", "</table>");
-                var values = GetInfoValus(table);
-                if (values == null)
-                {
-                    return new Info();
-                }
+
+                var commonTable = GetTagValue(stringContent, "<table class=\"infoblock fullwidth\">", "</table>");
+                var commonInfoDocument = new HtmlDocument();
+                commonInfoDocument.LoadHtml(commonTable);
+                var ticketsSpan = GetTagValue(stringContent, "<span style=\"\" class=\"w-html-ro\">", "</span>")
+                    ?.Replace("&nbsp;", string.Empty);
+                var ticketsDocument = new HtmlDocument();
+                ticketsDocument.LoadHtml(ticketsSpan);
 
                 return new Info
                 {
-                    ContractNumber = values.Any(x => x.Item1 == "Договор") ? values.First(x => x.Item1 == "Договор").Item2 : string.Empty,
-                    Status = values.Any(x => x.Item1 == "Статус") ? values.First(x => x.Item1 == "Статус").Item2 : string.Empty,
-                    Balance = values.Any(x => x.Item1 == "Баланс") ? values.First(x => x.Item1 == "Баланс").Item2 : string.Empty
+                    ContractNumber =
+                        commonInfoDocument.DocumentNode.SelectSingleNode(@"//tr[1]//td[2]//text()").InnerText,
+                    Status = commonInfoDocument.DocumentNode.SelectSingleNode(@"//tr[2]//td[2]//text()").InnerText,
+                    Balance = commonInfoDocument.DocumentNode.SelectSingleNode(@"//tr[3]//td[2]//text()").InnerText,
+                    Tickets = GetTickets(ticketsDocument)
                 };
             }
-            catch (Exception e)
+            catch (HttpRequestException)
             {
-                var message = e.Message;
                 throw;
+            }
+            catch
+            {
+                // Скорее всего какая-то ошибка парсинга
+                return new Info();
             }
         }
 
@@ -62,33 +77,18 @@ namespace M11.Services
             var startIndex = content.IndexOf(startingTag, StringComparison.InvariantCultureIgnoreCase);
             if (startIndex > 0)
             {
-                startIndex += startingTag.Length;
+                //startIndex += startingTag.Length;
                 var endIndex = content.IndexOf(endingTag, startIndex, StringComparison.InvariantCultureIgnoreCase);
 
-                return content.Substring(startIndex, endIndex - startIndex);
+                return content.Substring(startIndex, endIndex - startIndex + endingTag.Length);
             }
 
             return string.Empty;
         }
 
-        private static IList<Tuple<string, string>> GetInfoValus(string tableInnerHtml)
+        private static List<Ticket> GetTickets(HtmlDocument span)
         {
-            var trRegex = new Regex(@"<tr.*?>(.*?)</tr>", RegexOptions.Singleline);
-            var tdRegex = new Regex(@"<td.*?>(.*?)</td>", RegexOptions.Singleline);
-            var result = new List<Tuple<string, string>>();
-
-            foreach (var tr in trRegex.Matches(tableInnerHtml))
-            {
-                var tds = tdRegex.Matches(tr.ToString());
-                if (tds.Count == 2)
-                {
-                    var key = tds[0].Groups[1].ToString();
-                    var value = tds[1].Groups[1].ToString();
-                    result.Add(new Tuple<string, string>(key, value));
-                }
-            }
-
-            return result;
+            return new List<Ticket>();
         }
     }
 }

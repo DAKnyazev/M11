@@ -75,7 +75,7 @@ namespace M11
 
 	    public static async Task<bool> TryGetInfo(string login, string password)
 	    {
-	        var info = await new AuthService().GetParticipantInfo(login, password);
+	        var info = await new InfoService().GetInfo(login, password);
 	        if (!string.IsNullOrWhiteSpace(info.ContractNumber))
 	        {
 	            Info = info;
