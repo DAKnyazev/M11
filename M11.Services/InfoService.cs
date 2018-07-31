@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using M11.Common.Enums;
 using M11.Common.Models;
 
 namespace M11.Services
@@ -52,6 +53,9 @@ namespace M11.Services
                     ?.Replace("&nbsp;", string.Empty);
                 var ticketsDocument = new HtmlDocument();
                 ticketsDocument.LoadHtml(ticketsSpan);
+                var linkTable = GetTagValue(stringContent, "<div class=\"tmenu\">", "</div>");
+                var linkDocument = new HtmlDocument();
+                linkDocument.LoadHtml(linkTable);
 
                 return new Info
                 {
@@ -60,7 +64,8 @@ namespace M11.Services
                         commonInfoDocument.DocumentNode.SelectSingleNode(@"//tr[1]//td[2]//text()").InnerText,
                     Status = commonInfoDocument.DocumentNode.SelectSingleNode(@"//tr[2]//td[2]//text()").InnerText,
                     Balance = commonInfoDocument.DocumentNode.SelectSingleNode(@"//tr[3]//td[2]//text()").InnerText,
-                    Tickets = GetTickets(ticketsDocument)
+                    Tickets = GetTickets(ticketsDocument),
+                    Links = GetLinks(linkDocument)
                 };
             }
             catch (HttpRequestException)
@@ -133,6 +138,36 @@ namespace M11.Services
             catch
             {
                 // Ну не смогли, так не смогли
+            }
+
+            return result;
+        }
+
+        private static List<Link> GetLinks(HtmlDocument table)
+        {
+            var result = new List<Link>();
+            try
+            {
+                var i = 0;
+                while (true)
+                {
+                    i++;
+                    if (string.IsNullOrWhiteSpace(table.DocumentNode.SelectSingleNode($"//tr[1]//td[{i}]//a[1]")
+                        .InnerText))
+                    {
+                        break;
+                    }
+
+                    result.Add(new Link
+                    {
+                        Type = (LinkType) i,
+                        RelativeUrl = table.DocumentNode.SelectSingleNode($"//tr[1]//td[{i}]//a[1]").Attributes["href"].Value
+                    });
+                }
+            }
+            catch
+            {
+
             }
 
             return result;

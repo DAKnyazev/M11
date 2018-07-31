@@ -42,5 +42,10 @@ namespace M11.Common.Models
         /// Абонементы
         /// </summary>
         public List<Ticket> Tickets { get; set; }
+
+        /// <summary>
+        /// Ссылки на основные страницы
+        /// </summary>
+        public List<Link> Links { get; set; }
     }
 }
