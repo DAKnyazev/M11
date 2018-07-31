@@ -102,6 +102,9 @@ namespace M11.Services
             return string.Empty;
         }
 
+        /// <summary>
+        /// Получить список абонементов
+        /// </summary>
         private static List<Ticket> GetTickets(HtmlDocument span)
         {
             var result = new List<Ticket>();
@@ -143,6 +146,9 @@ namespace M11.Services
             return result;
         }
 
+        /// <summary>
+        /// Получить список основных ссылок
+        /// </summary>
         private static List<Link> GetLinks(HtmlDocument table)
         {
             var result = new List<Link>();
