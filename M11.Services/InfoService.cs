@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using HtmlAgilityPack;
 using M11.Common.Enums;
 using M11.Common.Models;
+using RestSharp;
 
 namespace M11.Services
 {
@@ -30,16 +31,14 @@ namespace M11.Services
         {
             try
             {
-                var client = new HttpClient();
-                var formContent = new FormUrlEncodedContent(new[]
-                {
-                    new KeyValuePair<string, string>(_loginParameterName, login),
-                    new KeyValuePair<string, string>(_passwordParameterName, password),
-                    new KeyValuePair<string, string>(_submitParameterName, _submitParameterValue)
-                });
-                var response = await client.PostAsync($"{_baseUrl}/{_authPath}", formContent);
+                var client = new RestClient(_baseUrl);
+                var request = new RestRequest($"{_authPath}", Method.POST);
+                request.AddParameter(_loginParameterName, login);
+                request.AddParameter(_passwordParameterName, password);
+                request.AddParameter(_submitParameterName, _submitParameterValue);
+                var response = client.Execute(request);
 
-                var stringContent = await response.Content.ReadAsStringAsync();
+                var stringContent = response.Content;
 
                 if (string.IsNullOrEmpty(stringContent))
                 {

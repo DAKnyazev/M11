@@ -10,3 +10,5 @@ M11.Services/bin
 M11.Common/bin/Debug/netstandard2.0/M11.Common.deps.json
 .vs/
 packages
+M11.Tests/obj/
+M11.Tests/bin/
