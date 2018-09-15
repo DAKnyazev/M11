@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using M11.Common.Enums;
 using RestSharp;
 
 namespace M11.Common.Models
@@ -48,7 +49,7 @@ namespace M11.Common.Models
         /// <summary>
         /// Ссылки на основные страницы
         /// </summary>
-        public List<Link> Links { get; set; }
+        public List<Link<LinkType>> Links { get; set; }
 
         /// <summary>
         /// Куки, которые нужно использовать при запросах без логина/пароля

@@ -5,12 +5,12 @@ namespace M11.Common.Models
     /// <summary>
     /// Информация о ссылке
     /// </summary>
-    public class Link
+    public class Link<T> where T : System.Enum
     {
         /// <summary>
         /// Тип ссылки
         /// </summary>
-        public LinkType Type { get; set; }
+        public T Type { get; set; }
 
         /// <summary>
         /// Относительный путь

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using M11.Common.Enums;
@@ -84,7 +85,7 @@ namespace M11.Services
                     Status = commonInfoDocument.DocumentNode.SelectSingleNode(@"//tr[2]//td[2]//text()").InnerText,
                     Balance = commonInfoDocument.DocumentNode.SelectSingleNode(@"//tr[3]//td[2]//text()").InnerText,
                     Tickets = GetTickets(ticketsDocument),
-                    Links = GetLinks(linkDocument),
+                    Links = GetLinks<LinkType>(linkDocument, "//tr[1]//td[{0}]//a[1]"),
                     CookieContainer = cookieContainer
                 };
             }
@@ -116,6 +117,11 @@ namespace M11.Services
             var ilinkId = GetParamValue(path, _ilinkIdParamName);
             var accountRequest = new RestRequest($"{_accountDetailsPath}{dataObjectId}/?__ilink_id__={ilinkId}&__parent_obj__={partyId}&_party_id={partyId}&simple=1", Method.GET);
             var accountResponse = client.Execute(accountRequest);
+            var accountLinksDiv = GetTagValue(accountResponse.Content, "<div class=\\\"links\\\">", "</div>");
+            accountLinksDiv = Regex.Replace(accountLinksDiv, @"\t|\n|\r|\\", "");
+            var accountLinksDivHtml = new HtmlDocument();
+            accountLinksDivHtml.LoadHtml(accountLinksDiv);
+            var accountLinks = GetLinks<AccountLinkType>(accountLinksDivHtml, "/div[1]/ul[1]/li[{0}]/a[1]");
         }
 
         private static string GetTagValue(string content, string startingTag, string endingTag, int index = 1)
@@ -210,25 +216,26 @@ namespace M11.Services
         /// <summary>
         /// Получить список основных ссылок
         /// </summary>
-        private static List<Link> GetLinks(HtmlDocument table)
+        private static List<Link<TLinkType>> GetLinks<TLinkType>(HtmlDocument table, string xpath) where TLinkType : System.Enum
         {
-            var result = new List<Link>();
+            var result = new List<Link<TLinkType>>();
             try
             {
                 var i = 0;
                 while (true)
                 {
                     i++;
-                    if (string.IsNullOrWhiteSpace(table.DocumentNode.SelectSingleNode($"//tr[1]//td[{i}]//a[1]")
+                    var nodeXpath = string.Format(xpath, i);
+                    if (string.IsNullOrWhiteSpace(table.DocumentNode.SelectSingleNode(nodeXpath)
                         .InnerText))
                     {
                         break;
                     }
 
-                    result.Add(new Link
+                    result.Add(new Link<TLinkType>
                     {
-                        Type = (LinkType) i,
-                        RelativeUrl = table.DocumentNode.SelectSingleNode($"//tr[1]//td[{i}]//a[1]").Attributes["href"].Value
+                        Type = (TLinkType) Enum.Parse(typeof(TLinkType), i.ToString(), true),
+                        RelativeUrl = table.DocumentNode.SelectSingleNode(nodeXpath).Attributes["href"].Value
                     });
                 }
             }
