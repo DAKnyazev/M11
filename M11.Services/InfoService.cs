@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
+using System.Net;
 using System.Net.Http;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using M11.Common.Enums;
@@ -14,12 +13,32 @@ namespace M11.Services
 {
     public class InfoService
     {
-        private string _baseUrl = "https://private.15-58m11.ru";
-        private string _authPath = "onyma/";
-        private string _loginParameterName = "login";
-        private string _passwordParameterName = "password";
-        private string _submitParameterName = "submit";
-        private string _submitParameterValue = "Вход";
+        private readonly string _baseUrl = "https://private.15-58m11.ru";
+        private readonly string _authPath = "onyma/";
+        private readonly string _accountDetailsPath = "onyma/lk/account/";
+        private readonly string _loginParameterName = "login";
+        private readonly string _passwordParameterName = "password";
+        private readonly string _submitParameterName = "submit";
+        private readonly string _submitParameterValue = "Вход";
+
+        private readonly string _dataTreeIdAttributeName = "data-tree-id=\"";
+        private readonly string _dataObjectIdAttributeName = "data-obj-id=\"";
+        private readonly string _partyIdParamName = "_party_id=";
+        private readonly string _ilinkIdParamName = "__ilink_id__=";
+
+        private readonly Dictionary<string, string> _rowIdEncodeDictionary = new Dictionary<string, string>
+        {
+            { "$", "$00" },
+            { "/", "$01" },
+            { "+", "$02" },
+            { "&", "$03" },
+            { ",", "$04" },
+            { ":", "$05" },
+            { ";", "$06" },
+            { "=", "$07" },
+            { "?", "$08" },
+            { "@", "$09" }
+        };
 
         /// <summary>
         /// Получение информации о договоре клиента
@@ -31,7 +50,8 @@ namespace M11.Services
         {
             try
             {
-                var client = new RestClient(_baseUrl);
+                var cookieContainer = new CookieContainer();
+                var client = new RestClient(_baseUrl) { CookieContainer = cookieContainer };
                 var request = new RestRequest($"{_authPath}", Method.POST);
                 request.AddParameter(_loginParameterName, login);
                 request.AddParameter(_passwordParameterName, password);
@@ -64,7 +84,8 @@ namespace M11.Services
                     Status = commonInfoDocument.DocumentNode.SelectSingleNode(@"//tr[2]//td[2]//text()").InnerText,
                     Balance = commonInfoDocument.DocumentNode.SelectSingleNode(@"//tr[3]//td[2]//text()").InnerText,
                     Tickets = GetTickets(ticketsDocument),
-                    Links = GetLinks(linkDocument)
+                    Links = GetLinks(linkDocument),
+                    CookieContainer = cookieContainer
                 };
             }
             catch (HttpRequestException)
@@ -76,6 +97,25 @@ namespace M11.Services
                 // Скорее всего какая-то ошибка парсинга
                 return new Info();
             }
+        }
+
+        /// <summary>
+        /// Получение данных со страницы "Лицевой счёт"
+        /// </summary>
+        /// <param name="path">относительный путь</param>
+        /// <param name="cookieContainer">Коллекция куки, которая нужна для запроса</param>
+        /// <returns></returns>
+        public async Task GetAccountInfo(string path, CookieContainer cookieContainer)
+        {
+            var client = new RestClient(_baseUrl) {CookieContainer = cookieContainer};
+            var request = new RestRequest($"{path}", Method.GET);
+            var response = client.Execute(request);
+            var dataTreeId = GetAttributeValue(response.Content, _dataTreeIdAttributeName);
+            var dataObjectId = GetAttributeValue(response.Content, _dataObjectIdAttributeName);
+            var partyId = GetParamValue(path, _partyIdParamName);
+            var ilinkId = GetParamValue(path, _ilinkIdParamName);
+            var accountRequest = new RestRequest($"{_accountDetailsPath}{dataObjectId}/?__ilink_id__={ilinkId}&__parent_obj__={partyId}&_party_id={partyId}&simple=1", Method.GET);
+            var accountResponse = client.Execute(accountRequest);
         }
 
         private static string GetTagValue(string content, string startingTag, string endingTag, int index = 1)
@@ -99,6 +139,28 @@ namespace M11.Services
             }
 
             return string.Empty;
+        }
+
+        private static string GetAttributeValue(string content, string attributeName)
+        {
+            var startIndex = content.IndexOf(attributeName, StringComparison.InvariantCultureIgnoreCase);
+            var tmp = content.Substring(startIndex + attributeName.Length);
+            var endIndex = tmp.IndexOf("\"", StringComparison.InvariantCulture);
+
+            return tmp.Substring(0, endIndex);
+        }
+
+        private static string GetParamValue(string path, string paramName)
+        {
+            var startIndex = path.IndexOf(paramName, StringComparison.InvariantCultureIgnoreCase);
+            var tmp = path.Substring(startIndex + paramName.Length);
+            var endIndex = tmp.IndexOf("&", StringComparison.InvariantCulture);
+            if (endIndex < 0)
+            {
+                return tmp;
+            }
+
+            return tmp.Substring(0, endIndex);
         }
 
         /// <summary>

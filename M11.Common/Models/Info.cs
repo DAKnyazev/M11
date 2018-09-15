@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
+using RestSharp;
 
 namespace M11.Common.Models
 {
@@ -47,5 +49,10 @@ namespace M11.Common.Models
         /// Ссылки на основные страницы
         /// </summary>
         public List<Link> Links { get; set; }
+
+        /// <summary>
+        /// Куки, которые нужно использовать при запросах без логина/пароля
+        /// </summary>
+        public CookieContainer CookieContainer { get; set; }
     }
 }
