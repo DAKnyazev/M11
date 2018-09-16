@@ -48,7 +48,6 @@ namespace M11.Services
         /// </summary>
         /// <param name="login">Логин</param>
         /// <param name="password">Пароль</param>
-        /// <returns></returns>
         public async Task<Info> GetInfo(string login, string password)
         {
             try
@@ -109,26 +108,29 @@ namespace M11.Services
         /// <param name="cookieContainer">Коллекция куки, которая нужна для запроса</param>
         /// <param name="start">Дата начала периода</param>
         /// <param name="end">Дата окончания периода</param>
-        /// <returns></returns>
-        public async Task GetAccountInfo(string path, CookieContainer cookieContainer, DateTime start, DateTime end)
+        public async Task<AccountInfo> GetAccountInfo(string path, CookieContainer cookieContainer, DateTime start, DateTime end)
         {
-            var client = new RestClient(_baseUrl) {CookieContainer = cookieContainer};
+            var result = new AccountInfo { RestClient = new RestClient(_baseUrl) {CookieContainer = cookieContainer} };
             var request = new RestRequest($"{path}", Method.GET);
-            var response = client.Execute(request);
-            var dataObjectId = EncodeRowId(GetAttributeValue(response.Content, _dataObjectIdAttributeName));
-            var partyId = GetParamValue(path, _partyIdParamName);
-            var ilinkId = GetParamValue(path, _ilinkIdParamName);
-            var accountRequest = new RestRequest($"{_accountDetailsPath}{dataObjectId}/?__ilink_id__={ilinkId}&__parent_obj__={partyId}&_party_id={partyId}&simple=1", Method.GET);
-            var accountResponse = client.Execute(accountRequest);
+            var response = result.RestClient.Execute(request);
+            result.DataObjectId = EncodeRowId(GetAttributeValue(response.Content, _dataObjectIdAttributeName));
+            result.PartyId = GetParamValue(path, _partyIdParamName);
+            result.IlinkId = GetParamValue(path, _ilinkIdParamName);
+            var accountRequest = new RestRequest(
+                $"{_accountDetailsPath}{result.DataObjectId}/?__ilink_id__={result.IlinkId}&__parent_obj__={result.PartyId}&_party_id={result.PartyId}&simple=1", 
+                Method.GET);
+            var accountResponse = result.RestClient.Execute(accountRequest);
             var accountLinksDiv = GetTagValue(accountResponse.Content, "<div class=\\\"links\\\">", "</div>");
             accountLinksDiv = Regex.Replace(accountLinksDiv, @"\t|\n|\r|\\", "");
             var accountLinksDivHtml = new HtmlDocument();
             accountLinksDivHtml.LoadHtml(accountLinksDiv);
             var accountLinks = GetLinks<AccountLinkType>(accountLinksDivHtml, "/div[1]/ul[1]/li[{0}]/a[1]");
-            var details = GetCommonDetails(client,
-                accountLinks.FirstOrDefault(x => x.Type == AccountLinkType.Account)?.RelativeUrl, 
+            result.BillSummaryList = GetCommonDetails(result.RestClient,
+                accountLinks.FirstOrDefault(x => x.Type == AccountLinkType.Account)?.RelativeUrl,
                 start,
                 end);
+
+            return result;
         }
 
         /// <summary>

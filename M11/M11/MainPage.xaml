@@ -15,9 +15,6 @@
             </Label.FormattedText>
         </Label>
         <StackLayout x:Name="TicketLayout" VerticalOptions="Fill" HorizontalOptions="Fill" BackgroundColor="Coral">
-            
-        </StackLayout>
-        <StackLayout x:Name="LinkLayout" VerticalOptions="Fill" HorizontalOptions="Fill" BackgroundColor="Coral">
 
         </StackLayout>
     </StackLayout>

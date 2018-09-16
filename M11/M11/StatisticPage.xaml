@@ -4,10 +4,6 @@
              xmlns:m11="clr-namespace:M11;assembly=M11"
              x:Class="M11.StatisticPage"
              ControlTemplate="{StaticResource MainPageTemplate}">
-    <StackLayout>
-        <Label Text="Статистика"
-            VerticalOptions="CenterAndExpand" 
-            HorizontalOptions="CenterAndExpand"
-            FontSize="40"/>
+    <StackLayout x:Name="StatisticLayout">
     </StackLayout>
 </m11:BaseContentPage>

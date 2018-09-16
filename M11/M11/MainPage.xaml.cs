@@ -68,15 +68,6 @@ namespace M11
                     }
                 });
             }
-
-	        foreach (var link in App.Info.Links)
-	        {
-	            LinkLayout.Children.Add(
-	                new Label
-	                {
-                        Text = link.Type + " " + link.RelativeUrl
-	                });
-	        }
         }
     }
 }
