@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
@@ -8,6 +9,8 @@ using System.Threading.Tasks;
 using HtmlAgilityPack;
 using M11.Common.Enums;
 using M11.Common.Models;
+using M11.Common.Models.BillSummary;
+using Newtonsoft.Json;
 using RestSharp;
 
 namespace M11.Services
@@ -22,12 +25,11 @@ namespace M11.Services
         private readonly string _submitParameterName = "submit";
         private readonly string _submitParameterValue = "Вход";
 
-        private readonly string _dataTreeIdAttributeName = "data-tree-id=\"";
         private readonly string _dataObjectIdAttributeName = "data-obj-id=\"";
         private readonly string _partyIdParamName = "_party_id=";
         private readonly string _ilinkIdParamName = "__ilink_id__=";
 
-        private readonly Dictionary<string, string> _rowIdEncodeDictionary = new Dictionary<string, string>
+        private static readonly Dictionary<string, string> RowIdEncodeDictionary = new Dictionary<string, string>
         {
             { "$", "$00" },
             { "/", "$01" },
@@ -105,14 +107,15 @@ namespace M11.Services
         /// </summary>
         /// <param name="path">относительный путь</param>
         /// <param name="cookieContainer">Коллекция куки, которая нужна для запроса</param>
+        /// <param name="start">Дата начала периода</param>
+        /// <param name="end">Дата окончания периода</param>
         /// <returns></returns>
-        public async Task GetAccountInfo(string path, CookieContainer cookieContainer)
+        public async Task GetAccountInfo(string path, CookieContainer cookieContainer, DateTime start, DateTime end)
         {
             var client = new RestClient(_baseUrl) {CookieContainer = cookieContainer};
             var request = new RestRequest($"{path}", Method.GET);
             var response = client.Execute(request);
-            var dataTreeId = GetAttributeValue(response.Content, _dataTreeIdAttributeName);
-            var dataObjectId = GetAttributeValue(response.Content, _dataObjectIdAttributeName);
+            var dataObjectId = EncodeRowId(GetAttributeValue(response.Content, _dataObjectIdAttributeName));
             var partyId = GetParamValue(path, _partyIdParamName);
             var ilinkId = GetParamValue(path, _ilinkIdParamName);
             var accountRequest = new RestRequest($"{_accountDetailsPath}{dataObjectId}/?__ilink_id__={ilinkId}&__parent_obj__={partyId}&_party_id={partyId}&simple=1", Method.GET);
@@ -122,8 +125,15 @@ namespace M11.Services
             var accountLinksDivHtml = new HtmlDocument();
             accountLinksDivHtml.LoadHtml(accountLinksDiv);
             var accountLinks = GetLinks<AccountLinkType>(accountLinksDivHtml, "/div[1]/ul[1]/li[{0}]/a[1]");
+            var details = GetCommonDetails(client,
+                accountLinks.FirstOrDefault(x => x.Type == AccountLinkType.Account)?.RelativeUrl, 
+                start,
+                end);
         }
 
+        /// <summary>
+        /// Получение содержимого тега
+        /// </summary>
         private static string GetTagValue(string content, string startingTag, string endingTag, int index = 1)
         {
             var startIndex = 0;
@@ -147,6 +157,9 @@ namespace M11.Services
             return string.Empty;
         }
 
+        /// <summary>
+        /// Получение значения аттрибута
+        /// </summary>
         private static string GetAttributeValue(string content, string attributeName)
         {
             var startIndex = content.IndexOf(attributeName, StringComparison.InvariantCultureIgnoreCase);
@@ -156,17 +169,29 @@ namespace M11.Services
             return tmp.Substring(0, endIndex);
         }
 
+        /// <summary>
+        /// Получение значения параметра из пути
+        /// </summary>
         private static string GetParamValue(string path, string paramName)
         {
             var startIndex = path.IndexOf(paramName, StringComparison.InvariantCultureIgnoreCase);
             var tmp = path.Substring(startIndex + paramName.Length);
             var endIndex = tmp.IndexOf("&", StringComparison.InvariantCulture);
-            if (endIndex < 0)
+
+            return endIndex < 0 ? tmp : tmp.Substring(0, endIndex);
+        }
+
+        /// <summary>
+        /// Закодировать идентификатор строки аккаунта
+        /// </summary>
+        private static string EncodeRowId(string rowId)
+        {
+            foreach (var item in RowIdEncodeDictionary)
             {
-                return tmp;
+                rowId = rowId.Replace(item.Key, item.Value);
             }
 
-            return tmp.Substring(0, endIndex);
+            return rowId;
         }
 
         /// <summary>
@@ -216,7 +241,7 @@ namespace M11.Services
         /// <summary>
         /// Получить список основных ссылок
         /// </summary>
-        private static List<Link<TLinkType>> GetLinks<TLinkType>(HtmlDocument table, string xpath) where TLinkType : System.Enum
+        private static List<Link<TLinkType>> GetLinks<TLinkType>(HtmlDocument table, string xpath) where TLinkType : Enum
         {
             var result = new List<Link<TLinkType>>();
             try
@@ -242,6 +267,57 @@ namespace M11.Services
             catch
             {
 
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private static List<MonthBillSummary> GetCommonDetails(RestClient client, string path, DateTime start, DateTime end)
+        {
+            var result = new List<MonthBillSummary>();
+            var request = new RestRequest(path + "&simple=1", Method.POST);
+            var param = JsonConvert.SerializeObject(new List<BillsSummaryParam> { new BillsSummaryParam(start, end) });
+            request.AddParameter("raw_state", param);
+            var response = client.Execute(request);
+            var content = Regex.Replace(response.Content, @"\t|\n|\r|\\", "");
+            var tbody = GetTagValue(content, "<tbody>", "</tbody>");
+            var document = new HtmlDocument();
+            document.LoadHtml(tbody);
+            try
+            {
+                var i = 0;
+                while (true)
+                {
+                    i++;
+                    if (string.IsNullOrWhiteSpace(document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[1]//text()").InnerText))
+                    {
+                        break;
+                    }
+
+                    decimal.TryParse(document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[2]//text()").InnerText.Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
+                        out var income);
+                    decimal.TryParse(document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[3]//text()").InnerText.Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
+                        out var spending);
+                    decimal.TryParse(document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[4]//text()").InnerText.Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
+                        out var startBalance);
+                    decimal.TryParse(document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[5]//text()").InnerText.Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
+                        out var endBalance);
+                    result.Add(new MonthBillSummary
+                    {
+                        Id = document.DocumentNode.SelectSingleNode($"//tr[{i}]").Attributes["data-obj-id"].Value,
+                        PeriodName = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[1]//text()").InnerText,
+                        Income = income,
+                        Spending = spending,
+                        StartBalance = startBalance,
+                        EndBalance = endBalance
+                    });
+                }
+            }
+            catch
+            {
             }
 
             return result;

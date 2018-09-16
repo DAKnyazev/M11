@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using M11.Common.Enums;
 using M11.Services;
@@ -17,7 +18,10 @@ namespace M11.Tests
         {
             var infoService = new InfoService();
             var info = await infoService.GetInfo(Login, Password);
-            await infoService.GetAccountInfo(info.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl, info.CookieContainer);
+            await infoService.GetAccountInfo(info.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl, 
+                info.CookieContainer, 
+                DateTime.Now, 
+                DateTime.Now.AddMonths(-5));
             Assert.IsFalse(string.IsNullOrWhiteSpace(info.ContractNumber));
         }
     }

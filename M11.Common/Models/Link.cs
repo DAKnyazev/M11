@@ -1,6 +1,4 @@
-﻿using M11.Common.Enums;
-
-namespace M11.Common.Models
+﻿namespace M11.Common.Models
 {
     /// <summary>
     /// Информация о ссылке
