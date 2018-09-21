@@ -4,18 +4,12 @@
              xmlns:m11="clr-namespace:M11;assembly=M11"
              x:Class="M11.MainPage"
              ControlTemplate="{StaticResource MainPageTemplate}">
-    <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
+    <StackLayout VerticalOptions="Center" HorizontalOptions="FillAndExpand" BackgroundColor="White">
+        <Label FontSize="55" />
         <Label FontSize="18" Text="Баланс:" HorizontalTextAlignment="Center"/>
-        <Label x:Name="BalanceLabel" FontSize="100" TextColor="Aquamarine" HorizontalTextAlignment="Center">
-            <Label.FormattedText>
-                <FormattedString>
-                    <Span />
-                    <Span />
-                </FormattedString>
-            </Label.FormattedText>
-        </Label>
-        <StackLayout x:Name="TicketLayout" VerticalOptions="Fill" HorizontalOptions="Fill" BackgroundColor="Coral">
-
+        <Label x:Name="BalanceLabel" FontSize="55" HorizontalTextAlignment="Center" />
+        <Label FontSize="18" Text="рублей" HorizontalTextAlignment="Center"/>
+        <StackLayout x:Name="TicketLayout">
         </StackLayout>
     </StackLayout>
 </m11:BaseContentPage>
