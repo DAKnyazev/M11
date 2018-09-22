@@ -30,20 +30,27 @@ namespace M11
 	        TicketLayout.Children.Clear();
 	        if (App.Info.Tickets.Any())
 	        {
-	            TicketLayout.Children.Add(new Label { Text = "Абонементы:", FontSize = 36 });
+	            TicketLayout.Children.Add(new Label { Text = "Абонементы:", FontSize = 36, HorizontalTextAlignment = TextAlignment.Center });
             }
+
+	        const int padding = 10;
 	        foreach (var ticket in App.Info.Tickets)
 	        {
 	            var layout = new RelativeLayout();
+	            layout.Children.Add(new BoxView { BackgroundColor = Color.FromHex("#F5F5DC") },
+	                Constraint.Constant(padding),
+	                Constraint.Constant(0),
+	                Constraint.RelativeToParent(parent => parent.Width - 2 * padding),
+	                Constraint.Constant(65));
 	            var ticketDescriptions = ticket.Description.Split(',');
                 layout.Children.Add(new Label
                     {
                         Text = ticketDescriptions.Length > 2 ? ticketDescriptions[2] : string.Empty,
                         FontSize = 24
                     },
-                    Constraint.RelativeToParent(parent => 0),
+                    Constraint.Constant(2 * padding),
                     null, 
-                    Constraint.RelativeToParent(parent => parent.Width),
+                    Constraint.RelativeToParent(parent => parent.Width - 4 * padding),
                     Constraint.Constant(36));
 	            var count = ticketDescriptions.Length > 0 ? Regex.Match(ticketDescriptions[0], @"\d+").Value : string.Empty;
 	            var remainingCountText = string.IsNullOrWhiteSpace(count)
@@ -51,20 +58,15 @@ namespace M11
 	                : $"осталось поездок: {ticket.RemainingTripsCount} (из {count})";
 
                 layout.Children.Add(new Label { Text = $"{ticket.Status}, {remainingCountText}" },
-	                Constraint.RelativeToParent(parent => 0),
+	                Constraint.Constant(2 * padding),
 	                Constraint.Constant(30),
-	                Constraint.RelativeToParent(parent => parent.Width),
+	                Constraint.RelativeToParent(parent => parent.Width - 4 * padding),
 	                Constraint.Constant(20));
                 layout.Children.Add(new Label { Text = $"Использовать до: {ticket.ExpiryDate:dd.MM.yyyy HH:mm}" },
-                    Constraint.RelativeToParent(parent => 0),
+                    Constraint.Constant(2 * padding),
                     Constraint.Constant(50),
-                    Constraint.RelativeToParent(parent => parent.Width),
+                    Constraint.RelativeToParent(parent => parent.Width - 4 * padding),
                     Constraint.Constant(20));
-                layout.Children.Add(new Label { BackgroundColor = Color.Black },
-                    Constraint.RelativeToParent(parent => 0),
-                    Constraint.Constant(70),
-                    Constraint.RelativeToParent(parent => parent.Width),
-                    Constraint.Constant(1));
                 
                 TicketLayout.Children.Add(layout);
 	        }

@@ -24,7 +24,12 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <Image Source="home.png" HorizontalOptions="CenterAndExpand" Grid.Column="0" Grid.Row="0" HeightRequest="30"/>
+                                    <Image Source="home.png" 
+                                           HorizontalOptions="CenterAndExpand" 
+                                           Grid.Column="0" 
+                                           Grid.Row="0" 
+                                           HeightRequest="30" 
+                                           Opacity="{Binding Source={x:Static local:App.MainPageLogoOpacity}}"/>
                                     <Label Text="Главная" 
                                         Grid.Column="0" 
                                         Grid.Row="0" 
@@ -34,7 +39,12 @@
                                     <Button Grid.Column="0" Grid.Row="0" BackgroundColor="Transparent" TextColor="Transparent" Clicked="MainButton_OnClicked"/>
 
 
-                                    <Image Source="statistic.png" HorizontalOptions="CenterAndExpand" Grid.Column="1" Grid.Row="0" HeightRequest="30" Opacity="0.30"/>
+                                    <Image Source="statistic.png" 
+                                           HorizontalOptions="CenterAndExpand"
+                                           Grid.Column="1" 
+                                           Grid.Row="0" 
+                                           HeightRequest="30" 
+                                           Opacity="{Binding Source={x:Static local:App.StatisticPageLogoOpacity}}"/>
                                     <Label Text="Траты" 
                                        Grid.Column="1" 
                                        Grid.Row="0" 
@@ -43,7 +53,12 @@
                                        IsVisible="{Binding Source={x:Static local:App.IsStatisticPageVisible}}"/>
                                     <Button Grid.Column="1" Grid.Row="0" BackgroundColor="Transparent" TextColor="Transparent" Clicked="StatisticButton_OnClicked"/>
 
-                                    <Image Source="pay.png" HorizontalOptions="CenterAndExpand" Grid.Column="2" Grid.Row="0" HeightRequest="30" Opacity="0.30"/>
+                                    <Image Source="pay.png" 
+                                           HorizontalOptions="CenterAndExpand" 
+                                           Grid.Column="2" 
+                                           Grid.Row="0" 
+                                           HeightRequest="30" 
+                                           Opacity="{Binding Source={x:Static local:App.PaymentPageLogoOpacity}}"/>
                                     <Label Text="Пополнение" 
                                        Grid.Column="2" 
                                        Grid.Row="0" 
@@ -52,7 +67,12 @@
                                        IsVisible="{Binding Source={x:Static local:App.IsPaymentPageVisible}}"/>
                                     <Button Grid.Column="2" Grid.Row="0" BackgroundColor="Transparent" TextColor="Transparent" Clicked="PaymentButton_OnClicked"/>
 
-                                    <Image Source="settings.png" HorizontalOptions="CenterAndExpand" Grid.Column="3" Grid.Row="0" HeightRequest="30" Opacity="0.30"/>
+                                    <Image Source="settings.png" 
+                                           HorizontalOptions="CenterAndExpand" 
+                                           Grid.Column="3" 
+                                           Grid.Row="0" 
+                                           HeightRequest="30" 
+                                           Opacity="{Binding Source={x:Static local:App.SettingsPageLogoOpacity}}"/>
                                     <Label Text="Настройки" 
                                        Grid.Column="3" 
                                        Grid.Row="0" 

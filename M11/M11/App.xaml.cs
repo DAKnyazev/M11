@@ -17,19 +17,22 @@ namespace M11
         public static Credentials Credentials { get; set; }
         public static Info Info { get; set; }
         private static bool IsMainPageVisible { get; set; }
-	    private static bool IsStatisticPageVisible { get; set; }
-	    private static bool IsPaymentPageVisible { get; set; }
-	    private static bool IsSettingsPageVisible { get; set; }
-        
+        private static float MainPageLogoOpacity { get; set; }
+        private static bool IsStatisticPageVisible { get; set; }
+	    private static float StatisticPageLogoOpacity { get; set; }
+        private static bool IsPaymentPageVisible { get; set; }
+        private static float PaymentPageLogoOpacity { get; set; }
+        private static bool IsSettingsPageVisible { get; set; }
+        private static float SettingsPageLogoOpacity { get; set; }
+
         static App()
         {
             CachingTimeInMinutes = 3;
             Credentials = new Credentials();
 	        Info = new Info();
-	        IsMainPageVisible = true;
-	        IsStatisticPageVisible = false;
-	        IsPaymentPageVisible = false;
-	        IsSettingsPageVisible = false;
+            ClearMenu();
+            IsMainPageVisible = true;
+            MainPageLogoOpacity = 1;
         }
 
         public App()
@@ -109,37 +112,45 @@ namespace M11
 	    private void MainButton_OnClicked(object sender, EventArgs e)
 	    {
 	        ClearMenu();
-	        IsMainPageVisible = true;
-	        MainPage = new NavigationPage(new MainPage());
+            IsMainPageVisible = true;
+	        MainPageLogoOpacity = 1;
+            MainPage = new NavigationPage(new MainPage());
         }
 
 	    private void StatisticButton_OnClicked(object sender, EventArgs e)
 	    {
 	        ClearMenu();
 	        IsStatisticPageVisible = true;
-	        MainPage = new NavigationPage(new StatisticPage());
+	        StatisticPageLogoOpacity = 1;
+            MainPage = new NavigationPage(new StatisticPage());
 	    }
 
 	    private void PaymentButton_OnClicked(object sender, EventArgs e)
 	    {
 	        ClearMenu();
 	        IsPaymentPageVisible = true;
-	        MainPage = new NavigationPage(new PaymentPage());
+	        PaymentPageLogoOpacity = 1;
+            MainPage = new NavigationPage(new PaymentPage());
 	    }
 
 	    private void SettingsButton_OnClicked(object sender, EventArgs e)
 	    {
 	        ClearMenu();
 	        IsSettingsPageVisible = true;
-	        MainPage = new NavigationPage(new SettingsPage());
+	        SettingsPageLogoOpacity = 1;
+            MainPage = new NavigationPage(new SettingsPage());
         }
 
 	    private static void ClearMenu()
 	    {
 	        IsMainPageVisible = false;
+	        MainPageLogoOpacity = 0.3f;
 	        IsStatisticPageVisible = false;
+	        StatisticPageLogoOpacity = 0.3f;
 	        IsPaymentPageVisible = false;
+	        PaymentPageLogoOpacity = 0.3f;
 	        IsSettingsPageVisible = false;
-	    }
+	        SettingsPageLogoOpacity = 0.3f;
+        }
 	}
 }

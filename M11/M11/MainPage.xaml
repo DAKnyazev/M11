@@ -7,7 +7,7 @@
     <StackLayout VerticalOptions="Center" HorizontalOptions="FillAndExpand" BackgroundColor="White">
         <Label FontSize="55" />
         <Label FontSize="18" Text="Баланс:" HorizontalTextAlignment="Center"/>
-        <Label x:Name="BalanceLabel" FontSize="55" HorizontalTextAlignment="Center" />
+        <Label x:Name="BalanceLabel" FontSize="55" FontFamily="Bold,700" HorizontalTextAlignment="Center" TextColor="#FFFFFF" BackgroundColor="#808080" />
         <Label FontSize="18" Text="рублей" HorizontalTextAlignment="Center"/>
         <StackLayout x:Name="TicketLayout">
         </StackLayout>
