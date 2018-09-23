@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
@@ -125,13 +127,39 @@ namespace M11.Services
             var accountLinksDivHtml = new HtmlDocument();
             accountLinksDivHtml.LoadHtml(accountLinksDiv);
             var accountLinks = GetLinks<AccountLinkType>(accountLinksDivHtml, "/div[1]/ul[1]/li[{0}]/a[1]");
-            result.BillSummaryList = GetCommonDetails(result.RestClient,
+            result.BillSummaryList = GetMonthlyStatistic(result.RestClient,
                 accountLinks.FirstOrDefault(x => x.Type == AccountLinkType.Account)?.RelativeUrl,
                 start,
                 end);
             result.RequestDate = DateTime.Now;
 
             return result;
+        }
+
+        /// <summary>
+        /// Получение содержимого платежной страницы
+        /// </summary>
+        /// <param name="accountId"></param>
+        /// <param name="amount"></param>
+        /// <param name="phone"></param>
+        /// <returns></returns>
+        public async Task<string> GetPaymentPageContent(string accountId, int amount, string phone)
+        {
+            string result;
+            var assembly = Assembly.LoadFrom("M11.dll");
+            using (var stream = assembly.GetManifestResourceStream("M11.Resources.PaymentPage.html"))
+            {
+                if (stream == null)
+                {
+                    return string.Empty;
+                }
+                using (var reader = new StreamReader(stream))
+                {
+                    result = reader.ReadToEnd();
+                }
+            }
+
+            return string.Format(result, accountId, amount, phone);
         }
 
         /// <summary>
@@ -276,9 +304,9 @@ namespace M11.Services
         }
 
         /// <summary>
-        /// 
+        /// Получение статистики расходов по месяцам
         /// </summary>
-        private static List<MonthBillSummary> GetCommonDetails(RestClient client, string path, DateTime start, DateTime end)
+        private static List<MonthBillSummary> GetMonthlyStatistic(RestClient client, string path, DateTime start, DateTime end)
         {
             var result = new List<MonthBillSummary>();
             var request = new RestRequest(path + "&simple=1", Method.POST);
@@ -325,5 +353,6 @@ namespace M11.Services
 
             return result;
         }
+
     }
 }
