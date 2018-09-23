@@ -17,7 +17,10 @@ namespace M11
 
         protected override async void OnAppearing()
         {
-            await InitializeAsync();
+            LoadingLabel.IsVisible = true;
+            StatisticLayout.Children.Clear();
+            await Task.Run(async () => await InitializeAsync());
+            //await InitializeAsync();
         }
 
         private async Task InitializeAsync()
@@ -27,13 +30,13 @@ namespace M11
                 await Navigation.PushAsync(new AuthPage());
                 return;
             }
-
-            StatisticLayout.Children.Clear();
+            
             var info = await new InfoService().GetAccountInfo(
                 App.Info.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl,
                 App.Info.CookieContainer,
                 DateTime.Now,
                 DateTime.Now.AddMonths(-5));
+            
             foreach (var item in info.BillSummaryList)
             {
                 var layout = new RelativeLayout();
@@ -43,8 +46,10 @@ namespace M11
                     Constraint.RelativeToParent(parent => parent.Width),
                     Constraint.Constant(36));
 
-                StatisticLayout.Children.Add(layout);
+                Device.BeginInvokeOnMainThread(() => { StatisticLayout.Children.Add(layout); });
             }
+
+            LoadingLabel.IsVisible = false;
         }
     }
 }

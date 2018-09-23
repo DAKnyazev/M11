@@ -5,5 +5,6 @@
              x:Class="M11.StatisticPage"
              ControlTemplate="{StaticResource MainPageTemplate}">
     <StackLayout x:Name="StatisticLayout" VerticalOptions="Center" HorizontalOptions="FillAndExpand" BackgroundColor="White">
+        <Label x:Name="LoadingLabel" Text="Загружаем..."/>
     </StackLayout>
 </m11:BaseContentPage>
