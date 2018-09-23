@@ -11,7 +11,7 @@
                         <ContentPresenter />
                     </FlexLayout>
                     <StackLayout VerticalOptions="EndAndExpand">
-                        <StackLayout Orientation="Horizontal" VerticalOptions="End" BackgroundColor="#D3D3D3" HorizontalOptions="Fill">
+                        <StackLayout Orientation="Horizontal" VerticalOptions="End" BackgroundColor="#cc7732" HorizontalOptions="Fill">
                             <StackLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
                                 <Grid>
                                     <Grid.RowDefinitions>
