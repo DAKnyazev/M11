@@ -14,6 +14,7 @@ namespace M11
 	    private const string LoginKeyName = "Login";
 	    private const string PasswordKeyName = "Password";
 	    public static int CachingTimeInMinutes { get; set; }
+        public static int AccountInfoMonthCount { get; set; }
         public static Credentials Credentials { get; set; }
         public static Info Info { get; set; }
         public static AccountInfo AccountInfo { get; set; }
@@ -29,6 +30,7 @@ namespace M11
         static App()
         {
             CachingTimeInMinutes = 3;
+            AccountInfoMonthCount = 4;
             Credentials = new Credentials();
 	        Info = new Info();
             AccountInfo = new AccountInfo();
