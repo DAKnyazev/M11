@@ -16,6 +16,7 @@ namespace M11
 	    public static int CachingTimeInMinutes { get; set; }
         public static Credentials Credentials { get; set; }
         public static Info Info { get; set; }
+        public static AccountInfo AccountInfo { get; set; }
         private static bool IsMainPageVisible { get; set; }
         private static float MainPageLogoOpacity { get; set; }
         private static bool IsStatisticPageVisible { get; set; }
@@ -30,6 +31,7 @@ namespace M11
             CachingTimeInMinutes = 3;
             Credentials = new Credentials();
 	        Info = new Info();
+            AccountInfo = new AccountInfo();
             ClearMenu();
             IsMainPageVisible = true;
             MainPageLogoOpacity = 1;
@@ -80,6 +82,7 @@ namespace M11
 	        CrossSecureStorage.Current.DeleteKey(LoginKeyName);
 	        CrossSecureStorage.Current.DeleteKey(PasswordKeyName);
             Info = new Info();
+            AccountInfo = new AccountInfo();
             Credentials = new Credentials();
         }
 

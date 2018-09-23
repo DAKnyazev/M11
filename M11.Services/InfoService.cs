@@ -129,6 +129,7 @@ namespace M11.Services
                 accountLinks.FirstOrDefault(x => x.Type == AccountLinkType.Account)?.RelativeUrl,
                 start,
                 end);
+            result.RequestDate = DateTime.Now;
 
             return result;
         }

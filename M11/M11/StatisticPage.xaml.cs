@@ -9,18 +9,25 @@ using Xamarin.Forms;
 namespace M11
 {
 	public partial class StatisticPage : BaseContentPage
-    {
-		public StatisticPage()
+    { 
+        private ActivityIndicator LoadingIndicator { get; set; }
+
+        public StatisticPage()
 		{
 			InitializeComponent();
-		}
+		    LoadingIndicator = new ActivityIndicator
+		    {
+                Color = Color.FromHex("#996600")
+		    };
+        }
 
         protected override async void OnAppearing()
         {
-            LoadingLabel.IsVisible = true;
+            LoadingIndicator.IsRunning = true;
+            StatisticLayout.Padding = new Thickness(0, 200, 0, 0);
             StatisticLayout.Children.Clear();
+            StatisticLayout.Children.Add(LoadingIndicator);
             await Task.Run(async () => await InitializeAsync());
-            //await InitializeAsync();
         }
 
         private async Task InitializeAsync()
@@ -30,14 +37,17 @@ namespace M11
                 await Navigation.PushAsync(new AuthPage());
                 return;
             }
+
+            if (App.AccountInfo.RequestDate <= DateTime.Now.AddMinutes(-App.CachingTimeInMinutes))
+            {
+                App.AccountInfo = await new InfoService().GetAccountInfo(
+                    App.Info.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl,
+                    App.Info.CookieContainer,
+                    DateTime.Now,
+                    DateTime.Now.AddMonths(-5));
+            }
             
-            var info = await new InfoService().GetAccountInfo(
-                App.Info.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl,
-                App.Info.CookieContainer,
-                DateTime.Now,
-                DateTime.Now.AddMonths(-5));
-            
-            foreach (var item in info.BillSummaryList)
+            foreach (var item in App.AccountInfo.BillSummaryList)
             {
                 var layout = new RelativeLayout();
                 layout.Children.Add(new Label { Text = item.Period.ToString("MMMM yyyy").FirstCharToUpper() },
@@ -49,7 +59,11 @@ namespace M11
                 Device.BeginInvokeOnMainThread(() => { StatisticLayout.Children.Add(layout); });
             }
 
-            LoadingLabel.IsVisible = false;
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                LoadingIndicator.IsRunning = false;
+                StatisticLayout.Padding = new Thickness(0, 30, 0, 0);
+            });
         }
     }
 }
