@@ -114,6 +114,13 @@ namespace M11
 	        return false;
 	    }
 
+	    public static void SetMainMenuActive()
+	    {
+	        ClearMenu();
+	        IsMainPageVisible = true;
+	        MainPageLogoOpacity = 1;
+        }
+
 	    private void MainButton_OnClicked(object sender, EventArgs e)
 	    {
 	        ClearMenu();

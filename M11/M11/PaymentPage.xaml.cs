@@ -50,10 +50,16 @@ namespace M11
             _paymentPage = await _infoService.GetPaymentPageContent("3100910000000000052689", 100, "+79057503755", typeof(PaymentPage));
         }
 
-        private void Browser_OnNavigated(object sender, WebNavigatedEventArgs e)
+        private async void Browser_OnNavigated(object sender, WebNavigatedEventArgs args)
         {
             if (_onNavigatedCount > 0)
             {
+                if (args.Url.Contains(_infoService.BaseUrl))
+                {
+                    // Вернулись назад со страницы оплаты
+                    App.SetMainMenuActive();
+                    await Navigation.PushAsync(new MainPage());
+                }
                 return;
             }
             _browser.Source = new HtmlWebViewSource

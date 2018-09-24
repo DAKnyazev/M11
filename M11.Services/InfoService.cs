@@ -19,7 +19,7 @@ namespace M11.Services
 {
     public class InfoService
     {
-        private readonly string _baseUrl = "https://private.15-58m11.ru";
+        public readonly string BaseUrl = "https://private.15-58m11.ru";
         private readonly string _authPath = "onyma/";
         private readonly string _accountDetailsPath = "onyma/lk/account/";
         private readonly string _loginParameterName = "login";
@@ -55,7 +55,7 @@ namespace M11.Services
             try
             {
                 var cookieContainer = new CookieContainer();
-                var client = new RestClient(_baseUrl) { CookieContainer = cookieContainer };
+                var client = new RestClient(BaseUrl) { CookieContainer = cookieContainer };
                 var request = new RestRequest($"{_authPath}", Method.POST);
                 request.AddParameter(_loginParameterName, login);
                 request.AddParameter(_passwordParameterName, password);
@@ -112,7 +112,7 @@ namespace M11.Services
         /// <param name="end">Дата окончания периода</param>
         public async Task<AccountInfo> GetAccountInfo(string path, CookieContainer cookieContainer, DateTime start, DateTime end)
         {
-            var result = new AccountInfo { RestClient = new RestClient(_baseUrl) {CookieContainer = cookieContainer} };
+            var result = new AccountInfo { RestClient = new RestClient(BaseUrl) {CookieContainer = cookieContainer} };
             var request = new RestRequest($"{path}", Method.GET);
             var response = result.RestClient.Execute(request);
             result.DataObjectId = EncodeRowId(GetAttributeValue(response.Content, _dataObjectIdAttributeName));
