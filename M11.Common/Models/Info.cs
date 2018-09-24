@@ -27,6 +27,11 @@ namespace M11.Common.Models
         public string ContractNumber { get; set; }
 
         /// <summary>
+        /// Телефон
+        /// </summary>
+        public string Phone { get; set; }
+
+        /// <summary>
         /// Статус
         /// </summary>
         public string Status { get; set; }

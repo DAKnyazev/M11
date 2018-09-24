@@ -28,6 +28,7 @@ namespace M11.Services
         private readonly string _submitParameterValue = "Вход";
 
         private readonly string _dataObjectIdAttributeName = "data-obj-id=\"";
+        private readonly string _accountIdAttributeName = "data-tree-id=\"";
         private readonly string _partyIdParamName = "_party_id=";
         private readonly string _ilinkIdParamName = "__ilink_id__=";
 
@@ -85,6 +86,7 @@ namespace M11.Services
                     RequestDate = DateTime.Now,
                     ContractNumber =
                         commonInfoDocument.DocumentNode.SelectSingleNode(@"//tr[1]//td[2]//text()").InnerText,
+                    Phone = Regex.Replace(GetTagValue(stringContent, "<span class=\"w-text-ro\">", "</span>"), "[^+0-9.]", ""),
                     Status = commonInfoDocument.DocumentNode.SelectSingleNode(@"//tr[2]//td[2]//text()").InnerText,
                     Balance = commonInfoDocument.DocumentNode.SelectSingleNode(@"//tr[3]//td[2]//text()").InnerText,
                     Tickets = GetTickets(ticketsDocument),
@@ -116,6 +118,7 @@ namespace M11.Services
             var request = new RestRequest($"{path}", Method.GET);
             var response = result.RestClient.Execute(request);
             result.DataObjectId = EncodeRowId(GetAttributeValue(response.Content, _dataObjectIdAttributeName));
+            result.AccountId = GetAttributeValue(response.Content, _accountIdAttributeName);
             result.PartyId = GetParamValue(path, _partyIdParamName);
             result.IlinkId = GetParamValue(path, _ilinkIdParamName);
             var accountRequest = new RestRequest(

@@ -7,16 +7,25 @@ namespace M11
 {
 	public partial class MainPage : BaseContentPage
     {
-		public MainPage()
+        private ActivityIndicator LoadingIndicator { get; set; }
+
+        public MainPage()
 		{
 			InitializeComponent();
+		    LoadingIndicator = new ActivityIndicator
+		    {
+		        Color = Color.FromHex(App.MainColor)
+		    };
         }
 
-	    protected override async void OnAppearing()
-	    {
-	        await InitializeAsync();
+        protected override async void OnAppearing()
+        {
+            BalanceTitleLabel.IsVisible = false;
+            BalanceCurrencyLabel.IsVisible = false;
+            LoadingIndicator.IsRunning = true;
+	        MainLayout.Children.Add(LoadingIndicator);
+            await Task.Run(async () => await InitializeAsync());
 	    }
-
 
         private async Task InitializeAsync()
 	    {
@@ -26,12 +35,20 @@ namespace M11
                 return;
             }
 
-	        BalanceLabel.Text = App.Info.Balance;
-	        TicketLayout.Children.Clear();
-	        if (App.Info.Tickets.Any())
+	        Device.BeginInvokeOnMainThread(() =>
 	        {
-	            TicketLayout.Children.Add(new Label { Text = "Абонементы:", FontSize = 36, HorizontalTextAlignment = TextAlignment.Center });
-            }
+	            BalanceLabel.Text = App.Info.Balance;
+	            TicketLayout.Children.Clear();
+	            if (App.Info.Tickets.Any())
+	            {
+	                TicketLayout.Children.Add(new Label
+	                {
+	                    Text = "Абонементы:",
+	                    FontSize = 36,
+	                    HorizontalTextAlignment = TextAlignment.Center
+	                });
+	            }
+	        });
 
 	        const int padding = 10;
 	        foreach (var ticket in App.Info.Tickets)
@@ -41,7 +58,7 @@ namespace M11
 	                Constraint.Constant(padding),
 	                Constraint.Constant(0),
 	                Constraint.RelativeToParent(parent => parent.Width - 2 * padding),
-	                Constraint.Constant(65));
+	                Constraint.Constant(70));
 	            var ticketDescriptions = ticket.Description.Split(',');
                 layout.Children.Add(new Label
                     {
@@ -67,8 +84,14 @@ namespace M11
                     Constraint.Constant(50),
                     Constraint.RelativeToParent(parent => parent.Width - 4 * padding),
                     Constraint.Constant(20));
-                
-                TicketLayout.Children.Add(layout);
+
+	            Device.BeginInvokeOnMainThread(() =>
+	            {
+	                TicketLayout.Children.Add(layout);
+	                LoadingIndicator.IsRunning = false;
+	                BalanceTitleLabel.IsVisible = true;
+	                BalanceCurrencyLabel.IsVisible = true;
+                });
 	        }
 	    }
     }

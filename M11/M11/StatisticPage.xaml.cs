@@ -18,7 +18,7 @@ namespace M11
 			InitializeComponent();
 		    LoadingIndicator = new ActivityIndicator
 		    {
-                Color = Color.FromHex("#996600")
+                Color = Color.FromHex(App.MainColor)
 		    };
         }
 

@@ -18,6 +18,7 @@ namespace M11
         public static Credentials Credentials { get; set; }
         public static Info Info { get; set; }
         public static AccountInfo AccountInfo { get; set; }
+        public static string MainColor { get; set; }
         private static bool IsMainPageVisible { get; set; }
         private static float MainPageLogoOpacity { get; set; }
         private static bool IsStatisticPageVisible { get; set; }
@@ -26,7 +27,7 @@ namespace M11
         private static float PaymentPageLogoOpacity { get; set; }
         private static bool IsSettingsPageVisible { get; set; }
         private static float SettingsPageLogoOpacity { get; set; }
-
+        
         static App()
         {
             CachingTimeInMinutes = 3;
@@ -37,6 +38,7 @@ namespace M11
             ClearMenu();
             IsMainPageVisible = true;
             MainPageLogoOpacity = 1;
+            MainColor = "#996600";
         }
 
         public App()

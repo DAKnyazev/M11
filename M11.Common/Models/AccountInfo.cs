@@ -26,6 +26,11 @@ namespace M11.Common.Models
         public string DataObjectId { get; set; }
 
         /// <summary>
+        /// Идентификатор аккаунта
+        /// </summary>
+        public string AccountId { get; set; }
+
+        /// <summary>
         /// Идентификатор PartyId, для запросов по лицевому счёту
         /// </summary>
         public string PartyId { get; set; }

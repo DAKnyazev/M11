@@ -1,4 +1,7 @@
-﻿using M11.Services;
+﻿using System;
+using System.Linq;
+using M11.Common.Enums;
+using M11.Services;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using HtmlWebViewSource = Xamarin.Forms.HtmlWebViewSource;
@@ -10,8 +13,8 @@ namespace M11
     public partial class PaymentPage : BaseContentPage
     {
         private readonly InfoService _infoService;
-        private string _paymentPage;
         private int _onNavigatedCount;
+        private int _onNavigatedToBaseUrlCount;
         private readonly WebView _browser;
         private ActivityIndicator LoadingIndicator { get; set; }
 
@@ -19,11 +22,12 @@ namespace M11
         {
             _infoService = new InfoService();
             _onNavigatedCount = 0;
+            _onNavigatedToBaseUrlCount = 0;
             _browser = new WebView();
             _browser.Navigated += Browser_OnNavigated;
             LoadingIndicator = new ActivityIndicator
             {
-                Color = Color.FromHex("#996600")
+                Color = Color.FromHex(App.MainColor)
             };
             InitializeComponent();
         }
@@ -46,8 +50,6 @@ namespace M11
                 Constraint.Constant(0),
                 Constraint.RelativeToParent(parent => parent.Width),
                 Constraint.RelativeToParent(parent => parent.Height));
-
-            _paymentPage = await _infoService.GetPaymentPageContent("3100910000000000052689", 100, "+79057503755", typeof(PaymentPage));
         }
 
         private async void Browser_OnNavigated(object sender, WebNavigatedEventArgs args)
@@ -56,15 +58,31 @@ namespace M11
             {
                 if (args.Url.Contains(_infoService.BaseUrl))
                 {
-                    // Вернулись назад со страницы оплаты
-                    App.SetMainMenuActive();
-                    await Navigation.PushAsync(new MainPage());
+                    if (_onNavigatedToBaseUrlCount > 0)
+                    {
+                        // Вернулись назад со страницы оплаты (нужно перезагрузить информацию о счете)
+                        App.SetMainMenuActive();
+                        App.Info.RequestDate = DateTime.MinValue;
+                        App.AccountInfo.RequestDate = DateTime.MinValue;
+                        await Navigation.PushAsync(new MainPage());
+                    }
+
+                    _onNavigatedToBaseUrlCount++;
                 }
                 return;
             }
+
+            if (string.IsNullOrWhiteSpace(App.AccountInfo?.AccountId))
+            {
+                App.AccountInfo = await _infoService.GetAccountInfo(
+                    App.Info.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl,
+                    App.Info.CookieContainer,
+                    DateTime.Now,
+                    DateTime.Now.AddMonths(-App.AccountInfoMonthCount));
+            }
             _browser.Source = new HtmlWebViewSource
             {
-                Html = _paymentPage
+                Html = await _infoService.GetPaymentPageContent(App.AccountInfo.AccountId, 100, App.Info.Phone, typeof(PaymentPage))
             };
             LoadingIndicator.IsRunning = false;
             LoadingIndicator.IsVisible = false;
