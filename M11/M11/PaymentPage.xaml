@@ -5,6 +5,6 @@
              x:Class="M11.PaymentPage"
              ControlTemplate="{StaticResource MainPageTemplate}">
     <StackLayout x:Name="PaymentLayout">
-        <WebView x:Name="Browser" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" WidthRequest="500" HeightRequest="500"/>
+        <WebView x:Name="Browser" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" WidthRequest="500" HeightRequest="500" Navigated="Browser_OnNavigated"/>
     </StackLayout>
 </m11:BaseContentPage>

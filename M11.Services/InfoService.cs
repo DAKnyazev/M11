@@ -137,45 +137,30 @@ namespace M11.Services
         }
 
         /// <summary>
+        /// Получение содержимого страницы входа в личный кабинет
+        /// </summary>
+        /// <param name="login">Логин для входа</param>
+        /// <param name="password">Пароль для входа</param>
+        /// <param name="pageType">Тип класса из сборки, где находиться внедренный файл</param>
+        public async Task<string> GetLoginPageContent(string login, string password, Type pageType)
+        {
+            var loginPageContent = GetEmbeddedFileContent("LoginPage.html", pageType).Replace("{0}", login).Replace("{1}", password);
+
+            return loginPageContent;
+        }
+
+        /// <summary>
         /// Получение содержимого платежной страницы
         /// </summary>
         /// <param name="accountId"></param>
         /// <param name="amount"></param>
         /// <param name="phone"></param>
-        /// <param name="pageType"></param>
-        /// <returns></returns>
+        /// <param name="pageType">Тип класса из сборки, где находиться внедренный файл</param>
         public async Task<string> GetPaymentPageContent(string accountId, int amount, string phone, Type pageType)
         {
-            //IntrospectionExtensions.GetTypeInfo(typeof(M11.)).Assembly;
-            string result;
-            var assembly = pageType.GetTypeInfo().Assembly;
-            using (var stream = assembly.GetManifestResourceStream("M11.Resources.PaymentPage.html"))
-            {
-                if (stream == null)
-                {
-                    using (var stream2 = assembly.GetManifestResourceStream("M11.Android.Resources.PaymentPage.html"))
-                    {
-                        if (stream2 == null)
-                        {
-                            return string.Empty;
-                        }
-                        using (var reader = new StreamReader(stream2))
-                        {
-                            result = reader.ReadToEnd();
-                        }
-                    }
-                    
-                }
-                else
-                {
-                    using (var reader = new StreamReader(stream))
-                    {
-                        result = reader.ReadToEnd();
-                    }
-                }
-            }
+            var paymentPageContent = string.Format(GetEmbeddedFileContent("PaymentPage.html", pageType), accountId, amount, phone);
 
-            return string.Format(result, accountId, amount, phone);
+            return paymentPageContent;
         }
 
         /// <summary>
@@ -370,5 +355,38 @@ namespace M11.Services
             return result;
         }
 
+        /// <summary>
+        /// Получение контента внедренного файла (unit-test или андроид)
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="assemblyType"></param>
+        /// <returns></returns>
+        private static string GetEmbeddedFileContent(string fileName, Type assemblyType)
+        {
+            var assembly = assemblyType.GetTypeInfo().Assembly;
+            using (var stream = assembly.GetManifestResourceStream($"M11.Resources.{fileName}"))
+            {
+                if (stream == null)
+                {
+                    using (var androidAssembly = assembly.GetManifestResourceStream($"M11.Android.Resources.{fileName}"))
+                    {
+                        if (androidAssembly == null)
+                        {
+                            return string.Empty;
+                        }
+                        using (var reader = new StreamReader(androidAssembly))
+                        {
+                            return reader.ReadToEnd();
+                        }
+                    }
+
+                }
+
+                using (var reader = new StreamReader(stream))
+                {
+                    return reader.ReadToEnd();
+                }
+            }
+        }
     }
 }
