@@ -12,20 +12,40 @@ namespace M11
         private readonly InfoService _infoService;
         private string _paymentPage;
         private int _onNavigatedCount;
+        private readonly WebView _browser;
+        private ActivityIndicator LoadingIndicator { get; set; }
 
         public PaymentPage()
         {
             _infoService = new InfoService();
             _onNavigatedCount = 0;
+            _browser = new WebView();
+            _browser.Navigated += Browser_OnNavigated;
+            LoadingIndicator = new ActivityIndicator
+            {
+                Color = Color.FromHex("#996600")
+            };
             InitializeComponent();
         }
 
         protected override async void OnAppearing()
         {
-            Browser.Source = new HtmlWebViewSource
+            LoadingIndicator.IsRunning = true;
+            _browser.Source = new HtmlWebViewSource
             {
-                Html = await _infoService.GetLoginPageContent(App.Credentials.Login, App.Credentials.Password, typeof(PaymentPage))
+                Html = await _infoService.GetLoginPageContent(App.Credentials.Login, App.Credentials.Password, typeof(PaymentPage)),
             };
+            _browser.IsVisible = false;
+            PaymentLayout.Children.Add(LoadingIndicator,
+                Constraint.RelativeToParent(parent => parent.Width * 0.425),
+                Constraint.RelativeToParent(parent => parent.Height * 0.425),
+                Constraint.RelativeToParent(parent => parent.Width * 0.15),
+                Constraint.RelativeToParent(parent => parent.Height * 0.15));
+            PaymentLayout.Children.Add(_browser,
+                Constraint.Constant(0),
+                Constraint.Constant(0),
+                Constraint.RelativeToParent(parent => parent.Width),
+                Constraint.RelativeToParent(parent => parent.Height));
 
             _paymentPage = await _infoService.GetPaymentPageContent("3100910000000000052689", 100, "+79057503755", typeof(PaymentPage));
         }
@@ -36,10 +56,13 @@ namespace M11
             {
                 return;
             }
-            Browser.Source = new HtmlWebViewSource
+            _browser.Source = new HtmlWebViewSource
             {
                 Html = _paymentPage
             };
+            LoadingIndicator.IsRunning = false;
+            LoadingIndicator.IsVisible = false;
+            _browser.IsVisible = true;
             _onNavigatedCount++;
         }
     }

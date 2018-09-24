@@ -1,18 +1,26 @@
 ﻿<!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" style="height: 100%; display: table; width:100%;font-family: SeroPro,Trebuchet MS,Tahoma,Verdana,Arial,sans-serif;">
 <head>
     <meta charset="UTF-8"/>
     <title>ABC</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 </head>
-<body>
-<form action="https://private.15-58m11.ru/onyma/payments/sberbank" method="POST">
-    <input name="contract" value="{0}" />
-    <input name="product_price" value="{1}" />
-    <input name="contact" value="{2}" />
-    <input name="next" value="Далее" />
-    <button type="submit">Оплатить</button>
-</form>
+<body style="height: 100%; display: table-cell; text-align:center; vertical-align:middle; padding-bottom: 60px;">
+    <form action="https://private.15-58m11.ru/onyma/payments/sberbank" method="POST">
+        <span style="font-size: 22px;">
+            <strong>Сумма платежа:</strong>
+        </span>
+        <input name="contract" value="{0}" style="display: none;" />
+        <input name="product_price" type="number" value="{1}" style="font-size: 30px; max-width: 270px; height: 47px; line-height: normal; border: none; border-top: 1px solid transparent; border-bottom: 1px solid #ffa715; border-radius: 0; background-color: transparent; -webkit-appearance: none; text-align: center;" />
+        <input name="contact" value="{2}" style="display: none;" />
+        <input name="next" value="Далее" style="display: none;" />
+        <br />
+        <button type="submit" style="background-color: #d5d5d5; width: 100%; max-width: none; margin: 0; 
+            padding: 20px 0; font-size: 20px; border-radius: 0; color: #fff; font-weight: 700; text-align: center;
+            word-wrap: break-word; border: none; position: fixed; z-index: 1; bottom: 0; left: 0; margin-bottom: 60px;">
+            <span style="font-size: 20px;">Оплатить</span>
+        </button>
+    </form>
 </body>
 </html>
