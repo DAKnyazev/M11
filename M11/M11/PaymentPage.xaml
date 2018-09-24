@@ -4,10 +4,7 @@
              xmlns:m11="clr-namespace:M11;assembly=M11"
              x:Class="M11.PaymentPage"
              ControlTemplate="{StaticResource MainPageTemplate}">
-    <StackLayout>
-        <Label Text="Пополнение"
-            VerticalOptions="CenterAndExpand" 
-            HorizontalOptions="CenterAndExpand" 
-            FontSize="40"/>
+    <StackLayout x:Name="PaymentLayout">
+        <WebView x:Name="Browser" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" WidthRequest="500" HeightRequest="500"/>
     </StackLayout>
 </m11:BaseContentPage>

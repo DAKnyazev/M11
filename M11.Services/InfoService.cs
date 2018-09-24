@@ -142,20 +142,36 @@ namespace M11.Services
         /// <param name="accountId"></param>
         /// <param name="amount"></param>
         /// <param name="phone"></param>
+        /// <param name="pageType"></param>
         /// <returns></returns>
-        public async Task<string> GetPaymentPageContent(string accountId, int amount, string phone)
+        public async Task<string> GetPaymentPageContent(string accountId, int amount, string phone, Type pageType)
         {
+            //IntrospectionExtensions.GetTypeInfo(typeof(M11.)).Assembly;
             string result;
-            var assembly = Assembly.LoadFrom("M11.dll");
+            var assembly = pageType.GetTypeInfo().Assembly;
             using (var stream = assembly.GetManifestResourceStream("M11.Resources.PaymentPage.html"))
             {
                 if (stream == null)
                 {
-                    return string.Empty;
+                    using (var stream2 = assembly.GetManifestResourceStream("M11.Android.Resources.PaymentPage.html"))
+                    {
+                        if (stream2 == null)
+                        {
+                            return string.Empty;
+                        }
+                        using (var reader = new StreamReader(stream2))
+                        {
+                            result = reader.ReadToEnd();
+                        }
+                    }
+                    
                 }
-                using (var reader = new StreamReader(stream))
+                else
                 {
-                    result = reader.ReadToEnd();
+                    using (var reader = new StreamReader(stream))
+                    {
+                        result = reader.ReadToEnd();
+                    }
                 }
             }
 

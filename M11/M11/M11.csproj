@@ -15,7 +15,10 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\home.png" />
     <EmbeddedResource Include="Resources\pay.png" />
-    <EmbeddedResource Include="Resources\PaymentPage.html" />
+    <EmbeddedResource Include="Resources\PaymentPage.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CustomToolNamespace></CustomToolNamespace>
+    </EmbeddedResource>
     <EmbeddedResource Include="Resources\settings.png" />
     <EmbeddedResource Include="Resources\statistic.png" />
   </ItemGroup>
