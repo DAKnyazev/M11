@@ -32,12 +32,12 @@ namespace M11
             InitializeComponent();
         }
 
-        protected override async void OnAppearing()
+        protected override void OnAppearing()
         {
             LoadingIndicator.IsRunning = true;
             _browser.Source = new HtmlWebViewSource
             {
-                Html = await _infoService.GetLoginPageContent(App.Credentials.Login, App.Credentials.Password, typeof(PaymentPage)),
+                Html = _infoService.GetLoginPageContent(App.Credentials.Login, App.Credentials.Password, typeof(PaymentPage)),
             };
             _browser.IsVisible = false;
             PaymentLayout.Children.Add(LoadingIndicator,
@@ -74,7 +74,7 @@ namespace M11
 
             if (string.IsNullOrWhiteSpace(App.AccountInfo?.AccountId))
             {
-                App.AccountInfo = await _infoService.GetAccountInfo(
+                App.AccountInfo = _infoService.GetAccountInfo(
                     App.Info.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl,
                     App.Info.CookieContainer,
                     DateTime.Now,
@@ -82,7 +82,7 @@ namespace M11
             }
             _browser.Source = new HtmlWebViewSource
             {
-                Html = await _infoService.GetPaymentPageContent(App.AccountInfo.AccountId, 100, App.Info.Phone, typeof(PaymentPage))
+                Html = _infoService.GetPaymentPageContent(App.AccountInfo.AccountId, 100, App.Info.Phone, typeof(PaymentPage))
             };
             LoadingIndicator.IsRunning = false;
             LoadingIndicator.IsVisible = false;

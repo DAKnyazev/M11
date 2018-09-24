@@ -90,33 +90,32 @@ namespace M11
             Credentials = new Credentials();
         }
 
-	    public static async Task<bool> TryGetInfo()
-	    {
-	        return await TryGetInfo(Credentials.Login, Credentials.Password);
-	    }
+        public static bool TryGetInfo()
+        {
+            return TryGetInfo(Credentials.Login, Credentials.Password);
+        }
 
-	    public static async Task<bool> TryGetInfo(string login, string password)
-	    {
-	        if (Info.RequestDate > DateTime.Now.AddMinutes(-CachingTimeInMinutes))
-	        {
-	            return true;
-	        }
-	        var info = await new InfoService().GetInfo(login, password);
-	        if (!string.IsNullOrWhiteSpace(info.ContractNumber))
-	        {
-	            Info = info;
-	            CrossSecureStorage.Current.SetValue(LoginKeyName, login);
-	            CrossSecureStorage.Current.SetValue("Password", password);
-                Credentials.Login = login;
-	            Credentials.Password = password;
+        public static bool TryGetInfo(string login, string password)
+        {
+            if (Info.RequestDate > DateTime.Now.AddMinutes(-CachingTimeInMinutes))
+            {
+                return true;
+            }
+            var info = new InfoService().GetInfo(login, password);
+            if (string.IsNullOrWhiteSpace(info.ContractNumber))
+            {
+                return false;
+            }
+            Info = info;
+            CrossSecureStorage.Current.SetValue(LoginKeyName, login);
+            CrossSecureStorage.Current.SetValue("Password", password);
+            Credentials.Login = login;
+            Credentials.Password = password;
 
-	            return true;
-	        }
+            return true;
+        }
 
-	        return false;
-	    }
-
-	    public static void SetMainMenuActive()
+        public static void SetMainMenuActive()
 	    {
 	        ClearMenu();
 	        IsMainPageVisible = true;

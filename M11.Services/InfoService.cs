@@ -51,7 +51,7 @@ namespace M11.Services
         /// </summary>
         /// <param name="login">Логин</param>
         /// <param name="password">Пароль</param>
-        public async Task<Info> GetInfo(string login, string password)
+        public Info GetInfo(string login, string password)
         {
             try
             {
@@ -112,9 +112,9 @@ namespace M11.Services
         /// <param name="cookieContainer">Коллекция куки, которая нужна для запроса</param>
         /// <param name="start">Дата начала периода</param>
         /// <param name="end">Дата окончания периода</param>
-        public async Task<AccountInfo> GetAccountInfo(string path, CookieContainer cookieContainer, DateTime start, DateTime end)
+        public AccountInfo GetAccountInfo(string path, CookieContainer cookieContainer, DateTime start, DateTime end)
         {
-            var result = new AccountInfo { RestClient = new RestClient(BaseUrl) {CookieContainer = cookieContainer} };
+            var result = new AccountInfo { RestClient = new RestClient(BaseUrl) { CookieContainer = cookieContainer } };
             var request = new RestRequest($"{path}", Method.GET);
             var response = result.RestClient.Execute(request);
             result.DataObjectId = EncodeRowId(GetAttributeValue(response.Content, _dataObjectIdAttributeName));
@@ -122,7 +122,7 @@ namespace M11.Services
             result.PartyId = GetParamValue(path, _partyIdParamName);
             result.IlinkId = GetParamValue(path, _ilinkIdParamName);
             var accountRequest = new RestRequest(
-                $"{_accountDetailsPath}{result.DataObjectId}/?__ilink_id__={result.IlinkId}&__parent_obj__={result.PartyId}&_party_id={result.PartyId}&simple=1", 
+                $"{_accountDetailsPath}{result.DataObjectId}/?__ilink_id__={result.IlinkId}&__parent_obj__={result.PartyId}&_party_id={result.PartyId}&simple=1",
                 Method.GET);
             var accountResponse = result.RestClient.Execute(accountRequest);
             var accountLinksDiv = GetTagValue(accountResponse.Content, "<div class=\\\"links\\\">", "</div>");
@@ -145,7 +145,7 @@ namespace M11.Services
         /// <param name="login">Логин для входа</param>
         /// <param name="password">Пароль для входа</param>
         /// <param name="pageType">Тип класса из сборки, где находиться внедренный файл</param>
-        public async Task<string> GetLoginPageContent(string login, string password, Type pageType)
+        public string GetLoginPageContent(string login, string password, Type pageType)
         {
             var loginPageContent = GetEmbeddedFileContent("LoginPage.html", pageType).Replace("{0}", login).Replace("{1}", password);
 
@@ -155,11 +155,11 @@ namespace M11.Services
         /// <summary>
         /// Получение содержимого платежной страницы
         /// </summary>
-        /// <param name="accountId"></param>
-        /// <param name="amount"></param>
-        /// <param name="phone"></param>
+        /// <param name="accountId">Идентификатор аккаунта</param>
+        /// <param name="amount">Сумма пополнения</param>
+        /// <param name="phone">Телефон в формате +79000000000</param>
         /// <param name="pageType">Тип класса из сборки, где находиться внедренный файл</param>
-        public async Task<string> GetPaymentPageContent(string accountId, int amount, string phone, Type pageType)
+        public string GetPaymentPageContent(string accountId, int amount, string phone, Type pageType)
         {
             var paymentPageContent = string.Format(GetEmbeddedFileContent("PaymentPage.html", pageType), accountId, amount, phone);
 
@@ -361,8 +361,8 @@ namespace M11.Services
         /// <summary>
         /// Получение контента внедренного файла (unit-test или андроид)
         /// </summary>
-        /// <param name="fileName"></param>
-        /// <param name="assemblyType"></param>
+        /// <param name="fileName">Имя внедренного файла</param>
+        /// <param name="assemblyType">Тип из сборки</param>
         /// <returns></returns>
         private static string GetEmbeddedFileContent(string fileName, Type assemblyType)
         {

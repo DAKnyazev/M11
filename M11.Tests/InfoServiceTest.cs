@@ -14,8 +14,8 @@ namespace M11.Tests
         private static readonly string Login = "****";
         private static readonly string Password = "****";
         private static readonly string AccountId = "****";
-        private static readonly int Amount = 100;
         private static readonly string Phone = "****";
+        private static readonly int Amount = 100;
 
         private readonly InfoService _infoService;
         private Info _info;
@@ -26,23 +26,25 @@ namespace M11.Tests
         }
 
         [Test, SetUp, Order(1)]
-        public async Task TestGetInfo()
+        public void TestGetInfo()
         {
-            _info = await _infoService.GetInfo(Login, Password);
+            _info = _infoService.GetInfo(Login, Password);
         }
 
         [Test, Order(2)]
-        public async Task TestGetAccountInfo()
+        public void TestGetAccountInfo()
         {
             Assert.IsNotNull(_info);
             Assert.IsFalse(string.IsNullOrWhiteSpace(_info.ContractNumber));
             Assert.IsNotNull(_info.Links);
+            Assert.IsFalse(string.IsNullOrWhiteSpace(_info.Phone));
 
-            var accountInfo = await _infoService.GetAccountInfo(_info.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl,
+            var accountInfo = _infoService.GetAccountInfo(_info.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl,
                 _info.CookieContainer, 
                 DateTime.Now, 
                 DateTime.Now.AddMonths(-5));
-            
+
+            Assert.IsFalse(string.IsNullOrWhiteSpace(accountInfo.AccountId));
             Assert.IsFalse(string.IsNullOrWhiteSpace(accountInfo.DataObjectId));
             Assert.IsFalse(string.IsNullOrWhiteSpace(accountInfo.IlinkId));
             Assert.IsFalse(string.IsNullOrWhiteSpace(accountInfo.PartyId));
@@ -50,17 +52,17 @@ namespace M11.Tests
         }
 
         [Test, Order(3)]
-        public async Task TestGetLoginPageContent()
+        public void TestGetLoginPageContent()
         {
-            var content = await _infoService.GetLoginPageContent(Login, Password, typeof(PaymentPage));
+            var content = _infoService.GetLoginPageContent(Login, Password, typeof(PaymentPage));
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(content));
         }
 
         [Test, Order(4)]
-        public async Task TestGetPaymentPageContent()
+        public void TestGetPaymentPageContent()
         {
-            var content = await _infoService.GetPaymentPageContent(AccountId, Amount, Phone, typeof(PaymentPage));
+            var content = _infoService.GetPaymentPageContent(AccountId, Amount, Phone, typeof(PaymentPage));
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(content));
         }

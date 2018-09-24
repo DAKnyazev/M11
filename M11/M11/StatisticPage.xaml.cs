@@ -33,7 +33,7 @@ namespace M11
 
         private async Task InitializeAsync()
         {
-            if (!await App.TryGetInfo())
+            if (!App.TryGetInfo())
             {
                 await Navigation.PushAsync(new AuthPage());
                 return;
@@ -41,7 +41,7 @@ namespace M11
 
             if (App.AccountInfo.RequestDate <= DateTime.Now.AddMinutes(-App.CachingTimeInMinutes))
             {
-                App.AccountInfo = await new InfoService().GetAccountInfo(
+                App.AccountInfo = new InfoService().GetAccountInfo(
                     App.Info.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl,
                     App.Info.CookieContainer,
                     DateTime.Now,

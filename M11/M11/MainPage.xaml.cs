@@ -29,7 +29,7 @@ namespace M11
 
         private async Task InitializeAsync()
 	    {
-	        if (!await App.TryGetInfo())
+	        if (!App.TryGetInfo())
 	        {
 	            await Navigation.PushAsync(new AuthPage());
                 return;

@@ -19,7 +19,7 @@ namespace M11
                 return;
             }
 
-            if (await App.TryGetInfo(LoginEntry.Text, PasswordEntry.Text))
+            if (App.TryGetInfo(LoginEntry.Text, PasswordEntry.Text))
             {
                 await Navigation.PushAsync(new MainPage());
             }
