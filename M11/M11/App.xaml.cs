@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using M11.Common.Models;
 using M11.Services;
 using Plugin.SecureStorage;

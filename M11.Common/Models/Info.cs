@@ -2,24 +2,18 @@
 using System.Collections.Generic;
 using System.Net;
 using M11.Common.Enums;
-using RestSharp;
 
 namespace M11.Common.Models
 {
     /// <summary>
     /// Информация о договоре
     /// </summary>
-    public class Info
+    public class Info : BaseInfo
     {
         public Info()
         {
             Tickets = new List<Ticket>();
         }
-
-        /// <summary>
-        /// Дата запроса информации (для опеределения свежести данных)
-        /// </summary>
-        public DateTime RequestDate { get; set; }
 
         /// <summary>
         /// Номер договора

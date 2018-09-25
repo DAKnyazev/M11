@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using M11.Common.Models.BillSummary;
 using RestSharp;
 
@@ -8,13 +7,8 @@ namespace M11.Common.Models
     /// <summary>
     /// Информация о лицевом счёте
     /// </summary>
-    public class AccountInfo
+    public class AccountInfo : BaseInfo
     {
-        /// <summary>
-        /// Дата запроса
-        /// </summary>
-        public DateTime RequestDate { get; set; }
-
         /// <summary>
         /// Клиент, для запросов по лицевому счёту
         /// </summary>
