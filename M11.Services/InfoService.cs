@@ -31,6 +31,9 @@ namespace M11.Services
         private readonly string _partyIdParamName = "_party_id=";
         private readonly string _ilinkIdParamName = "__ilink_id__=";
 
+        private readonly string _loginPageName = "LoginPage.html";
+        private readonly string _paymentPageName = "PaymentPage.html";
+
         private static readonly Dictionary<string, string> RowIdEncodeDictionary = new Dictionary<string, string>
         {
             { "$", "$00" },
@@ -146,7 +149,7 @@ namespace M11.Services
         /// <param name="pageType">Тип класса из сборки, где находиться внедренный файл</param>
         public string GetLoginPageContent(string login, string password, Type pageType)
         {
-            var loginPageContent = GetEmbeddedFileContent("LoginPage.html", pageType).Replace("{0}", login).Replace("{1}", password);
+            var loginPageContent = GetEmbeddedFileContent(_loginPageName, pageType).Replace("{0}", login).Replace("{1}", password);
 
             return loginPageContent;
         }
@@ -160,7 +163,7 @@ namespace M11.Services
         /// <param name="pageType">Тип класса из сборки, где находиться внедренный файл</param>
         public string GetPaymentPageContent(string accountId, int amount, string phone, Type pageType)
         {
-            var paymentPageContent = string.Format(GetEmbeddedFileContent("PaymentPage.html", pageType), accountId, amount, phone);
+            var paymentPageContent = string.Format(GetEmbeddedFileContent(_paymentPageName, pageType), accountId, amount, phone);
 
             return paymentPageContent;
         }
@@ -300,7 +303,7 @@ namespace M11.Services
             }
             catch
             {
-
+                // Если что-то пошло не так, то возвращаем хоть что-нибудь
             }
 
             return result;
@@ -309,7 +312,7 @@ namespace M11.Services
         /// <summary>
         /// Получение статистики расходов по месяцам
         /// </summary>
-        private static List<MonthBillSummary> GetMonthlyStatistic(RestClient client, string path, DateTime start, DateTime end)
+        private static List<MonthBillSummary> GetMonthlyStatistic(IRestClient client, string path, DateTime start, DateTime end)
         {
             var result = new List<MonthBillSummary>();
             var request = new RestRequest(path + "&simple=1", Method.POST);
@@ -352,6 +355,7 @@ namespace M11.Services
             }
             catch
             {
+                // Если что-то пошло не так, то возвращаем хоть что-нибудь
             }
 
             return result;
@@ -362,7 +366,6 @@ namespace M11.Services
         /// </summary>
         /// <param name="fileName">Имя внедренного файла</param>
         /// <param name="assemblyType">Тип из сборки</param>
-        /// <returns></returns>
         private static string GetEmbeddedFileContent(string fileName, Type assemblyType)
         {
             var assembly = assemblyType.GetTypeInfo().Assembly;
