@@ -88,11 +88,14 @@ namespace M11
 	            Device.BeginInvokeOnMainThread(() =>
 	            {
 	                TicketLayout.Children.Add(layout);
-	                LoadingIndicator.IsRunning = false;
-	                BalanceTitleLabel.IsVisible = true;
-	                BalanceCurrencyLabel.IsVisible = true;
                 });
 	        }
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                LoadingIndicator.IsRunning = false;
+                BalanceTitleLabel.IsVisible = true;
+                BalanceCurrencyLabel.IsVisible = true;
+            });
 	    }
     }
 }
