@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<m11:BaseTabbedContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:m11="clr-namespace:M11;assembly=M11"
+             x:Class="M11.TabbedMainPage"
+            xmlns:android="clr-namespace:Xamarin.Forms.PlatformConfiguration.AndroidSpecific;assembly=Xamarin.Forms.Core"
+            android:TabbedPage.ToolbarPlacement="Bottom"
+            android:TabbedPage.BarItemColor="Black"
+            android:TabbedPage.BarSelectedItemColor="#cc7732">
+    <TabbedPage.Children>
+        <NavigationPage Title="Баланс" Icon="home.png">
+            <x:Arguments>
+                <m11:MainPage />
+            </x:Arguments>
+        </NavigationPage>
+        <NavigationPage Title="Статистика" Icon="statistic.png">
+            <x:Arguments>
+                <m11:StatisticPage />
+            </x:Arguments>
+        </NavigationPage>
+        <NavigationPage Title="Пополнить" Icon="pay.png">
+            <x:Arguments>
+                <m11:PaymentPage />
+            </x:Arguments>
+        </NavigationPage>
+        <NavigationPage Title="Настройки" Icon="settings.png">
+            <x:Arguments>
+                <m11:SettingsPage />
+            </x:Arguments>
+        </NavigationPage>
+    </TabbedPage.Children>
+</m11:BaseTabbedContentPage>

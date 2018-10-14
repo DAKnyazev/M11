@@ -12,7 +12,7 @@
                             <ContentPresenter />
                         </FlexLayout>
                     </ScrollView>
-                    <StackLayout VerticalOptions="EndAndExpand">
+                    <!--<StackLayout VerticalOptions="EndAndExpand">
                         <StackLayout Orientation="Horizontal" VerticalOptions="End" BackgroundColor="#cc7732" HorizontalOptions="Fill">
                             <StackLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
                                 <Grid>
@@ -85,7 +85,7 @@
                                 </Grid>
                             </StackLayout>
                         </StackLayout>
-                    </StackLayout>
+                    </StackLayout>-->
                 </StackLayout>
             </ControlTemplate>
 	    </ResourceDictionary>

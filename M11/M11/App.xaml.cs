@@ -57,7 +57,7 @@ namespace M11
 		    if (!string.IsNullOrWhiteSpace(Credentials.Login) 
 		        && !string.IsNullOrWhiteSpace(Credentials.Password))
 		    {
-		        MainPage = new NavigationPage(new MainPage());
+		        MainPage = new NavigationPage(new TabbedMainPage());
             }
 		    else
 		    {
