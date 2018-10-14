@@ -3,8 +3,8 @@ using Xamarin.Forms;
 
 namespace M11
 {
-	public partial class AuthPage : ContentPage
-	{
+	public partial class AuthPage : BaseContentPage
+    {
         public AuthPage()
 	    {
 	        InitializeComponent();

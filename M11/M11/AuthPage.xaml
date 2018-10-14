@@ -1,22 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+<local:BaseContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:M11"
              x:Class="M11.AuthPage">
-    <Grid VerticalOptions="StartAndExpand">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="60"/>
-            <RowDefinition Height="60"/>
-            <RowDefinition Height="60"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
-        <Label x:Name="LoginLabel" Text="Логин" Grid.Row="0" Grid.Column="0" FontSize="28"/>
-        <Entry x:Name="LoginEntry" Text="" Grid.Row="0" Grid.Column="1" Keyboard="Keyboard.Telephone" FontSize="28"/>
-        <Label x:Name="PasswordLabel" Text="Пароль" FontSize="28" Grid.Row="1" Grid.Column="0"/>
-        <Entry x:Name="PasswordEntry" Text="" IsPassword="True" FontSize="28" Grid.Row="1" Grid.Column="1"/>
-        <Button x:Name="EntryButton" Text="Войти" FontSize="28" Grid.Row="2" Grid.Column="1" Clicked="EntryButton_OnClicked"/>
-    </Grid>
-</ContentPage>
+    <StackLayout VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand">
+        <Label x:Name="LoginLabel" Text="Логин" FontSize="28"/>
+        <Entry x:Name="LoginEntry" Text="" Keyboard="Keyboard.Telephone" FontSize="28" TextColor="#CC7732"/>
+        <Label x:Name="PasswordLabel" Text="Пароль" FontSize="28"/>
+        <Entry x:Name="PasswordEntry" Text="" IsPassword="True" FontSize="28" TextColor="#CC7732"/>
+        <Button x:Name="EntryButton" Text="Войти" FontSize="28" Clicked="EntryButton_OnClicked"/>
+    </StackLayout>
+</local:BaseContentPage>
