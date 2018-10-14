@@ -1,4 +1,5 @@
 ﻿using System;
+using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
 namespace M11
@@ -11,10 +12,11 @@ namespace M11
 			InitializeComponent ();
 		}
 
-        private async void Button_OnClicked(object sender, EventArgs e)
+        private void Button_OnClicked(object sender, EventArgs e)
         {
             App.Exit();
-            await Navigation.PushAsync(new AuthPage());
+            //await Navigation.PushAsync();
+            Application.Current.MainPage = new AuthPage();
         }
     }
 }

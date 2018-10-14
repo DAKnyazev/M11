@@ -12,21 +12,24 @@ namespace M11
 
         private async void EntryButton_OnClicked(object sender, EventArgs e)
         {
-            if(string.IsNullOrWhiteSpace(LoginEntry.Text) || string.IsNullOrWhiteSpace(PasswordEntry.Text))
+            AuthActivityIndicator.IsRunning = true;
+            if (string.IsNullOrWhiteSpace(LoginEntry.Text) || string.IsNullOrWhiteSpace(PasswordEntry.Text))
             {
                 await DisplayAlert("Ошибка", "Необходимо ввести корректные логин и пароль", "Закрыть");
+                AuthActivityIndicator.IsRunning = false;
 
                 return;
             }
-
+            
             if (App.TryGetInfo(LoginEntry.Text, PasswordEntry.Text))
             {
-                await Navigation.PushAsync(new MainPage());
+                await Navigation.PushAsync(new TabbedMainPage());
             }
             else
             {
                 await DisplayAlert("Ошибка авторизации", "Некорректные логин и/или пароль", "Закрыть");
             }
+            AuthActivityIndicator.IsRunning = false;
         }
 	}
 }

@@ -3,11 +3,18 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:M11"
              x:Class="M11.AuthPage">
-    <StackLayout VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand">
-        <Label x:Name="LoginLabel" Text="Логин" FontSize="28"/>
-        <Entry x:Name="LoginEntry" Text="" Keyboard="Keyboard.Telephone" FontSize="28" TextColor="#CC7732"/>
-        <Label x:Name="PasswordLabel" Text="Пароль" FontSize="28"/>
-        <Entry x:Name="PasswordEntry" Text="" IsPassword="True" FontSize="28" TextColor="#CC7732"/>
-        <Button x:Name="EntryButton" Text="Войти" FontSize="28" Clicked="EntryButton_OnClicked"/>
+    <StackLayout VerticalOptions="StartAndExpand" HorizontalOptions="CenterAndExpand" Margin="0,20,0,0">
+        <Label TextColor="Black" FontSize="14" WidthRequest="250" HorizontalTextAlignment="Center" Margin="0,0,0,20">
+            Введите свои имя пользователя и пароль от личного кабинета трассы М11 15-58км
+        </Label>
+        <Label x:Name="LoginLabel" Text="Имя пользователя" FontSize="28" HorizontalTextAlignment="Center"/>
+        <Entry x:Name="LoginEntry" Text="" Keyboard="Keyboard.Telephone" FontSize="28" TextColor="#CC7732" HorizontalTextAlignment="Center"/>
+        <Label x:Name="PasswordLabel" Text="Пароль" FontSize="28" HorizontalTextAlignment="Center"/>
+        <Entry x:Name="PasswordEntry" Text="" IsPassword="True" FontSize="28" TextColor="#CC7732" HorizontalTextAlignment="Center"/>
+        <ActivityIndicator x:Name="AuthActivityIndicator" Color="#CC7732" />
+        <Button x:Name="EntryButton" Text="Войти" TextColor="White" BackgroundColor="#CC7732" FontSize="28" Clicked="EntryButton_OnClicked" WidthRequest="200" />
+        <Label TextColor="Black" FontSize="14" WidthRequest="250" HorizontalTextAlignment="Center" Margin="0,20,0,0">
+            Данные для входа будут сохранены только на вашем устройстве
+        </Label>
     </StackLayout>
 </local:BaseContentPage>
