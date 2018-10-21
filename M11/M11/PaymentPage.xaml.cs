@@ -17,15 +17,12 @@ namespace M11
         private int _onNavigatedCount;
         private WebView _browser;
         private ActivityIndicator LoadingIndicator { get; set; }
+        private bool _isNeedReload;
 
         public PaymentPage()
         {
             _infoService = new InfoService();
-            Init();
-            LoadingIndicator = new ActivityIndicator
-            {
-                Color = Color.FromHex(App.MainColor)
-            };
+            _isNeedReload = true;
             InitializeComponent();
         }
 
@@ -35,35 +32,27 @@ namespace M11
             _browser = new WebView();
             _browser.Navigated += Browser_OnNavigated;
             _browser.Navigating += BrowserOnNavigating;
-        }
-
-        private void BrowserOnNavigating(object sender, WebNavigatingEventArgs args)
-        {
-            if (_onNavigatedCount <= 0 || !args.Url.Contains(_infoService.BaseUrl))
+            LoadingIndicator = new ActivityIndicator
             {
-                return;
-            }
-
-            // Вернулись назад со страницы оплаты (нужно перезагрузить информацию о счете)
-            LoadingIndicator.IsRunning = true;
-            LoadingIndicator.IsVisible = true;
-            _browser.IsVisible = false;
-            App.Info.RequestDate = DateTime.MinValue;
-            App.AccountInfo.RequestDate = DateTime.MinValue;
-            Application.Current.MainPage = new TabbedMainPage();
+                Color = Color.FromHex(App.MainColor)
+            };
         }
 
         protected override void OnAppearing()
         {
+            if (!_isNeedReload)
+            {
+                return;
+            }
             PaymentLayout.Children.Clear();
             Init();
             LoadingIndicator.IsRunning = true;
             LoadingIndicator.IsVisible = true;
+            _browser.IsVisible = false;
             _browser.Source = new HtmlWebViewSource
             {
                 Html = _infoService.GetLoginPageContent(App.Credentials.Login, App.Credentials.Password, typeof(PaymentPage)),
             };
-            _browser.IsVisible = false;
             PaymentLayout.Children.Add(LoadingIndicator,
                 Constraint.RelativeToParent(parent => parent.Width * 0.425),
                 Constraint.RelativeToParent(parent => parent.Height * 0.425),
@@ -98,7 +87,25 @@ namespace M11
             LoadingIndicator.IsRunning = false;
             LoadingIndicator.IsVisible = false;
             _browser.IsVisible = true;
+            _isNeedReload = false;
             _onNavigatedCount++;
+        }
+
+        private void BrowserOnNavigating(object sender, WebNavigatingEventArgs args)
+        {
+            _isNeedReload = true;
+            if (_onNavigatedCount <= 0 || !args.Url.Contains(_infoService.BaseUrl))
+            {
+                return;
+            }
+
+            // Вернулись назад со страницы оплаты (нужно перезагрузить информацию о счете)
+            LoadingIndicator.IsRunning = true;
+            LoadingIndicator.IsVisible = true;
+            _browser.IsVisible = false;
+            App.Info.RequestDate = DateTime.MinValue;
+            App.AccountInfo.RequestDate = DateTime.MinValue;
+            Application.Current.MainPage = new TabbedMainPage();
         }
     }
 }
