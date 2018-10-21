@@ -15,8 +15,6 @@ namespace M11
         private void Button_OnClicked(object sender, EventArgs e)
         {
             App.Exit();
-            //await Navigation.PushAsync();
-            Application.Current.MainPage = new AuthPage();
         }
     }
 }

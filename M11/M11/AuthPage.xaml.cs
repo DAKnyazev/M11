@@ -23,7 +23,7 @@ namespace M11
             
             if (App.TryGetInfo(LoginEntry.Text, PasswordEntry.Text))
             {
-                await Navigation.PushAsync(new TabbedMainPage());
+                Application.Current.MainPage = new TabbedMainPage();
             }
             else
             {

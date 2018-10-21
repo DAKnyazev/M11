@@ -31,7 +31,7 @@ namespace M11
 	    {
 	        if (!App.TryGetInfo())
 	        {
-	            await Navigation.PushAsync(new AuthPage());
+	            Application.Current.MainPage = new AuthPage();
                 return;
             }
 

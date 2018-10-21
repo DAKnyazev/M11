@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using M11.Common.Enums;
 using M11.Services;
 using Xamarin.Forms;
@@ -15,16 +16,13 @@ namespace M11
         private readonly InfoService _infoService;
         private int _onNavigatedCount;
         private int _onNavigatedToBaseUrlCount;
-        private readonly WebView _browser;
+        private WebView _browser;
         private ActivityIndicator LoadingIndicator { get; set; }
 
         public PaymentPage()
         {
             _infoService = new InfoService();
-            _onNavigatedCount = 0;
-            _onNavigatedToBaseUrlCount = 0;
-            _browser = new WebView();
-            _browser.Navigated += Browser_OnNavigated;
+            Init();
             LoadingIndicator = new ActivityIndicator
             {
                 Color = Color.FromHex(App.MainColor)
@@ -32,9 +30,20 @@ namespace M11
             InitializeComponent();
         }
 
+        private void Init()
+        {
+            _onNavigatedCount = 0;
+            _onNavigatedToBaseUrlCount = 0;
+            _browser = new WebView();
+            _browser.Navigated += Browser_OnNavigated;
+        }
+
         protected override void OnAppearing()
         {
+            PaymentLayout.Children.Clear();
+            Init();
             LoadingIndicator.IsRunning = true;
+            LoadingIndicator.IsVisible = true;
             _browser.Source = new HtmlWebViewSource
             {
                 Html = _infoService.GetLoginPageContent(App.Credentials.Login, App.Credentials.Password, typeof(PaymentPage)),
@@ -58,13 +67,12 @@ namespace M11
             {
                 if (args.Url.Contains(_infoService.BaseUrl))
                 {
-                    if (_onNavigatedToBaseUrlCount > 0)
+                    if (_onNavigatedToBaseUrlCount > 1)
                     {
                         // Вернулись назад со страницы оплаты (нужно перезагрузить информацию о счете)
-                        App.SetMainMenuActive();
                         App.Info.RequestDate = DateTime.MinValue;
                         App.AccountInfo.RequestDate = DateTime.MinValue;
-                        await Navigation.PushAsync(new MainPage());
+                        Application.Current.MainPage = new TabbedMainPage();
                     }
 
                     _onNavigatedToBaseUrlCount++;

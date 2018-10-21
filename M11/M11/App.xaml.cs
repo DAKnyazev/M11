@@ -18,14 +18,6 @@ namespace M11
         public static Info Info { get; set; }
         public static AccountInfo AccountInfo { get; set; }
         public static string MainColor { get; set; }
-        private static bool IsMainPageVisible { get; set; }
-        private static float MainPageLogoOpacity { get; set; }
-        private static bool IsStatisticPageVisible { get; set; }
-	    private static float StatisticPageLogoOpacity { get; set; }
-        private static bool IsPaymentPageVisible { get; set; }
-        private static float PaymentPageLogoOpacity { get; set; }
-        private static bool IsSettingsPageVisible { get; set; }
-        private static float SettingsPageLogoOpacity { get; set; }
         
         static App()
         {
@@ -34,9 +26,6 @@ namespace M11
             Credentials = new Credentials();
 	        Info = new Info();
             AccountInfo = new AccountInfo();
-            ClearMenu();
-            IsMainPageVisible = true;
-            MainPageLogoOpacity = 1;
             MainColor = "#996600";
         }
 
@@ -82,11 +71,12 @@ namespace M11
 
 	    public static void Exit()
 	    {
-	        CrossSecureStorage.Current.DeleteKey(LoginKeyName);
-	        CrossSecureStorage.Current.DeleteKey(PasswordKeyName);
+	        CrossSecureStorage.Current.SetValue(LoginKeyName, string.Empty);
+	        CrossSecureStorage.Current.SetValue(PasswordKeyName, string.Empty);
             Info = new Info();
             AccountInfo = new AccountInfo();
             Credentials = new Credentials();
+	        Current.MainPage = new AuthPage();
         }
 
         public static bool TryGetInfo()
@@ -112,57 +102,6 @@ namespace M11
             Credentials.Password = password;
 
             return true;
-        }
-
-        public static void SetMainMenuActive()
-	    {
-	        ClearMenu();
-	        IsMainPageVisible = true;
-	        MainPageLogoOpacity = 1;
-        }
-
-	    private void MainButton_OnClicked(object sender, EventArgs e)
-	    {
-	        ClearMenu();
-            IsMainPageVisible = true;
-	        MainPageLogoOpacity = 1;
-            MainPage = new NavigationPage(new MainPage());
-        }
-
-	    private void StatisticButton_OnClicked(object sender, EventArgs e)
-	    {
-	        ClearMenu();
-	        IsStatisticPageVisible = true;
-	        StatisticPageLogoOpacity = 1;
-            MainPage = new NavigationPage(new StatisticPage());
-	    }
-
-	    private void PaymentButton_OnClicked(object sender, EventArgs e)
-	    {
-	        ClearMenu();
-	        IsPaymentPageVisible = true;
-	        PaymentPageLogoOpacity = 1;
-            MainPage = new NavigationPage(new PaymentPage());
-	    }
-
-	    private void SettingsButton_OnClicked(object sender, EventArgs e)
-	    {
-	        ClearMenu();
-	        IsSettingsPageVisible = true;
-	        SettingsPageLogoOpacity = 1;
-            MainPage = new NavigationPage(new SettingsPage());
-        }
-
-	    private static void ClearMenu()
-	    {
-	        IsMainPageVisible = false;
-	        MainPageLogoOpacity = 0.3f;
-	        IsStatisticPageVisible = false;
-	        StatisticPageLogoOpacity = 0.3f;
-	        IsPaymentPageVisible = false;
-	        PaymentPageLogoOpacity = 0.3f;
-	        IsSettingsPageVisible = false;
-	        SettingsPageLogoOpacity = 0.3f;
         }
 	}
 }

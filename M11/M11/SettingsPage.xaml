@@ -9,6 +9,6 @@
             VerticalOptions="CenterAndExpand" 
             HorizontalOptions="CenterAndExpand"
             FontSize="40"/>
-        <Button FontSize="40" Text="Выход" Clicked="Button_OnClicked"/>
+        <Button FontSize="40" TextColor="White" BackgroundColor="#CC7732" Text="Выход" Clicked="Button_OnClicked"/>
     </StackLayout>
 </m11:BaseContentPage>
