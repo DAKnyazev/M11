@@ -15,7 +15,6 @@ namespace M11
     {
         private readonly InfoService _infoService;
         private int _onNavigatedCount;
-        private int _onNavigatedToBaseUrlCount;
         private WebView _browser;
         private ActivityIndicator LoadingIndicator { get; set; }
 
@@ -33,9 +32,25 @@ namespace M11
         private void Init()
         {
             _onNavigatedCount = 0;
-            _onNavigatedToBaseUrlCount = 0;
             _browser = new WebView();
             _browser.Navigated += Browser_OnNavigated;
+            _browser.Navigating += BrowserOnNavigating;
+        }
+
+        private void BrowserOnNavigating(object sender, WebNavigatingEventArgs args)
+        {
+            if (_onNavigatedCount <= 0 || !args.Url.Contains(_infoService.BaseUrl))
+            {
+                return;
+            }
+
+            // Вернулись назад со страницы оплаты (нужно перезагрузить информацию о счете)
+            LoadingIndicator.IsRunning = true;
+            LoadingIndicator.IsVisible = true;
+            _browser.IsVisible = false;
+            App.Info.RequestDate = DateTime.MinValue;
+            App.AccountInfo.RequestDate = DateTime.MinValue;
+            Application.Current.MainPage = new TabbedMainPage();
         }
 
         protected override void OnAppearing()
@@ -61,22 +76,10 @@ namespace M11
                 Constraint.RelativeToParent(parent => parent.Height));
         }
 
-        private async void Browser_OnNavigated(object sender, WebNavigatedEventArgs args)
+        private void Browser_OnNavigated(object sender, WebNavigatedEventArgs args)
         {
             if (_onNavigatedCount > 0)
             {
-                if (args.Url.Contains(_infoService.BaseUrl))
-                {
-                    if (_onNavigatedToBaseUrlCount > 1)
-                    {
-                        // Вернулись назад со страницы оплаты (нужно перезагрузить информацию о счете)
-                        App.Info.RequestDate = DateTime.MinValue;
-                        App.AccountInfo.RequestDate = DateTime.MinValue;
-                        Application.Current.MainPage = new TabbedMainPage();
-                    }
-
-                    _onNavigatedToBaseUrlCount++;
-                }
                 return;
             }
 
