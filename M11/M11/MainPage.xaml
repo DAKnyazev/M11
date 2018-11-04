@@ -4,7 +4,7 @@
              xmlns:m11="clr-namespace:M11;assembly=M11"
              x:Class="M11.MainPage"
              ControlTemplate="{StaticResource MainPageTemplate}">
-    <StackLayout x:Name="MainLayout" VerticalOptions="Center" HorizontalOptions="FillAndExpand" BackgroundColor="White">
+    <StackLayout x:Name="MainLayout" VerticalOptions="Center" HorizontalOptions="FillAndExpand">
         <Label FontSize="55" />
         <Label x:Name="BalanceTitleLabel" FontSize="18" Text="Баланс:" HorizontalTextAlignment="Center"/>
         <Label x:Name="BalanceLabel" FontSize="55" FontFamily="Bold,700" HorizontalTextAlignment="Center" TextColor="#996600" />
