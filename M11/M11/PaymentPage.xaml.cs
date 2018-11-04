@@ -17,7 +17,9 @@ namespace M11
         private int _onNavigatedCount;
         private WebView _browser;
         private ActivityIndicator LoadingIndicator { get; set; }
+        private string _paymentPageUrl = "securepayments.sberbank.ru";
         private bool _isNeedReload;
+        private bool _isPaymentPageWasOpened;
 
         public PaymentPage()
         {
@@ -40,6 +42,10 @@ namespace M11
 
         protected override void OnAppearing()
         {
+            if (_isPaymentPageWasOpened)
+            {
+                _isNeedReload = false;
+            }
             if (!_isNeedReload)
             {
                 return;
@@ -67,6 +73,10 @@ namespace M11
 
         private void Browser_OnNavigated(object sender, WebNavigatedEventArgs args)
         {
+            if (args.Url.Contains(_paymentPageUrl))
+            {
+                _isPaymentPageWasOpened = true;
+            }
             if (_onNavigatedCount > 0)
             {
                 return;
