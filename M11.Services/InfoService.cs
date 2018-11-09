@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using M11.Common.Enums;
@@ -21,6 +22,8 @@ namespace M11.Services
         public readonly string BaseUrl = "https://private.15-58m11.ru";
         private readonly string _authPath = "onyma/";
         private readonly string _accountDetailsPath = "onyma/lk/account/";
+        private readonly string _monthlyBillsPath = "month_bills2/";
+        private readonly string _monthlyBillDetailsPath = "mdb_traf_d2/";
         private readonly string _loginParameterName = "login";
         private readonly string _passwordParameterName = "password";
         private readonly string _submitParameterName = "submit";
@@ -30,6 +33,7 @@ namespace M11.Services
         private readonly string _accountIdAttributeName = "data-tree-id=\"";
         private readonly string _partyIdParamName = "_party_id=";
         private readonly string _ilinkIdParamName = "__ilink_id__=";
+        private readonly string _parentIdParamName = "_parent_id";
 
         private readonly string _loginPageName = "LoginPage.html";
         private readonly string _paymentPageName = "PaymentPage.html";
@@ -128,15 +132,150 @@ namespace M11.Services
                 Method.GET);
             var accountResponse = result.RestClient.Execute(accountRequest);
             var accountLinksDiv = GetTagValue(accountResponse.Content, "<div class=\\\"links\\\">", "</div>");
-            accountLinksDiv = Regex.Replace(accountLinksDiv, @"\t|\n|\r|\\", "");
+            accountLinksDiv = Regex.Replace(accountLinksDiv, @"\\t|\\n|\\r|\\", "");
             var accountLinksDivHtml = new HtmlDocument();
             accountLinksDivHtml.LoadHtml(accountLinksDiv);
-            var accountLinks = GetLinks<AccountLinkType>(accountLinksDivHtml, "/div[1]/ul[1]/li[{0}]/a[1]");
+            result.AccountLinks = GetLinks<AccountLinkType>(accountLinksDivHtml, "/div[1]/ul[1]/li[{0}]/a[1]");
             result.BillSummaryList = GetMonthlyStatistic(result.RestClient,
-                accountLinks.FirstOrDefault(x => x.Type == AccountLinkType.Account)?.RelativeUrl,
+                result.AccountLinks.FirstOrDefault(x => x.Type == AccountLinkType.Account)?.RelativeUrl,
                 start,
                 end);
             result.RequestDate = DateTime.Now;
+
+            return result;
+        }
+
+        /// <summary>
+        /// Получение сгруппированных расходов на услуги в указанном месяце
+        /// </summary>
+        public List<MonthBillGroup> GetMonthlyDetails(string accountPath, IRestClient client, string linkId, string accountId, MonthBillSummary monthlyBillSummary)
+        {
+            var result = new List<MonthBillGroup>();
+            var path = accountPath.Substring(0, accountPath.IndexOf('?'));
+            var request = new RestRequest($"{path}{monthlyBillSummary.Id}/", Method.GET);
+            request.AddParameter(_ilinkIdParamName, GetParamValue(accountPath, _ilinkIdParamName));
+            request.AddParameter("__parent_obj__", accountId);
+            request.AddParameter("_parent_id", GetParamValue(accountPath, _parentIdParamName));
+            request.AddParameter("simple", 1);
+
+            var response = client.Execute(request);
+            var ul = new HtmlDocument();
+            ul.LoadHtml(GetTagValue(response.Content, "<ul class=\\\"nav nav-tabs\\\">", "</ul>"));
+            var n = ul.DocumentNode.SelectSingleNode("/ul[1]/li[2]/a[1]")?.Attributes["href"]?.Value;
+            if (!string.IsNullOrWhiteSpace(n))
+            {
+                n = n.Replace("\\n", "").Replace("\\\"", "");
+            }
+
+            var monthBillsLinkId = GetParamValue(n, _ilinkIdParamName);
+            request = new RestRequest($"{path}{_monthlyBillsPath}", Method.GET);
+            request.AddParameter("_parent_id", monthlyBillSummary.Id);
+            request.AddParameter("__ilink_id__", monthBillsLinkId);
+            request.AddParameter("simple", 1);
+
+            response = client.Execute(request);
+            var content = Regex.Replace(response.Content, @"\\t|\\n|\\r|\\", "");
+            var tbody = GetTagValue(content, "<tbody>", "</tbody>");
+            var document = new HtmlDocument();
+            document.LoadHtml(tbody);
+
+            try
+            {
+                var i = 0;
+                while (true)
+                {
+                    i++;
+                    if (string.IsNullOrWhiteSpace(document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[1]//text()")?.InnerText))
+                    {
+                        break;
+                    }
+
+                    decimal.TryParse(document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[7]//text()").InnerText.Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
+                        out var amount);
+                    decimal.TryParse(document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[8]//text()").InnerText.Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
+                        out var cost);
+                    decimal.TryParse(document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[9]//text()").InnerText.Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
+                        out var costWithTax);
+                    result.Add(new MonthBillGroup
+                    {
+                        Id = document.DocumentNode.SelectSingleNode($"//tr[{i}]").Attributes["data-obj-id"].Value,
+                        PeriodName = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[1]//text()").InnerText,
+                        LinkId = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[2]//text()").InnerText,
+                        TariffPlan = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[4]//text()").InnerText,
+                        ServiceName = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[5]//text()").InnerText,
+                        UnitOfMeasurement = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[6]//text()").InnerText,
+                        Amount = amount,
+                        Cost = cost,
+                        CostWithTax = costWithTax
+                    });
+                }
+            }
+            catch
+            {
+                // Если что-то пошло не так, то возвращаем хоть что-нибудь
+            }
+
+            var groupUrl = GetAttributeValue(GetTagValue(content, "<form", "</form>"), "action=\"");
+            
+            foreach (var item in result)
+            {
+                var url = groupUrl.Replace("list-action", item.Id);
+                request = new RestRequest($"{url}&simple=1", Method.GET);
+                response = client.Execute(request);
+                content = Regex.Replace(response.Content, @"\\t|\\n|\\r|\\", "");
+                var groupDetailsUrl = GetAttributeValue(content, "<li class=\"nav-item\"><a href=\"");
+
+                request = new RestRequest($"{groupDetailsUrl}&simple=1", Method.GET);
+                response = client.Execute(request);
+                content = Regex.Replace(response.Content, @"\\t|\\n|\\r|\\", "");
+                tbody = GetTagValue(content, "<tbody>", "</tbody>");
+                document.LoadHtml(tbody);
+
+                try
+                {
+                    var i = 0;
+                    while (true)
+                    {
+                        i++;
+                        if (string.IsNullOrWhiteSpace(document.DocumentNode
+                            .SelectSingleNode($"//tr[{i}]//td[1]//text()")?.InnerText))
+                        {
+                            break;
+                        }
+
+                        decimal.TryParse(
+                            document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[8]//text()").InnerText
+                                .Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
+                            out var amount);
+                        decimal.TryParse(
+                            document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[9]//text()").InnerText
+                                .Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
+                            out var cost);
+                        decimal.TryParse(
+                            document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[10]//text()").InnerText
+                                .Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
+                            out var costWithTax);
+                        item.Bills.Add(new Bill
+                        {
+                            Id = document.DocumentNode.SelectSingleNode($"//tr[{i}]").Attributes["data-obj-id"]?.Value,
+                            FullPeriodName = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[1]//text()")?.InnerText,
+                            ExitPoint = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[2]//text()")?.InnerText,
+                            EntryPoint = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[3]//text()")?.InnerText,
+                            ForeigtPointComment =
+                                document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[4]//text()")?.InnerText,
+                            PAN = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[5]//text()")?.InnerText,
+                            CarClass = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[7]//text()")?.InnerText,
+                            Amount = amount,
+                            Cost = cost,
+                            CostWithTax = costWithTax
+                        });
+                    }
+                }
+                catch
+                {
+                    // Если что-то пошло не так, то возвращаем хоть что-нибудь
+                }
+            }
 
             return result;
         }
@@ -289,7 +428,7 @@ namespace M11.Services
                     i++;
                     var nodeXpath = string.Format(xpath, i);
                     if (string.IsNullOrWhiteSpace(table.DocumentNode.SelectSingleNode(nodeXpath)
-                        .InnerText))
+                        ?.InnerText))
                     {
                         break;
                     }
@@ -319,7 +458,7 @@ namespace M11.Services
             var param = JsonConvert.SerializeObject(new List<BillsSummaryParam> { new BillsSummaryParam(start, end) });
             request.AddParameter("raw_state", param);
             var response = client.Execute(request);
-            var content = Regex.Replace(response.Content, @"\t|\n|\r|\\", "");
+            var content = Regex.Replace(response.Content, @"\\t|\\n|\\r|\\", "");
             var tbody = GetTagValue(content, "<tbody>", "</tbody>");
             var document = new HtmlDocument();
             document.LoadHtml(tbody);
@@ -329,7 +468,7 @@ namespace M11.Services
                 while (true)
                 {
                     i++;
-                    if (string.IsNullOrWhiteSpace(document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[1]//text()").InnerText))
+                    if (string.IsNullOrWhiteSpace(document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[1]//text()")?.InnerText))
                     {
                         break;
                     }

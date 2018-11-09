@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using M11.Common.Enums;
 using M11.Common.Models.BillSummary;
 using RestSharp;
 
@@ -38,5 +39,10 @@ namespace M11.Common.Models
         /// Список статистика расходов по месяцам
         /// </summary>
         public List<MonthBillSummary> BillSummaryList { get; set; }
+
+        /// <summary>
+        /// Ссылки на основные страницы
+        /// </summary>
+        public List<Link<AccountLinkType>> AccountLinks { get; set; }
     }
 }

@@ -11,5 +11,8 @@
         <Label x:Name="BalanceCurrencyLabel" FontSize="18" Text="рублей" HorizontalTextAlignment="Center"/>
         <StackLayout x:Name="TicketLayout">
         </StackLayout>
+        <StackLayout x:Name="LastPaymentsLayout">
+            <Label HorizontalOptions="Center" FontFamily="Bold,700" FontSize="18">Последние траты</Label>
+        </StackLayout>
     </StackLayout>
 </m11:BaseContentPage>

@@ -1,38 +1,14 @@
-﻿using System;
-using System.Globalization;
-
-namespace M11.Common.Models.BillSummary
+﻿namespace M11.Common.Models.BillSummary
 {
     /// <summary>
     /// Общая статистика расходов за месяц
     /// </summary>
-    public class MonthBillSummary
+    public class MonthBillSummary : BaseMonthBill
     {
         /// <summary>
         /// Идентификатор месяца
         /// </summary>
         public string Id { get; set; }
-
-        /// <summary>
-        /// Рассматриваемый месяц и год в формате 20**.**
-        /// </summary>
-        public string PeriodName
-        {
-            get => Period.ToString("yyyy.MM");
-            set
-            {
-                if (DateTime.TryParseExact(value, "yyyy.MM", CultureInfo.InvariantCulture, DateTimeStyles.None,
-                    out var period))
-                {
-                    Period = period;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Рассматриваемый месяц и год
-        /// </summary>
-        public DateTime Period { get; set; }
 
         /// <summary>
         /// Приход

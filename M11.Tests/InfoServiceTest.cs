@@ -48,6 +48,18 @@ namespace M11.Tests
             Assert.IsFalse(string.IsNullOrWhiteSpace(accountInfo.IlinkId));
             Assert.IsFalse(string.IsNullOrWhiteSpace(accountInfo.PartyId));
             Assert.IsNotNull(accountInfo.BillSummaryList);
+            try
+            {
+                var groups = _infoService.GetMonthlyDetails(
+                    accountInfo.AccountLinks.FirstOrDefault(x => x.Type == AccountLinkType.Account)?.RelativeUrl,
+                    accountInfo.RestClient,
+                    accountInfo.IlinkId,
+                    accountInfo.AccountId,
+                    accountInfo.BillSummaryList.OrderByDescending(x => x.Period).FirstOrDefault());
+            }
+            catch (Exception e)
+            {
+            }
         }
 
         [Test, Order(3)]
