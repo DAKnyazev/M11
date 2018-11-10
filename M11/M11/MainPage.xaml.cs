@@ -49,70 +49,77 @@ namespace M11
                 return;
             }
 
-	        Device.BeginInvokeOnMainThread(() =>
-	        {
-	            BalanceLabel.Text = App.AccountBalance.Balance + " ₽";
-	            TicketLayout.Children.Clear();
-	            if (App.AccountBalance.Tickets.Any())
-	            {
-	                TicketLayout.Children.Add(new Label
-	                {
-	                    Text = "Абонементы:",
-	                    FontSize = 36,
-	                    HorizontalTextAlignment = TextAlignment.Center
-	                });
-	            }
+	        InitializeBalanceAndTickets();
+            App.SetUpAccountInfo();
+	        InitializeLastBills();
+	    }
 
-	            LastPaymentsLayout.Children.Clear();
-	            LastPaymentsLayout.Children.Add(new Label
-	            {
+        private void InitializeBalanceAndTickets()
+        {
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                BalanceLabel.Text = App.AccountBalance.Balance + " ₽";
+                TicketLayout.Children.Clear();
+                if (App.AccountBalance.Tickets.Any())
+                {
+                    TicketLayout.Children.Add(new Label
+                    {
+                        Text = "Абонементы:",
+                        FontSize = 36,
+                        HorizontalTextAlignment = TextAlignment.Center
+                    });
+                }
+
+                LastPaymentsLayout.Children.Clear();
+                LastPaymentsLayout.Children.Add(new Label
+                {
                     Text = "Последние траты:",
                     HorizontalOptions = LayoutOptions.Center,
                     FontFamily = "Bold,700",
                     FontSize = 18
                 });
-	        });
+            });
 
-	        const int padding = 10;
-	        foreach (var ticket in App.AccountBalance.Tickets)
-	        {
-	            var layout = new RelativeLayout();
-	            layout.Children.Add(new BoxView { BackgroundColor = Color.FromHex("#F5F5DC") },
-	                Constraint.Constant(padding),
-	                Constraint.Constant(0),
-	                Constraint.RelativeToParent(parent => parent.Width - 2 * padding),
-	                Constraint.Constant(70));
-	            var ticketDescriptions = ticket.Description.Split(',');
+            const int padding = 10;
+            foreach (var ticket in App.AccountBalance.Tickets)
+            {
+                var layout = new RelativeLayout();
+                layout.Children.Add(new BoxView { BackgroundColor = Color.FromHex("#F5F5DC") },
+                    Constraint.Constant(padding),
+                    Constraint.Constant(0),
+                    Constraint.RelativeToParent(parent => parent.Width - 2 * padding),
+                    Constraint.Constant(70));
+                var ticketDescriptions = ticket.Description.Split(',');
                 layout.Children.Add(new Label
-                    {
-                        Text = ticketDescriptions.Length > 2 ? ticketDescriptions[2] : string.Empty,
-                        FontSize = 24
-                    },
+                {
+                    Text = ticketDescriptions.Length > 2 ? ticketDescriptions[2] : string.Empty,
+                    FontSize = 24
+                },
                     Constraint.Constant(2 * padding),
-                    null, 
+                    null,
                     Constraint.RelativeToParent(parent => parent.Width - 4 * padding),
                     Constraint.Constant(36));
-	            var count = ticketDescriptions.Length > 0 ? Regex.Match(ticketDescriptions[0], @"\d+").Value : string.Empty;
-	            var remainingCountText = string.IsNullOrWhiteSpace(count)
-	                ? $"осталось поездок: {ticket.RemainingTripsCount}"
-	                : $"осталось поездок: {ticket.RemainingTripsCount} (из {count})";
+                var count = ticketDescriptions.Length > 0 ? Regex.Match(ticketDescriptions[0], @"\d+").Value : string.Empty;
+                var remainingCountText = string.IsNullOrWhiteSpace(count)
+                    ? $"осталось поездок: {ticket.RemainingTripsCount}"
+                    : $"осталось поездок: {ticket.RemainingTripsCount} (из {count})";
 
                 layout.Children.Add(new Label { Text = $"{ticket.Status}, {remainingCountText}" },
-	                Constraint.Constant(2 * padding),
-	                Constraint.Constant(30),
-	                Constraint.RelativeToParent(parent => parent.Width - 4 * padding),
-	                Constraint.Constant(20));
+                    Constraint.Constant(2 * padding),
+                    Constraint.Constant(30),
+                    Constraint.RelativeToParent(parent => parent.Width - 4 * padding),
+                    Constraint.Constant(20));
                 layout.Children.Add(new Label { Text = $"Использовать до: {ticket.ExpiryDate:dd.MM.yyyy HH:mm}" },
                     Constraint.Constant(2 * padding),
                     Constraint.Constant(50),
                     Constraint.RelativeToParent(parent => parent.Width - 4 * padding),
                     Constraint.Constant(20));
 
-	            Device.BeginInvokeOnMainThread(() =>
-	            {
-	                TicketLayout.Children.Add(layout);
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    TicketLayout.Children.Add(layout);
                 });
-	        }
+            }
             Device.BeginInvokeOnMainThread(() =>
             {
                 LoadingIndicator.IsRunning = false;
@@ -123,12 +130,14 @@ namespace M11
                 LastPaymentsIndicator.IsVisible = true;
                 LastPaymentsLayout.Children.Add(LastPaymentsIndicator);
             });
+        }
 
-            App.SetUpAccountInfo();
-
-	        if (App.AccountInfo.BillSummaryList.Any())
-	        {
-	            var bills = App.GetLastBills();
+        private void InitializeLastBills()
+        {
+            const int padding = 10;
+            if (App.AccountInfo.BillSummaryList.Any())
+            {
+                var bills = App.GetLastBills();
                 Device.BeginInvokeOnMainThread(() =>
                 {
                     LastPaymentsIndicator.IsRunning = false;
@@ -150,7 +159,7 @@ namespace M11
                         LastPaymentsLayout.Children.Add(layout);
                     }
                 });
-	        }
-	    }
+            }
+        }
     }
 }
