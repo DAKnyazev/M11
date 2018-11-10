@@ -57,7 +57,7 @@ namespace M11
             _browser.IsVisible = false;
             _browser.Source = new HtmlWebViewSource
             {
-                Html = _infoService.GetLoginPageContent(App.Credentials.Login, App.Credentials.Password, typeof(PaymentPage)),
+                Html = App.GetLoginPageContent(typeof(PaymentPage))
             };
             PaymentLayout.Children.Add(LoadingIndicator,
                 Constraint.RelativeToParent(parent => parent.Width * 0.425),
@@ -82,17 +82,11 @@ namespace M11
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(App.AccountInfo?.AccountId))
-            {
-                App.AccountInfo = _infoService.GetAccountInfo(
-                    App.Info.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl,
-                    App.Info.CookieContainer,
-                    DateTime.Now,
-                    DateTime.Now.AddMonths(-App.AccountInfoMonthCount));
-            }
+            App.SetUpAccountInfo();
+            
             _browser.Source = new HtmlWebViewSource
             {
-                Html = _infoService.GetPaymentPageContent(App.AccountInfo.AccountId, 100, App.Info.Phone, typeof(PaymentPage))
+                Html = App.GetPaymentPageContent(typeof(PaymentPage))
             };
             LoadingIndicator.IsRunning = false;
             LoadingIndicator.IsVisible = false;
@@ -113,7 +107,7 @@ namespace M11
             LoadingIndicator.IsRunning = true;
             LoadingIndicator.IsVisible = true;
             _browser.IsVisible = false;
-            App.Info.RequestDate = DateTime.MinValue;
+            App.AccountBalance.RequestDate = DateTime.MinValue;
             App.AccountInfo.RequestDate = DateTime.MinValue;
             Application.Current.MainPage = new TabbedMainPage();
         }

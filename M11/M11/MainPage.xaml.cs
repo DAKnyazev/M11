@@ -47,9 +47,9 @@ namespace M11
 
 	        Device.BeginInvokeOnMainThread(() =>
 	        {
-	            BalanceLabel.Text = App.Info.Balance + " ₽";
+	            BalanceLabel.Text = App.AccountBalance.Balance + " ₽";
 	            TicketLayout.Children.Clear();
-	            if (App.Info.Tickets.Any())
+	            if (App.AccountBalance.Tickets.Any())
 	            {
 	                TicketLayout.Children.Add(new Label
 	                {
@@ -70,7 +70,7 @@ namespace M11
 	        });
 
 	        const int padding = 10;
-	        foreach (var ticket in App.Info.Tickets)
+	        foreach (var ticket in App.AccountBalance.Tickets)
 	        {
 	            var layout = new RelativeLayout();
 	            layout.Children.Add(new BoxView { BackgroundColor = Color.FromHex("#F5F5DC") },
@@ -120,42 +120,29 @@ namespace M11
                 LastPaymentsLayout.Children.Add(LastPaymentsIndicator);
             });
 
-	        var infoService = new InfoService();
+            App.SetUpAccountInfo();
 
-            App.AccountInfo = infoService.GetAccountInfo(
-	            App.Info.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl,
-	            App.Info.CookieContainer,
-	            DateTime.Now,
-	            DateTime.Now.AddMonths(-App.AccountInfoMonthCount));
 	        if (App.AccountInfo.BillSummaryList.Any())
 	        {
-	            var groups = infoService.GetMonthlyDetails(
-	                App.AccountInfo.AccountLinks.FirstOrDefault(x => x.Type == AccountLinkType.Account)?.RelativeUrl,
-	                App.AccountInfo.RestClient,
-	                App.AccountInfo.IlinkId,
-	                App.AccountInfo.AccountId,
-	                App.AccountInfo.BillSummaryList.OrderByDescending(x => x.Period).FirstOrDefault());
-                Device.BeginInvokeOnMainThread(() =>
+	            Device.BeginInvokeOnMainThread(() =>
                 {
                     LastPaymentsIndicator.IsRunning = false;
                     LastPaymentsIndicator.IsVisible = false;
-                    foreach (var group in groups)
+
+                    foreach (var bill in App.GetLastBills())
                     {
-                        foreach (var bill in group.Bills)
-                        {
-                            var layout = new RelativeLayout();
-                            layout.Children.Add(new Label { Text = bill.Period.ToString("dd.MM.yyyy HH:mm") },
-                                Constraint.Constant(padding),
-                                Constraint.Constant(0),
-                                Constraint.RelativeToParent(parent => parent.Width - 2 * padding),
-                                Constraint.Constant(70));
-                            layout.Children.Add(new Label { Text = bill.CostWithTax.ToString("0.00") + " ₽" },
-                                Constraint.RelativeToParent(parent => padding + 3 * parent.Width / 4),
-                                Constraint.Constant(0),
-                                Constraint.RelativeToParent(parent => parent.Width / 4 - 2 * padding),
-                                Constraint.Constant(70));
-                            LastPaymentsLayout.Children.Add(layout);
-                        }
+                        var layout = new RelativeLayout();
+                        layout.Children.Add(new Label { Text = bill.Period.ToString("dd.MM.yyyy HH:mm") },
+                            Constraint.Constant(padding),
+                            Constraint.Constant(0),
+                            Constraint.RelativeToParent(parent => parent.Width - 2 * padding),
+                            Constraint.Constant(70));
+                        layout.Children.Add(new Label { Text = bill.CostWithTax.ToString("0.00") + " ₽" },
+                            Constraint.RelativeToParent(parent => padding + 3 * parent.Width / 4),
+                            Constraint.Constant(0),
+                            Constraint.RelativeToParent(parent => parent.Width / 4 - 2 * padding),
+                            Constraint.Constant(70));
+                        LastPaymentsLayout.Children.Add(layout);
                     }
                 });
 	        }

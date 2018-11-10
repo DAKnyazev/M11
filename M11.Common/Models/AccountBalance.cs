@@ -6,11 +6,11 @@ using M11.Common.Enums;
 namespace M11.Common.Models
 {
     /// <summary>
-    /// Информация о договоре
+    /// Информация о договоре и балансе
     /// </summary>
-    public class Info : BaseInfo
+    public class AccountBalance : BaseInfo
     {
-        public Info()
+        public AccountBalance()
         {
             Tickets = new List<Ticket>();
         }

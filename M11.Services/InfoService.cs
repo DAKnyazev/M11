@@ -6,7 +6,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using M11.Common.Enums;
@@ -23,7 +22,6 @@ namespace M11.Services
         private readonly string _authPath = "onyma/";
         private readonly string _accountDetailsPath = "onyma/lk/account/";
         private readonly string _monthlyBillsPath = "month_bills2/";
-        private readonly string _monthlyBillDetailsPath = "mdb_traf_d2/";
         private readonly string _loginParameterName = "login";
         private readonly string _passwordParameterName = "password";
         private readonly string _submitParameterName = "submit";
@@ -37,7 +35,7 @@ namespace M11.Services
 
         private readonly string _loginPageName = "LoginPage.html";
         private readonly string _paymentPageName = "PaymentPage.html";
-
+        
         private static readonly Dictionary<string, string> RowIdEncodeDictionary = new Dictionary<string, string>
         {
             { "$", "$00" },
@@ -57,7 +55,7 @@ namespace M11.Services
         /// </summary>
         /// <param name="login">Логин</param>
         /// <param name="password">Пароль</param>
-        public Info GetInfo(string login, string password)
+        public AccountBalance GetAccountBalance(string login, string password)
         {
             try
             {
@@ -68,12 +66,11 @@ namespace M11.Services
                 request.AddParameter(_passwordParameterName, password);
                 request.AddParameter(_submitParameterName, _submitParameterValue);
                 var response = client.Execute(request);
-
                 var stringContent = response.Content;
 
                 if (string.IsNullOrEmpty(stringContent))
                 {
-                    return new Info();
+                    return new AccountBalance();
                 }
 
                 var commonTable = GetTagValue(stringContent, "<table class=\"infoblock fullwidth\">", "</table>");
@@ -87,7 +84,7 @@ namespace M11.Services
                 var linkDocument = new HtmlDocument();
                 linkDocument.LoadHtml(linkTable);
 
-                return new Info
+                return new AccountBalance
                 {
                     RequestDate = DateTime.Now,
                     ContractNumber =
@@ -107,7 +104,7 @@ namespace M11.Services
             catch
             {
                 // Скорее всего какая-то ошибка парсинга
-                return new Info();
+                return new AccountBalance();
             }
         }
 
@@ -118,15 +115,26 @@ namespace M11.Services
         /// <param name="cookieContainer">Коллекция куки, которая нужна для запроса</param>
         /// <param name="start">Дата начала периода</param>
         /// <param name="end">Дата окончания периода</param>
-        public AccountInfo GetAccountInfo(string path, CookieContainer cookieContainer, DateTime start, DateTime end)
+        /// <param name="accountId">Идентификатор аккаунта</param>
+        /// <param name="dataObjectId">Идентификатор DataObjectId, для запросов по лицевому счёту</param>
+        public AccountInfo GetAccountInfo(string path, CookieContainer cookieContainer, DateTime start, DateTime end, string accountId = null, string dataObjectId = null)
         {
             var result = new AccountInfo { RestClient = new RestClient(BaseUrl) { CookieContainer = cookieContainer } };
-            var request = new RestRequest($"{path}", Method.GET);
-            var response = result.RestClient.Execute(request);
-            result.DataObjectId = EncodeRowId(GetAttributeValue(response.Content, _dataObjectIdAttributeName));
-            result.AccountId = GetAttributeValue(response.Content, _accountIdAttributeName);
+            if (string.IsNullOrWhiteSpace(accountId) || string.IsNullOrWhiteSpace(dataObjectId))
+            {
+                var request = new RestRequest($"{path}", Method.GET);
+                var response = result.RestClient.Execute(request);
+                result.AccountId = GetAttributeValue(response.Content, _accountIdAttributeName);
+                result.DataObjectId = EncodeRowId(GetAttributeValue(response.Content, _dataObjectIdAttributeName));
+            }
+            else
+            {
+                result.AccountId = accountId;
+                result.DataObjectId = dataObjectId;
+            }
             result.PartyId = GetParamValue(path, _partyIdParamName);
             result.IlinkId = GetParamValue(path, _ilinkIdParamName);
+
             var accountRequest = new RestRequest(
                 $"{_accountDetailsPath}{result.DataObjectId}/?__ilink_id__={result.IlinkId}&__parent_obj__={result.PartyId}&_party_id={result.PartyId}&simple=1",
                 Method.GET);

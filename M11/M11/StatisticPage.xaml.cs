@@ -1,10 +1,6 @@
-﻿using System;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using System.Threading.Tasks;
-using M11.Common.Enums;
 using M11.Common.Extentions;
-using M11.Services;
 using Xamarin.Forms;
 
 namespace M11
@@ -39,14 +35,7 @@ namespace M11
                 return;
             }
 
-            if (App.AccountInfo.RequestDate <= DateTime.Now.AddMinutes(-App.CachingTimeInMinutes))
-            {
-                App.AccountInfo = new InfoService().GetAccountInfo(
-                    App.Info.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl,
-                    App.Info.CookieContainer,
-                    DateTime.Now,
-                    DateTime.Now.AddMonths(-App.AccountInfoMonthCount));
-            }
+            App.SetUpAccountInfo();
 
             const int padding = 10;
             foreach (var item in App.AccountInfo.BillSummaryList)
