@@ -143,20 +143,37 @@ namespace M11
                     LastPaymentsIndicator.IsRunning = false;
                     LastPaymentsIndicator.IsVisible = false;
 
-                    foreach (var bill in bills)
+                    foreach (var billGroup in bills.GroupBy(x => x.Period.Date))
                     {
                         var layout = new RelativeLayout();
-                        layout.Children.Add(new Label { Text = bill.Period.ToString("dd.MM.yyyy HH:mm") },
-                            Constraint.Constant(padding),
-                            Constraint.Constant(0),
-                            Constraint.RelativeToParent(parent => parent.Width - 2 * padding),
-                            Constraint.Constant(70));
-                        layout.Children.Add(new Label { Text = bill.CostWithTax.ToString("0.00") + " ₽" },
-                            Constraint.RelativeToParent(parent => padding + 3 * parent.Width / 4),
-                            Constraint.Constant(0),
-                            Constraint.RelativeToParent(parent => parent.Width / 4 - 2 * padding),
-                            Constraint.Constant(70));
+                        var groupName = billGroup.Key.Date == DateTime.Now.Date
+                            ? "Сегодня"
+                            : billGroup.Key.Date == DateTime.Now.AddDays(-1).Date
+                                ? "Вчера"
+                                : billGroup.Key.ToString("dd MMMM");
+                        layout.Children.Add(new Label { Text = groupName, FontSize = 20 },
+                            Constraint.Constant(padding * 3));
                         LastPaymentsLayout.Children.Add(layout);
+                        foreach (var bill in billGroup.OrderByDescending(x => x.Period))
+                        {
+                            layout = new RelativeLayout();
+                            var source = bill.IsServicePay
+                                ? ImageSource.FromFile("service.png")
+                                : bill.CostWithTax == 0
+                                    ? ImageSource.FromFile("ticket.png")
+                                    : ImageSource.FromFile("wallet.png");
+                            layout.Children.Add(new Image { Source = source },
+                                Constraint.Constant(padding),
+                                Constraint.Constant(0),
+                                Constraint.Constant(64),
+                                Constraint.Constant(64));
+                            layout.Children.Add(new Label {Text = bill.IsServicePay ? "Ежемесячный платеж" : $"{App.GetPointName(bill.EntryPoint)} - {App.GetPointName(bill.ExitPoint)}" },
+                                Constraint.Constant(64 + 2 * padding));
+                            layout.Children.Add(new Label { Text = bill.CostWithTax.ToString("0") },
+                                Constraint.RelativeToParent(x => 4 * x.Width / 5),
+                                Constraint.Constant(30));
+                            LastPaymentsLayout.Children.Add(layout);
+                        }
                     }
                 });
             }

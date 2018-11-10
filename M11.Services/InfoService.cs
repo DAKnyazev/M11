@@ -532,19 +532,20 @@ namespace M11.Services
                     {
                         break;
                     }
-
+                    var isServicePay = item.ServiceName.ToLower().Contains("ежемесячный");
                     decimal.TryParse(
-                        document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[8]//text()").InnerText
+                        document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 6 : 8)}]//text()")?.InnerText
                             .Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
                         out var amount);
                     decimal.TryParse(
-                        document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[9]//text()").InnerText
+                        document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 7 : 9)}]//text()")?.InnerText
                             .Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
                         out var cost);
                     decimal.TryParse(
-                        document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[10]//text()").InnerText
+                        document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 8 : 10)}]//text()")?.InnerText
                             .Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
                         out var costWithTax);
+                    
                     item.Bills.Add(new Bill
                     {
                         Id = document.DocumentNode.SelectSingleNode($"//tr[{i}]").Attributes["data-obj-id"]?.Value,
@@ -557,7 +558,8 @@ namespace M11.Services
                         CarClass = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[7]//text()")?.InnerText,
                         Amount = amount,
                         Cost = cost,
-                        CostWithTax = costWithTax
+                        CostWithTax = costWithTax,
+                        IsServicePay = isServicePay
                     });
                 }
             }

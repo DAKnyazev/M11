@@ -97,20 +97,25 @@ namespace M11
 
         public static bool TryGetInfo(string login, string password)
         {
-            if (AccountBalance.RequestDate > DateTime.Now.AddMinutes(-CachingTimeInMinutes))
+            lock (_getAccountInfoLockObject)
             {
-                return true;
+                if (AccountBalance.RequestDate > DateTime.Now.AddMinutes(-CachingTimeInMinutes))
+                {
+                    return true;
+                }
+
+                var accountBalance = new InfoService().GetAccountBalance(login, password);
+                if (string.IsNullOrWhiteSpace(accountBalance.ContractNumber))
+                {
+                    return false;
+                }
+
+                AccountBalance = accountBalance;
+                CrossSecureStorage.Current.SetValue(LoginKeyName, login);
+                CrossSecureStorage.Current.SetValue(PasswordKeyName, password);
+                Credentials.Login = login;
+                Credentials.Password = password;
             }
-            var accountBalance = new InfoService().GetAccountBalance(login, password);
-            if (string.IsNullOrWhiteSpace(accountBalance.ContractNumber))
-            {
-                return false;
-            }
-            AccountBalance = accountBalance;
-            CrossSecureStorage.Current.SetValue(LoginKeyName, login);
-            CrossSecureStorage.Current.SetValue(PasswordKeyName, password);
-            Credentials.Login = login;
-            Credentials.Password = password;
 
             return true;
         }
@@ -183,12 +188,32 @@ namespace M11
                 monthBillSummary);
 	        CrossSecureStorage.Current.SetValue($"{MonthBillSummaryLinkIdKeyName}{monthBillSummary.Id}", monthBillSummary.LinkId);
 
-	        return monthBillSummary.Groups.SelectMany(x => x.Bills).OrderByDescending(x => x.Period).Take(5).ToList();
+	        return monthBillSummary
+	            .Groups
+	            .SelectMany(x => x.Bills)
+	            .OrderByDescending(x => x.Period)
+	            //.Take(5)
+	            .ToList();
 	    }
 
         private static string GetValueFromStorage(string key)
 	    {
             return CrossSecureStorage.Current.HasKey(key) ? CrossSecureStorage.Current.GetValue(key) : string.Empty;
         }
+
+	    public static string GetPointName(string point)
+	    {
+	        if (point?.ToLower().Contains("зеленоград") ?? false)
+	        {
+	            return "Зеленоград";
+	        }
+
+	        if (point?.ToLower().Contains("клин") ?? false)
+	        {
+	            return "Клин";
+	        }
+
+	        return point;
+	    }
 	}
 }

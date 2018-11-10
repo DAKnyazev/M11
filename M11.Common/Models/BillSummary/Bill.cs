@@ -31,5 +31,10 @@
         /// Класс ТС
         /// </summary>
         public string CarClass { get; set; }
+
+        /// <summary>
+        /// Это сервисный сбор? (Ежемесячный платеж)
+        /// </summary>
+        public bool IsServicePay { get; set; }
     }
 }
