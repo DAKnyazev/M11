@@ -47,5 +47,10 @@ namespace M11.Common.Models.BillSummary
         /// Дата запроса групп расходов
         /// </summary>
         public DateTime GroupsRequestDate { get; set; }
+
+        /// <summary>
+        /// Идентификатор для ссылки
+        /// </summary>
+        public string LinkId { get; set; }
     }
 }

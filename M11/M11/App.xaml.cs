@@ -18,6 +18,7 @@ namespace M11
 	    private const string PasswordKeyName = "Password";
 	    private const string AccountIdKeyName = "AccountId";
 	    private const string DataObjectIdKeyName = "DataObjectId";
+	    private const string MonthBillSummaryLinkIdKeyName = "MonthBillSummaryLinkId";
         public static int CachingTimeInMinutes { get; set; }
         public static int AccountInfoMonthCount { get; set; }
         public static Credentials Credentials { get; set; }
@@ -172,14 +173,17 @@ namespace M11
 	            return monthBillSummary.Groups.SelectMany(x => x.Bills).OrderBy(x => x.Period).Take(5).ToList();
             }
 
+	        monthBillSummary.LinkId = GetValueFromStorage($"{MonthBillSummaryLinkIdKeyName}{monthBillSummary.Id}");
+
 	        monthBillSummary.Groups = new InfoService().GetMonthlyDetails(
 	            AccountInfo.AccountLinks.FirstOrDefault(x => x.Type == AccountLinkType.Account)?.RelativeUrl,
 	            AccountInfo.RestClient,
 	            AccountInfo.IlinkId,
 	            AccountInfo.AccountId,
                 monthBillSummary);
+	        CrossSecureStorage.Current.SetValue($"{MonthBillSummaryLinkIdKeyName}{monthBillSummary.Id}", monthBillSummary.LinkId);
 
-	        return monthBillSummary.Groups.SelectMany(x => x.Bills).OrderBy(x => x.Period).Take(5).ToList();
+	        return monthBillSummary.Groups.SelectMany(x => x.Bills).OrderByDescending(x => x.Period).Take(5).ToList();
 	    }
 
         private static string GetValueFromStorage(string key)
