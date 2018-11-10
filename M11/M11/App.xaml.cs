@@ -23,6 +23,8 @@ namespace M11
         public static Credentials Credentials { get; set; }
         public static AccountBalance AccountBalance { get; set; }
         public static AccountInfo AccountInfo { get; set; }
+	    public static bool IsNeedReloadMainPage =>
+	        (AccountInfo?.RequestDate ?? DateTime.MinValue) < DateTime.Now.AddMinutes(-CachingTimeInMinutes);
         public static string MainColor { get; set; }
 
         private static object _getAccountInfoLockObject = new object();
@@ -116,16 +118,26 @@ namespace M11
 	    {
 	        lock (_getAccountInfoLockObject)
 	        {
-	            if (string.IsNullOrWhiteSpace(AccountInfo?.AccountId) || AccountInfo.RequestDate < DateTime.Now.AddMinutes(-CachingTimeInMinutes))
+	            if (string.IsNullOrWhiteSpace(AccountInfo?.AccountId) 
+	                || AccountInfo.RequestDate < DateTime.Now.AddMinutes(-CachingTimeInMinutes))
 	            {
-	                AccountInfo = new InfoService().GetAccountInfo(
-	                    AccountBalance.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl,
-	                    AccountBalance.CookieContainer,
-	                    DateTime.Now,
-	                    DateTime.Now.AddMonths(-AccountInfoMonthCount));
-	                CrossSecureStorage.Current.SetValue(AccountIdKeyName, AccountInfo.AccountId);
-	                CrossSecureStorage.Current.SetValue(DataObjectIdKeyName, AccountInfo.DataObjectId);
-	            }
+	                try
+	                {
+	                    AccountInfo = new InfoService().GetAccountInfo(
+	                        AccountBalance.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl,
+	                        AccountBalance.CookieContainer,
+	                        DateTime.Now,
+	                        DateTime.Now.AddMonths(-AccountInfoMonthCount),
+	                        GetValueFromStorage(AccountIdKeyName),
+	                        GetValueFromStorage(DataObjectIdKeyName));
+	                    CrossSecureStorage.Current.SetValue(AccountIdKeyName, AccountInfo.AccountId);
+	                    CrossSecureStorage.Current.SetValue(DataObjectIdKeyName, AccountInfo.DataObjectId);
+	                }
+	                catch (Exception e)
+	                {
+	                    throw;
+	                }
+                }
 	        }
         }
 
@@ -170,7 +182,7 @@ namespace M11
 	        return monthBillSummary.Groups.SelectMany(x => x.Bills).OrderBy(x => x.Period).Take(5).ToList();
 	    }
 
-        private string GetValueFromStorage(string key)
+        private static string GetValueFromStorage(string key)
 	    {
             return CrossSecureStorage.Current.HasKey(key) ? CrossSecureStorage.Current.GetValue(key) : string.Empty;
         }

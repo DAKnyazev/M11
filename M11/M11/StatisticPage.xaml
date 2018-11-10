@@ -4,6 +4,6 @@
              xmlns:m11="clr-namespace:M11;assembly=M11"
              x:Class="M11.StatisticPage"
              ControlTemplate="{StaticResource MainPageTemplate}">
-    <StackLayout x:Name="StatisticLayout" VerticalOptions="CenterAndExpand" HorizontalOptions="FillAndExpand" BackgroundColor="White">
+    <StackLayout x:Name="StatisticLayout" VerticalOptions="CenterAndExpand" HorizontalOptions="FillAndExpand">
     </StackLayout>
 </m11:BaseContentPage>

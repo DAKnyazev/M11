@@ -8,6 +8,7 @@ namespace M11
 	public partial class StatisticPage : BaseContentPage
     { 
         private ActivityIndicator LoadingIndicator { get; set; }
+        private bool IsLoaded { get; set; }
 
         public StatisticPage()
 		{
@@ -20,11 +21,16 @@ namespace M11
 
         protected override async void OnAppearing()
         {
+            if (!App.IsNeedReloadMainPage && IsLoaded)
+            {
+                return;
+            }
             LoadingIndicator.IsRunning = true;
             StatisticLayout.Padding = new Thickness(0, 200, 0, 0);
             StatisticLayout.Children.Clear();
             StatisticLayout.Children.Add(LoadingIndicator);
             await Task.Run(async () => await InitializeAsync());
+            IsLoaded = true;
         }
 
         private async Task InitializeAsync()

@@ -28,6 +28,10 @@ namespace M11
 
         protected override async void OnAppearing()
         {
+            if (!App.IsNeedReloadMainPage)
+            {
+                return;
+            }
             BalanceTitleLabel.IsVisible = false;
             BalanceCurrencyLabel.IsVisible = false;
             LastPaymentsLayout.IsVisible = false;
@@ -124,12 +128,13 @@ namespace M11
 
 	        if (App.AccountInfo.BillSummaryList.Any())
 	        {
-	            Device.BeginInvokeOnMainThread(() =>
+	            var bills = App.GetLastBills();
+                Device.BeginInvokeOnMainThread(() =>
                 {
                     LastPaymentsIndicator.IsRunning = false;
                     LastPaymentsIndicator.IsVisible = false;
 
-                    foreach (var bill in App.GetLastBills())
+                    foreach (var bill in bills)
                     {
                         var layout = new RelativeLayout();
                         layout.Children.Add(new Label { Text = bill.Period.ToString("dd.MM.yyyy HH:mm") },
