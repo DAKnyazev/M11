@@ -203,17 +203,86 @@ namespace M11
 
 	    public static string GetPointName(string point)
 	    {
-	        if (point?.ToLower().Contains("зеленоград") ?? false)
+	        if (point == null)
+	        {
+	            return string.Empty;
+	        }
+
+	        var lowerPoint = point.ToLower();
+
+            if (lowerPoint.Contains("зеленоград"))
 	        {
 	            return "Зеленоград";
 	        }
 
-	        if (point?.ToLower().Contains("клин") ?? false)
+	        if (lowerPoint.Contains("клин"))
 	        {
 	            return "Клин";
 	        }
 
+	        if (lowerPoint.Contains("москва"))
+	        {
+	            return "Москва";
+	        }
+
+	        if (lowerPoint.Contains("солнечн"))
+	        {
+	            if (lowerPoint.Contains("67"))
+	            {
+	                return "Солнечногорск (Пятн. ш.)";
+	            }
+	            return "Солнечногорск (М-10)";
+	        }
+
+	        if (lowerPoint.Contains("ямуга"))
+	        {
+	            return "Ямуга";
+	        }
+
+	        if (lowerPoint.Contains("107"))
+	        {
+	            return "Бетонка (А-107)";
+	        }
+
+	        if (lowerPoint.Contains("шереметьево"))
+	        {
+	            if (lowerPoint.Contains("1"))
+	            {
+	                return "Шереметьево-1";
+	            }
+
+	            return "Шереметьево-2";
+	        }
+
+	        if (lowerPoint.Contains("11") && lowerPoint.Contains("58"))
+	        {
+	            return "Конец участка";
+	        }
+                 
 	        return point;
+	    }
+
+	    public static string GetTicketDescription(string pan)
+	    {
+	        if (string.IsNullOrWhiteSpace(pan))
+	        {
+	            return string.Empty;
+	        }
+
+	        try
+	        {
+	            var startIndex = pan.IndexOf("на", StringComparison.InvariantCultureIgnoreCase);
+	            var endIndex = pan.IndexOf(",", startIndex, StringComparison.InvariantCultureIgnoreCase);
+	            var result = $"Абонемент {pan.Substring(startIndex, endIndex - startIndex)}";
+	            startIndex = pan.IndexOf(",", endIndex + 1, StringComparison.InvariantCultureIgnoreCase);
+	            endIndex = pan.IndexOf("(", startIndex, StringComparison.InvariantCultureIgnoreCase);
+
+	            return $"{result}\r\n({pan.Substring(startIndex + 2, endIndex - startIndex - 3)})";
+            }
+	        catch
+	        {
+	            return string.Empty;
+	        }
 	    }
 	}
 }

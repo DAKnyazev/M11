@@ -73,10 +73,16 @@ namespace M11
                 LastPaymentsLayout.Children.Clear();
                 LastPaymentsLayout.Children.Add(new Label
                 {
-                    Text = "Последние траты:",
+                    Text = "Свежие траты:",
                     HorizontalOptions = LayoutOptions.Center,
                     FontFamily = "Bold,700",
                     FontSize = 18
+                });
+                LastPaymentsLayout.Children.Add(new Label
+                {
+                    Text = "(долгая загрузка)",
+                    FontSize = 10,
+                    HorizontalTextAlignment = TextAlignment.Center
                 });
             });
 
@@ -154,7 +160,7 @@ namespace M11
                         layout.Children.Add(new Label { Text = groupName, FontSize = 20 },
                             Constraint.Constant(padding * 3));
                         LastPaymentsLayout.Children.Add(layout);
-                        foreach (var bill in billGroup.OrderByDescending(x => x.Period))
+                        foreach (var bill in billGroup.OrderByDescending(x => x.Period).ThenByDescending(x => (x.EntryPoint?.Contains("11") ?? false) && (x.EntryPoint?.Contains("58") ?? false) ? 0 : 1))
                         {
                             layout = new RelativeLayout();
                             var source = bill.IsServicePay
@@ -167,11 +173,35 @@ namespace M11
                                 Constraint.Constant(0),
                                 Constraint.Constant(64),
                                 Constraint.Constant(64));
-                            layout.Children.Add(new Label {Text = bill.IsServicePay ? "Ежемесячный платеж" : $"{App.GetPointName(bill.EntryPoint)} - {App.GetPointName(bill.ExitPoint)}" },
-                                Constraint.Constant(64 + 2 * padding));
-                            layout.Children.Add(new Label { Text = bill.CostWithTax.ToString("0") },
-                                Constraint.RelativeToParent(x => 4 * x.Width / 5),
-                                Constraint.Constant(30));
+                            layout.Children.Add(new Label
+                                {
+                                    Text = bill.IsServicePay 
+                                        ? "Ежемесячный платеж" 
+                                        : bill.IsTicketBuy
+                                            ? App.GetTicketDescription(bill.PAN)
+                                            : $"{App.GetPointName(bill.EntryPoint)} -> {(bill.EntryPoint.Length + bill.ExitPoint.Length > 30 ? "\r\n -> " : "")}{App.GetPointName(bill.ExitPoint)}",
+                                    FontFamily = "Bold,700",
+                                    FontSize = 14
+                                },
+                                Constraint.Constant(64 + 2 * padding),
+                                Constraint.Constant(10));
+                            layout.Children.Add(new Label
+                                {
+                                    Text = bill.CostWithTax != 0 ? bill.CostWithTax.ToString("0") + " ₽" : bill.Amount.ToString("0") + (bill.IsTicketBuy ? " ₽" : ""),
+                                    FontSize = 34,
+                                    FontFamily = "Bold,700",
+                                    WidthRequest = 200,
+                                    HorizontalTextAlignment = TextAlignment.End
+                                },
+                                Constraint.RelativeToParent(x => x.Width - 2 * padding - 200),
+                                Constraint.Constant(22));
+                            layout.Children.Add(new BoxView { BackgroundColor = Color.LightGray, HeightRequest = 1 },
+                                Constraint.Constant(64 + 2 * padding),
+                                Constraint.Constant(64),
+                                Constraint.RelativeToParent(x => x.Width - 64 - 3 * padding));
+                            layout.Children.Add(new Label { Text = bill.Period.ToString("HH:mm"), FontSize = 14 },
+                                Constraint.Constant(64 + 2 * padding),
+                                Constraint.Constant(48));
                             LastPaymentsLayout.Children.Add(layout);
                         }
                     }

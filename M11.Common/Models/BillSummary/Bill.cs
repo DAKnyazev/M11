@@ -36,5 +36,10 @@
         /// Это сервисный сбор? (Ежемесячный платеж)
         /// </summary>
         public bool IsServicePay { get; set; }
+
+        /// <summary>
+        /// Это покупка абонемента?
+        /// </summary>
+        public bool IsTicketBuy => string.IsNullOrWhiteSpace(EntryPoint) && string.IsNullOrWhiteSpace(ExitPoint);
     }
 }

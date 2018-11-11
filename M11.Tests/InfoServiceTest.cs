@@ -17,7 +17,7 @@ namespace M11.Tests
         private static readonly int Amount = 100;
 
         private readonly InfoService _infoService;
-        private Info _info;
+        private AccountBalance _accountBalance;
 
         public InfoServiceTest()
         {
@@ -27,19 +27,19 @@ namespace M11.Tests
         [Test, SetUp, Order(1)]
         public void TestGetInfo()
         {
-            _info = _infoService.GetInfo(Login, Password);
+            _accountBalance = _infoService.GetAccountBalance(Login, Password);
         }
 
         [Test, Order(2)]
         public void TestGetAccountInfo()
         {
-            Assert.IsNotNull(_info);
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_info.ContractNumber));
-            Assert.IsNotNull(_info.Links);
-            Assert.IsFalse(string.IsNullOrWhiteSpace(_info.Phone));
+            Assert.IsNotNull(_accountBalance);
+            Assert.IsFalse(string.IsNullOrWhiteSpace(_accountBalance.ContractNumber));
+            Assert.IsNotNull(_accountBalance.Links);
+            Assert.IsFalse(string.IsNullOrWhiteSpace(_accountBalance.Phone));
 
-            var accountInfo = _infoService.GetAccountInfo(_info.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl,
-                _info.CookieContainer, 
+            var accountInfo = _infoService.GetAccountInfo(_accountBalance.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl,
+                _accountBalance.CookieContainer, 
                 DateTime.Now, 
                 DateTime.Now.AddMonths(-5));
 
