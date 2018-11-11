@@ -86,46 +86,53 @@ namespace M11
                 });
             });
 
-            const int padding = 10;
-            foreach (var ticket in App.AccountBalance.Tickets)
+            try
             {
-                var layout = new RelativeLayout();
-                layout.Children.Add(new BoxView { BackgroundColor = Color.FromHex("#F5F5DC") },
-                    Constraint.Constant(padding),
-                    Constraint.Constant(0),
-                    Constraint.RelativeToParent(parent => parent.Width - 2 * padding),
-                    Constraint.Constant(70));
-                var ticketDescriptions = ticket.Description.Split(',');
-                layout.Children.Add(new Label
+                const int padding = 10;
+                foreach (var ticket in App.AccountBalance.Tickets)
                 {
-                    Text = ticketDescriptions.Length > 2 ? ticketDescriptions[2] : string.Empty,
-                    FontSize = 24
-                },
-                    Constraint.Constant(2 * padding),
-                    null,
-                    Constraint.RelativeToParent(parent => parent.Width - 4 * padding),
-                    Constraint.Constant(36));
-                var count = ticketDescriptions.Length > 0 ? Regex.Match(ticketDescriptions[0], @"\d+").Value : string.Empty;
-                var remainingCountText = string.IsNullOrWhiteSpace(count)
-                    ? $"осталось поездок: {ticket.RemainingTripsCount}"
-                    : $"осталось поездок: {ticket.RemainingTripsCount} (из {count})";
+                    var layout = new RelativeLayout();
+                    layout.Children.Add(new BoxView {BackgroundColor = Color.FromHex("#F5F5DC")},
+                        Constraint.Constant(padding),
+                        Constraint.Constant(0),
+                        Constraint.RelativeToParent(parent => parent.Width - 2 * padding),
+                        Constraint.Constant(70));
+                    var ticketDescriptions = ticket.Description.Split(',');
+                    layout.Children.Add(new Label
+                        {
+                            Text = ticketDescriptions.Length > 2 ? ticketDescriptions[2] : string.Empty,
+                            FontSize = 24
+                        },
+                        Constraint.Constant(2 * padding),
+                        null,
+                        Constraint.RelativeToParent(parent => parent.Width - 4 * padding),
+                        Constraint.Constant(36));
+                    var count = ticketDescriptions.Length > 0
+                        ? Regex.Match(ticketDescriptions[0], @"\d+").Value
+                        : string.Empty;
+                    var remainingCountText = string.IsNullOrWhiteSpace(count)
+                        ? $"осталось поездок: {ticket.RemainingTripsCount}"
+                        : $"осталось поездок: {ticket.RemainingTripsCount} (из {count})";
 
-                layout.Children.Add(new Label { Text = $"{ticket.Status}, {remainingCountText}" },
-                    Constraint.Constant(2 * padding),
-                    Constraint.Constant(30),
-                    Constraint.RelativeToParent(parent => parent.Width - 4 * padding),
-                    Constraint.Constant(20));
-                layout.Children.Add(new Label { Text = $"Использовать до: {ticket.ExpiryDate:dd.MM.yyyy HH:mm}" },
-                    Constraint.Constant(2 * padding),
-                    Constraint.Constant(50),
-                    Constraint.RelativeToParent(parent => parent.Width - 4 * padding),
-                    Constraint.Constant(20));
+                    layout.Children.Add(new Label {Text = $"{ticket.Status}, {remainingCountText}"},
+                        Constraint.Constant(2 * padding),
+                        Constraint.Constant(30),
+                        Constraint.RelativeToParent(parent => parent.Width - 4 * padding),
+                        Constraint.Constant(20));
+                    layout.Children.Add(new Label {Text = $"Использовать до: {ticket.ExpiryDate:dd.MM.yyyy HH:mm}"},
+                        Constraint.Constant(2 * padding),
+                        Constraint.Constant(50),
+                        Constraint.RelativeToParent(parent => parent.Width - 4 * padding),
+                        Constraint.Constant(20));
 
-                Device.BeginInvokeOnMainThread(() =>
-                {
-                    TicketLayout.Children.Add(layout);
-                });
+                    Device.BeginInvokeOnMainThread(() => { TicketLayout.Children.Add(layout); });
+                }
             }
+            catch
+            {
+                // Чтобы работал остальной функционал
+            }
+
             Device.BeginInvokeOnMainThread(() =>
             {
                 LoadingIndicator.IsRunning = false;
@@ -140,9 +147,13 @@ namespace M11
 
         private void InitializeLastBills()
         {
-            const int padding = 10;
-            if (App.AccountInfo.BillSummaryList.Any())
+            try
             {
+                const int padding = 10;
+                if (!App.AccountInfo.BillSummaryList.Any())
+                {
+                    return;
+                }
                 var bills = App.GetLastBills();
                 Device.BeginInvokeOnMainThread(() =>
                 {
@@ -157,10 +168,13 @@ namespace M11
                             : billGroup.Key.Date == DateTime.Now.AddDays(-1).Date
                                 ? "Вчера"
                                 : billGroup.Key.ToString("dd MMMM");
-                        layout.Children.Add(new Label { Text = groupName, FontSize = 20 },
+                        layout.Children.Add(new Label {Text = groupName, FontSize = 20},
                             Constraint.Constant(padding * 3));
                         LastPaymentsLayout.Children.Add(layout);
-                        foreach (var bill in billGroup.OrderByDescending(x => x.Period).ThenByDescending(x => (x.EntryPoint?.Contains("11") ?? false) && (x.EntryPoint?.Contains("58") ?? false) ? 0 : 1))
+                        foreach (var bill in billGroup.OrderByDescending(x => x.Period).ThenByDescending(x =>
+                            (x.EntryPoint?.Contains("11") ?? false) && (x.EntryPoint?.Contains("58") ?? false)
+                                ? 0
+                                : 1))
                         {
                             layout = new RelativeLayout();
                             var source = bill.IsServicePay
@@ -168,15 +182,15 @@ namespace M11
                                 : bill.CostWithTax == 0
                                     ? ImageSource.FromFile("ticket.png")
                                     : ImageSource.FromFile("wallet.png");
-                            layout.Children.Add(new Image { Source = source },
+                            layout.Children.Add(new Image {Source = source},
                                 Constraint.Constant(padding),
                                 Constraint.Constant(0),
                                 Constraint.Constant(64),
                                 Constraint.Constant(64));
                             layout.Children.Add(new Label
                                 {
-                                    Text = bill.IsServicePay 
-                                        ? "Ежемесячный платеж" 
+                                    Text = bill.IsServicePay
+                                        ? "Ежемесячный платеж"
                                         : bill.IsTicketBuy
                                             ? App.GetTicketDescription(bill.PAN)
                                             : $"{App.GetPointName(bill.EntryPoint)} -> {(bill.EntryPoint.Length + bill.ExitPoint.Length > 30 ? "\r\n -> " : "")}{App.GetPointName(bill.ExitPoint)}",
@@ -187,7 +201,9 @@ namespace M11
                                 Constraint.Constant(10));
                             layout.Children.Add(new Label
                                 {
-                                    Text = bill.CostWithTax != 0 ? bill.CostWithTax.ToString("0") + " ₽" : bill.Amount.ToString("0") + (bill.IsTicketBuy ? " ₽" : ""),
+                                    Text = bill.CostWithTax != 0
+                                        ? bill.CostWithTax.ToString("0") + " ₽"
+                                        : bill.Amount.ToString("0") + (bill.IsTicketBuy ? " ₽" : ""),
                                     FontSize = 34,
                                     FontFamily = "Bold,700",
                                     WidthRequest = 200,
@@ -195,17 +211,21 @@ namespace M11
                                 },
                                 Constraint.RelativeToParent(x => x.Width - 2 * padding - 200),
                                 Constraint.Constant(22));
-                            layout.Children.Add(new BoxView { BackgroundColor = Color.LightGray, HeightRequest = 1 },
+                            layout.Children.Add(new BoxView {BackgroundColor = Color.LightGray, HeightRequest = 1},
                                 Constraint.Constant(64 + 2 * padding),
                                 Constraint.Constant(64),
                                 Constraint.RelativeToParent(x => x.Width - 64 - 3 * padding));
-                            layout.Children.Add(new Label { Text = bill.Period.ToString("HH:mm"), FontSize = 14 },
+                            layout.Children.Add(new Label {Text = bill.Period.ToString("HH:mm"), FontSize = 14},
                                 Constraint.Constant(64 + 2 * padding),
                                 Constraint.Constant(48));
                             LastPaymentsLayout.Children.Add(layout);
                         }
                     }
                 });
+            }
+            catch
+            {
+                // Чтобы работал остальной функционал
             }
         }
     }
