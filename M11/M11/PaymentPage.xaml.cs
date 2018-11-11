@@ -98,7 +98,7 @@ namespace M11
         private void BrowserOnNavigating(object sender, WebNavigatingEventArgs args)
         {
             _isNeedReload = true;
-            if (_onNavigatedCount <= 0 || !args.Url.Contains(_infoService.BaseUrl))
+            if (_onNavigatedCount <= 0 || !args.Url.Contains(_infoService.BaseUrl) || args.Url.Contains("sberbank"))
             {
                 return;
             }
