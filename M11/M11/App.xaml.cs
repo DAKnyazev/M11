@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using M11.Common.Enums;
 using M11.Common.Models;
 using M11.Common.Models.BillSummary;
@@ -21,6 +22,7 @@ namespace M11
 	    private const string MonthBillSummaryLinkIdKeyName = "MonthBillSummaryLinkId";
         public static int CachingTimeInMinutes { get; set; }
         public static int AccountInfoMonthCount { get; set; }
+        public static int LastBillsMonthCount { get; set; }
         public static Credentials Credentials { get; set; }
         public static AccountBalance AccountBalance { get; set; }
         public static AccountInfo AccountInfo { get; set; }
@@ -28,12 +30,13 @@ namespace M11
 	        (AccountInfo?.RequestDate ?? DateTime.MinValue) < DateTime.Now.AddMinutes(-CachingTimeInMinutes);
         public static string MainColor { get; set; }
 
-        private static object _getAccountInfoLockObject = new object();
+        private static readonly object GetAccountInfoLockObject = new object();
         
         static App()
         {
             CachingTimeInMinutes = 3;
-            AccountInfoMonthCount = 4;
+            AccountInfoMonthCount = 12;
+            LastBillsMonthCount = 2;
             Credentials = new Credentials();
 	        AccountBalance = new AccountBalance();
             AccountInfo = new AccountInfo();
@@ -97,7 +100,7 @@ namespace M11
 
         public static bool TryGetInfo(string login, string password)
         {
-            lock (_getAccountInfoLockObject)
+            lock (GetAccountInfoLockObject)
             {
                 if (AccountBalance.RequestDate > DateTime.Now.AddMinutes(-CachingTimeInMinutes))
                 {
@@ -122,7 +125,7 @@ namespace M11
 
 	    public static void SetUpAccountInfo()
 	    {
-	        lock (_getAccountInfoLockObject)
+	        lock (GetAccountInfoLockObject)
 	        {
 	            if (string.IsNullOrWhiteSpace(AccountInfo?.AccountId) 
 	                || AccountInfo.RequestDate < DateTime.Now.AddMinutes(-CachingTimeInMinutes))
@@ -132,8 +135,8 @@ namespace M11
 	                    AccountInfo = new InfoService().GetAccountInfo(
 	                        AccountBalance.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl,
 	                        AccountBalance.CookieContainer,
-	                        DateTime.Now,
 	                        DateTime.Now.AddMonths(-AccountInfoMonthCount),
+	                        DateTime.Now,
 	                        GetValueFromStorage(AccountIdKeyName),
 	                        GetValueFromStorage(DataObjectIdKeyName));
 	                    CrossSecureStorage.Current.SetValue(AccountIdKeyName, AccountInfo.AccountId);
@@ -166,33 +169,36 @@ namespace M11
 
 	    public static List<Bill> GetLastBills()
 	    {
-	        var monthBillSummary = AccountInfo.BillSummaryList.OrderByDescending(x => x.Period).FirstOrDefault();
-	        if (monthBillSummary == null)
+	        var months = AccountInfo.BillSummaryList.OrderByDescending(x => x.Period).Take(LastBillsMonthCount).ToList();
+	        if (!months.Any())
 	        {
                 return new List<Bill>();
 	        }
 
-	        if (monthBillSummary.Groups.Any() &&
-	            monthBillSummary.GroupsRequestDate > DateTime.Now.AddMinutes(-CachingTimeInMinutes))
+	        foreach(var monthBillSummary in months)
 	        {
-	            return monthBillSummary.Groups.SelectMany(x => x.Bills).OrderBy(x => x.Period).Take(5).ToList();
+	            if (monthBillSummary.Groups.Any() &&
+	                monthBillSummary.GroupsRequestDate > DateTime.Now.AddMinutes(-CachingTimeInMinutes))
+	            {
+                    continue;
+	            }
+
+	            //monthBillSummary.LinkId = GetValueFromStorage($"{MonthBillSummaryLinkIdKeyName}");
+
+	            monthBillSummary.Groups = new InfoService().GetMonthlyDetails(
+	                AccountInfo.AccountLinks.FirstOrDefault(x => x.Type == AccountLinkType.Account)?.RelativeUrl,
+	                AccountInfo.RestClient,
+	                AccountInfo.IlinkId,
+	                AccountInfo.AccountId,
+	                monthBillSummary);
+	            //CrossSecureStorage.Current.SetValue($"{MonthBillSummaryLinkIdKeyName}",
+	            //    monthBillSummary.LinkId);
             }
 
-	        monthBillSummary.LinkId = GetValueFromStorage($"{MonthBillSummaryLinkIdKeyName}{monthBillSummary.Id}");
-
-	        monthBillSummary.Groups = new InfoService().GetMonthlyDetails(
-	            AccountInfo.AccountLinks.FirstOrDefault(x => x.Type == AccountLinkType.Account)?.RelativeUrl,
-	            AccountInfo.RestClient,
-	            AccountInfo.IlinkId,
-	            AccountInfo.AccountId,
-                monthBillSummary);
-	        CrossSecureStorage.Current.SetValue($"{MonthBillSummaryLinkIdKeyName}{monthBillSummary.Id}", monthBillSummary.LinkId);
-
-	        return monthBillSummary
-	            .Groups
-	            .SelectMany(x => x.Bills)
+	        return months
+                .SelectMany(x => x.Groups.SelectMany(y => y.Bills))
+                .Distinct()
 	            .OrderByDescending(x => x.Period)
-	            //.Take(5)
 	            .ToList();
 	    }
 

@@ -40,8 +40,8 @@ namespace M11.Tests
 
             var accountInfo = _infoService.GetAccountInfo(_accountBalance.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl,
                 _accountBalance.CookieContainer, 
-                DateTime.Now, 
-                DateTime.Now.AddMonths(-5));
+                DateTime.Now.AddMonths(-5), 
+                DateTime.Now);
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(accountInfo.AccountId));
             Assert.IsFalse(string.IsNullOrWhiteSpace(accountInfo.DataObjectId));

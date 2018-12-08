@@ -152,6 +152,12 @@ namespace M11
                 const int padding = 10;
                 if (!App.AccountInfo.BillSummaryList.Any())
                 {
+                    Device.BeginInvokeOnMainThread(() =>
+                    {
+                        LastPaymentsIndicator.IsRunning = false;
+                        LastPaymentsIndicator.IsVisible = false;
+                    });
+
                     return;
                 }
                 var bills = App.GetLastBills();

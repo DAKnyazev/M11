@@ -23,6 +23,7 @@ namespace M11.Services
         private readonly string _authPath = "onyma/";
         private readonly string _accountDetailsPath = "onyma/lk/account/";
         private readonly string _monthlyBillsPath = "month_bills2/";
+        private const string SaveMonthlyBillsFilter = "/onyma/rm/party/bills_summary2/inline-filter/save/";
         private readonly string _loginParameterName = "login";
         private readonly string _passwordParameterName = "password";
         private readonly string _submitParameterName = "submit";
@@ -148,7 +149,8 @@ namespace M11.Services
             result.BillSummaryList = GetMonthlyStatistic(result.RestClient,
                 result.AccountLinks.FirstOrDefault(x => x.Type == AccountLinkType.Account)?.RelativeUrl,
                 start,
-                end);
+                end,
+                result.AccountId);
             result.RequestDate = DateTime.Now;
 
             return result;
@@ -343,12 +345,16 @@ namespace M11.Services
         /// <summary>
         /// Получение статистики расходов по месяцам
         /// </summary>
-        private static List<MonthBillSummary> GetMonthlyStatistic(IRestClient client, string path, DateTime start, DateTime end)
+        private static List<MonthBillSummary> GetMonthlyStatistic(IRestClient client, string path, DateTime start, DateTime end, string accountId)
         {
             var result = new List<MonthBillSummary>();
-            var request = new RestRequest(path + "&simple=1", Method.POST);
+            var filterUrl = SaveMonthlyBillsFilter + path.Substring(path.IndexOf('?')) + $"&__parent_obj__={accountId}";
             var param = JsonConvert.SerializeObject(new List<BillsSummaryParam> { new BillsSummaryParam(start, end) });
+            var filterRequest = new RestRequest(filterUrl, Method.POST);
+            filterRequest.AddParameter("raw_state", param);
+            var request = new RestRequest(path + "&simple=1", Method.POST);
             request.AddParameter("raw_state", param);
+            client.Execute(filterRequest);
             var response = client.Execute(request);
             var content = Regex.Replace(response.Content, @"\\t|\\n|\\r|\\", "");
             var tbody = GetTagValue(content, "<tbody>", "</tbody>");
