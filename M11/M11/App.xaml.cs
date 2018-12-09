@@ -15,11 +15,6 @@ namespace M11
 {
 	public partial class App : Application
 	{
-	    private const string LoginKeyName = "Login";
-	    private const string PasswordKeyName = "Password";
-	    private const string AccountIdKeyName = "AccountId";
-	    private const string DataObjectIdKeyName = "DataObjectId";
-	    private const string MonthBillSummaryLinkIdKeyName = "MonthBillSummaryLinkId";
         public static int CachingTimeInMinutes { get; set; }
         public static int AccountInfoMonthCount { get; set; }
         public static int LastBillsMonthCount { get; set; }
@@ -48,8 +43,8 @@ namespace M11
 			InitializeComponent();
             try
 		    {
-		        Credentials.Login = GetValueFromStorage(LoginKeyName);
-		        Credentials.Password = GetValueFromStorage(PasswordKeyName);
+		        Credentials.Login = GetValueFromStorage(CrossSecureStorageKeys.Login);
+		        Credentials.Password = GetValueFromStorage(CrossSecureStorageKeys.Password);
             }
 		    catch
 		    {
@@ -85,8 +80,10 @@ namespace M11
 
 	    public static void Exit()
 	    {
-	        CrossSecureStorage.Current.SetValue(LoginKeyName, string.Empty);
-	        CrossSecureStorage.Current.SetValue(PasswordKeyName, string.Empty);
+	        CrossSecureStorage.Current.SetValue(CrossSecureStorageKeys.Login, string.Empty);
+	        CrossSecureStorage.Current.SetValue(CrossSecureStorageKeys.Password, string.Empty);
+	        CrossSecureStorage.Current.SetValue(CrossSecureStorageKeys.AccountId, string.Empty);
+	        CrossSecureStorage.Current.SetValue(CrossSecureStorageKeys.DataObjectId, string.Empty);
             AccountBalance = new AccountBalance();
             AccountInfo = new AccountInfo();
             Credentials = new Credentials();
@@ -114,8 +111,8 @@ namespace M11
                 }
 
                 AccountBalance = accountBalance;
-                CrossSecureStorage.Current.SetValue(LoginKeyName, login);
-                CrossSecureStorage.Current.SetValue(PasswordKeyName, password);
+                CrossSecureStorage.Current.SetValue(CrossSecureStorageKeys.Login, login);
+                CrossSecureStorage.Current.SetValue(CrossSecureStorageKeys.Password, password);
                 Credentials.Login = login;
                 Credentials.Password = password;
             }
@@ -137,10 +134,10 @@ namespace M11
 	                        AccountBalance.CookieContainer,
 	                        DateTime.Now.AddMonths(-AccountInfoMonthCount),
 	                        DateTime.Now,
-	                        GetValueFromStorage(AccountIdKeyName),
-	                        GetValueFromStorage(DataObjectIdKeyName));
-	                    CrossSecureStorage.Current.SetValue(AccountIdKeyName, AccountInfo.AccountId);
-	                    CrossSecureStorage.Current.SetValue(DataObjectIdKeyName, AccountInfo.DataObjectId);
+	                        GetValueFromStorage(CrossSecureStorageKeys.AccountId),
+	                        GetValueFromStorage(CrossSecureStorageKeys.DataObjectId));
+	                    CrossSecureStorage.Current.SetValue(CrossSecureStorageKeys.AccountId, AccountInfo.AccountId);
+	                    CrossSecureStorage.Current.SetValue(CrossSecureStorageKeys.DataObjectId, AccountInfo.DataObjectId);
 	                }
 	                catch (Exception e)
 	                {
@@ -182,17 +179,13 @@ namespace M11
 	            {
                     continue;
 	            }
-
-	            //monthBillSummary.LinkId = GetValueFromStorage($"{MonthBillSummaryLinkIdKeyName}");
-
+                
 	            monthBillSummary.Groups = new InfoService().GetMonthlyDetails(
 	                AccountInfo.AccountLinks.FirstOrDefault(x => x.Type == AccountLinkType.Account)?.RelativeUrl,
 	                AccountInfo.RestClient,
 	                AccountInfo.IlinkId,
 	                AccountInfo.AccountId,
 	                monthBillSummary);
-	            //CrossSecureStorage.Current.SetValue($"{MonthBillSummaryLinkIdKeyName}",
-	            //    monthBillSummary.LinkId);
             }
 
 	        return months
