@@ -164,6 +164,22 @@ namespace M11
 	            type);
 	    }
 
+	    public static void FillGroups(MonthBillSummary monthBillSummary)
+	    {
+	        if (monthBillSummary.Groups.Any()
+	            && monthBillSummary.GroupsRequestDate > DateTime.Now.AddMinutes(-CachingTimeInMinutes))
+	        {
+	            return;
+	        }
+
+	        monthBillSummary.Groups = new InfoService().GetMonthlyDetails(
+	            AccountInfo.AccountLinks.FirstOrDefault(x => x.Type == AccountLinkType.Account)?.RelativeUrl,
+	            AccountInfo.RestClient,
+	            AccountInfo.IlinkId,
+	            AccountInfo.AccountId,
+	            monthBillSummary);
+        }
+
 	    public static List<Bill> GetLastBills()
 	    {
 	        var months = AccountInfo.BillSummaryList.OrderByDescending(x => x.Period).Take(LastBillsMonthCount).ToList();

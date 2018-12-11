@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Threading.Tasks;
 using M11.Common.Extentions;
 using Xamarin.Forms;
@@ -47,6 +48,11 @@ namespace M11
             foreach (var item in App.AccountInfo.BillSummaryList)
             {
                 var layout = new RelativeLayout();
+                var button = new Button { Text = "Подробнее", TextColor = Color.FromHex("#996600"), BackgroundColor = Color.FromRgba(0, 0, 0, 0)};
+                button.Clicked += async (s, e) =>
+                {
+                    await Navigation.PushAsync(new StatisticDetailsPage(item));
+                };
                 layout.Children.Add(new BoxView { BackgroundColor = Color.FromHex("#F5F5DC") },
                     Constraint.Constant(padding),
                     Constraint.Constant(0),
@@ -56,6 +62,11 @@ namespace M11
                     Constraint.Constant(2 * padding),
                     Constraint.Constant(0),
                     Constraint.RelativeToParent(parent => parent.Width - 4 * padding),
+                    Constraint.Constant(36));
+                layout.Children.Add(button,
+                    Constraint.Constant(padding),
+                    Constraint.Constant(25),
+                    Constraint.Constant(120),
                     Constraint.Constant(36));
                 layout.Children.Add(new Label { Text = "+", TextColor = Color.Green, FontSize = 30 },
                     Constraint.RelativeToParent(parent => parent.Width / 2),
