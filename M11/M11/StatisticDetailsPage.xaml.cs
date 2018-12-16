@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using M11.Common.Models.BillSummary;
 using Xamarin.Forms;
@@ -40,16 +39,12 @@ namespace M11
             {
                 _loadingIndicator.IsRunning = false;
                 _loadingIndicator.IsVisible = false;
-                var bills = _monthBillSummary.Groups.SelectMany(x => x.Bills).Distinct();
+                var bills = _monthBillSummary.Groups.SelectMany(x => x.Bills).Distinct().OrderBy(x => x.Period);
 
                 foreach (var billGroup in bills.GroupBy(x => x.Period.Date))
                 {
                     var layout = new RelativeLayout();
-                    var groupName = billGroup.Key.Date == DateTime.Now.Date
-                        ? "Сегодня"
-                        : billGroup.Key.Date == DateTime.Now.AddDays(-1).Date
-                            ? "Вчера"
-                            : billGroup.Key.ToString("dd MMMM");
+                    var groupName = billGroup.Key.ToString("dd MMMM");
                     layout.Children.Add(new Label { Text = groupName, FontSize = 20 },
                         Constraint.Constant(padding * 3));
                     DetailsLayout.Children.Add(layout);
@@ -73,9 +68,9 @@ namespace M11
                         {
                             Text = bill.IsServicePay
                                     ? "Ежемесячный платеж"
-                                    : bill.IsTicketBuy
+                                    : bill.IsTicketBuy 
                                         ? App.GetTicketDescription(bill.PAN)
-                                        : $"{App.GetPointName(bill.EntryPoint)} -> {(bill.EntryPoint.Length + bill.ExitPoint.Length > 30 ? "\r\n -> " : "")}{App.GetPointName(bill.ExitPoint)}",
+                                        : $"{App.GetPointName(bill.EntryPoint)} -> {(bill.EntryPoint?.Length + bill.ExitPoint?.Length > 30 ? "\r\n -> " : "")}{App.GetPointName(bill.ExitPoint)}",
                             FontFamily = "Bold,700",
                             FontSize = 14
                         },

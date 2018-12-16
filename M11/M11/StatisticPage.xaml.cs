@@ -51,7 +51,7 @@ namespace M11
                 var button = new Button { Text = "Подробнее", TextColor = Color.FromHex("#996600"), BackgroundColor = Color.FromRgba(0, 0, 0, 0)};
                 button.Clicked += async (s, e) =>
                 {
-                    await Navigation.PushAsync(new StatisticDetailsPage(item));
+                    await Navigation.PushModalAsync(new NavigationPage(new StatisticDetailsPage(item)));
                 };
                 layout.Children.Add(new BoxView { BackgroundColor = Color.FromHex("#F5F5DC") },
                     Constraint.Constant(padding),
