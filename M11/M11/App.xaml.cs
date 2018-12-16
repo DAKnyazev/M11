@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using M11.Common.Enums;
 using M11.Common.Models;
 using M11.Common.Models.BillSummary;
@@ -63,7 +62,7 @@ namespace M11
             }
 		}
 
-		protected override void OnStart()
+	    protected override void OnStart()
 		{
 		    // Handle when your app starts
         }
@@ -213,8 +212,15 @@ namespace M11
 
         private static string GetValueFromStorage(string key)
 	    {
-            return CrossSecureStorage.Current.HasKey(key) ? CrossSecureStorage.Current.GetValue(key) : string.Empty;
-        }
+	        try
+	        {
+	            return CrossSecureStorage.Current.HasKey(key) ? CrossSecureStorage.Current.GetValue(key) : string.Empty;
+	        }
+	        catch
+	        {
+	            return string.Empty;
+	        }
+	    }
 
 	    public static string GetPointName(string point)
 	    {
