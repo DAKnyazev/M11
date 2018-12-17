@@ -490,7 +490,7 @@ namespace M11.Services
                         out var costWithTax);
                     result.Add(new MonthBillGroup
                     {
-                        Id = document.DocumentNode.SelectSingleNode($"//tr[{i}]").Attributes["data-obj-id"].Value,
+                        Id = EncodeRowId(document.DocumentNode.SelectSingleNode($"//tr[{i}]").Attributes["data-obj-id"].Value),
                         PeriodName = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[1]//text()").InnerText,
                         LinkId = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[2]//text()").InnerText,
                         TariffPlan = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[4]//text()").InnerText,
