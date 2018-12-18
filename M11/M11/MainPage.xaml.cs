@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using M11.Common.Enums;
@@ -43,7 +44,7 @@ namespace M11
 
         private async Task InitializeAsync()
 	    {
-	        if (!App.TryGetInfo())
+	        if (App.TryGetInfo() != HttpStatusCode.OK)
 	        {
 	            Application.Current.MainPage = new AuthPage();
                 return;
@@ -199,7 +200,7 @@ namespace M11
                                         ? "Ежемесячный платеж"
                                         : bill.IsTicketBuy
                                             ? App.GetTicketDescription(bill.PAN)
-                                            : $"{App.GetPointName(bill.EntryPoint)} -> {(bill.EntryPoint.Length + bill.ExitPoint.Length > 30 ? "\r\n -> " : "")}{App.GetPointName(bill.ExitPoint)}",
+                                            : $"{App.GetPointName(bill.EntryPoint)} -> {(bill.EntryPoint?.Length + bill.ExitPoint?.Length > 30 ? "\r\n -> " : "")}{App.GetPointName(bill.ExitPoint)}",
                                     FontFamily = "Bold,700",
                                     FontSize = 14
                                 },

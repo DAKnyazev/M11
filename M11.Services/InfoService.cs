@@ -72,7 +72,7 @@ namespace M11.Services
 
                 if (string.IsNullOrEmpty(stringContent))
                 {
-                    return new AccountBalance();
+                    return new AccountBalance { StatusCode = response.StatusCode };
                 }
 
                 var commonTable = GetTagValue(stringContent, "<table class=\"infoblock fullwidth\">", "</table>");
@@ -106,7 +106,7 @@ namespace M11.Services
             catch
             {
                 // Скорее всего какая-то ошибка парсинга
-                return new AccountBalance();
+                return new AccountBalance { StatusCode = HttpStatusCode.Unauthorized };
             }
         }
 

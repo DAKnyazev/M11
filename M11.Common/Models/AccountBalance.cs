@@ -13,7 +13,10 @@ namespace M11.Common.Models
         public AccountBalance()
         {
             Tickets = new List<Ticket>();
+            StatusCode = HttpStatusCode.OK;
         }
+
+        public HttpStatusCode StatusCode { get; set; }
 
         /// <summary>
         /// Номер договора

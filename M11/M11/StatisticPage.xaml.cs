@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Net;
 using System.Threading.Tasks;
 using M11.Common.Extentions;
 using Xamarin.Forms;
@@ -36,7 +37,7 @@ namespace M11
 
         private async Task InitializeAsync()
         {
-            if (!App.TryGetInfo())
+            if (App.TryGetInfo() != HttpStatusCode.OK)
             {
                 Application.Current.MainPage = new AuthPage();
                 return;
@@ -91,6 +92,11 @@ namespace M11
 
                 Device.BeginInvokeOnMainThread(() => { StatisticLayout.Children.Add(layout); });
             }
+
+            //if (StatisticLayout.Children.Count == App.AccountInfoMonthCount)
+            //{
+
+            //}
 
             Device.BeginInvokeOnMainThread(() =>
             {

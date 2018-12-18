@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using M11.Common.Enums;
 using M11.Common.Models;
 using M11.Common.Models.BillSummary;
@@ -89,24 +90,28 @@ namespace M11
 	        Current.MainPage = new AuthPage();
         }
 
-        public static bool TryGetInfo()
+        public static HttpStatusCode TryGetInfo()
         {
             return TryGetInfo(Credentials.Login, Credentials.Password);
         }
 
-        public static bool TryGetInfo(string login, string password)
+        public static HttpStatusCode TryGetInfo(string login, string password)
         {
             lock (GetAccountInfoLockObject)
             {
                 if (AccountBalance.RequestDate > DateTime.Now.AddMinutes(-CachingTimeInMinutes))
                 {
-                    return true;
+                    return HttpStatusCode.OK;
                 }
 
                 var accountBalance = new InfoService().GetAccountBalance(login, password);
+                if (accountBalance.StatusCode != HttpStatusCode.OK)
+                {
+                    return accountBalance.StatusCode;
+                }
                 if (string.IsNullOrWhiteSpace(accountBalance.ContractNumber))
                 {
-                    return false;
+                    return HttpStatusCode.Unauthorized;
                 }
 
                 AccountBalance = accountBalance;
@@ -116,7 +121,7 @@ namespace M11
                 Credentials.Password = password;
             }
 
-            return true;
+            return HttpStatusCode.OK;
         }
 
 	    public static void SetUpAccountInfo()

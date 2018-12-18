@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using Xamarin.Forms;
 
 namespace M11
@@ -20,15 +21,21 @@ namespace M11
 
                 return;
             }
-            
-            if (App.TryGetInfo(LoginEntry.Text, PasswordEntry.Text))
+
+            var status = App.TryGetInfo(LoginEntry.Text, PasswordEntry.Text);
+            switch (status)
             {
-                Application.Current.MainPage = new TabbedMainPage();
+                case HttpStatusCode.OK:
+                    Application.Current.MainPage = new TabbedMainPage();
+                    break;
+                case HttpStatusCode.Unauthorized:
+                    await DisplayAlert("Ошибка авторизации", "Некорректные логин и/или пароль", "Закрыть");
+                    break;
+                default:
+                    await DisplayAlert("Ошибка загрузки данных", "Возможно ведутся работы. Попробуйте зайти позднее.", "Закрыть");
+                    break;
             }
-            else
-            {
-                await DisplayAlert("Ошибка авторизации", "Некорректные логин и/или пароль", "Закрыть");
-            }
+
             AuthActivityIndicator.IsRunning = false;
         }
 	}
