@@ -219,7 +219,7 @@ namespace M11
                 .SelectMany(x => x.Groups.SelectMany(y => y.Bills))
                 .Distinct()
 	            .OrderByDescending(x => x.Period)
-	            .ToList();
+                .ToList();
 	    }
 
         private static string GetValueFromStorage(string key)

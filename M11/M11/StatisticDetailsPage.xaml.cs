@@ -39,7 +39,11 @@ namespace M11
             {
                 _loadingIndicator.IsRunning = false;
                 _loadingIndicator.IsVisible = false;
-                var bills = _monthBillSummary.Groups.SelectMany(x => x.Bills).Distinct().OrderBy(x => x.Period);
+                var bills = _monthBillSummary
+                    .Groups
+                    .SelectMany(x => x.Bills)
+                    .Distinct()
+                    .OrderBy(x => x.Period);
 
                 foreach (var billGroup in bills.GroupBy(x => x.Period.Date))
                 {

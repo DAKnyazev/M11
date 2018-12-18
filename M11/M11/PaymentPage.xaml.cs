@@ -106,6 +106,7 @@ namespace M11
             // Вернулись назад со страницы оплаты (нужно перезагрузить информацию о счете)
             LoadingIndicator.IsRunning = true;
             LoadingIndicator.IsVisible = true;
+            Thread.Sleep(3000);
             _browser.IsVisible = false;
             App.AccountBalance.RequestDate = DateTime.MinValue;
             App.AccountInfo.RequestDate = DateTime.MinValue;

@@ -540,28 +540,29 @@ namespace M11.Services
                     }
                     var isServicePay = item.ServiceName.ToLower().Contains("ежемесячный");
                     decimal.TryParse(
-                        document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 6 : 8)}]//text()")?.InnerText
+                        document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 7 : 10)}]//text()")?.InnerText
                             .Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
                         out var amount);
                     decimal.TryParse(
-                        document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 7 : 9)}]//text()")?.InnerText
+                        document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 8 : 11)}]//text()")?.InnerText
                             .Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
                         out var cost);
                     decimal.TryParse(
-                        document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 8 : 10)}]//text()")?.InnerText
+                        document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 9 : 12)}]//text()")?.InnerText
                             .Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
                         out var costWithTax);
                     
                     item.Bills.Add(new Bill
                     {
                         Id = document.DocumentNode.SelectSingleNode($"//tr[{i}]").Attributes["data-obj-id"]?.Value,
-                        FullPeriodName = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[1]//text()")?.InnerText,
-                        ExitPoint = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[2]//text()")?.InnerText,
-                        EntryPoint = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[3]//text()")?.InnerText,
-                        ForeigtPointComment =
-                            document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[4]//text()")?.InnerText,
-                        PAN = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[5]//text()")?.InnerText,
-                        CarClass = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[7]//text()")?.InnerText,
+                        FullPeriodName = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 2 : 3)}]//text()")?.InnerText,
+                        ExitPoint = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[4]//text()")?.InnerText,
+                        EntryPoint = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[5]//text()")?.InnerText,
+                        ForeigtPointComment = !isServicePay 
+                            ? document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[8]//text()")?.InnerText 
+                            : string.Empty,
+                        PAN = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 6 : 7)}]//text()")?.InnerText,
+                        CarClass = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[9]//text()")?.InnerText,
                         Amount = amount,
                         Cost = cost,
                         CostWithTax = costWithTax,
@@ -573,6 +574,9 @@ namespace M11.Services
             {
                 // Если что-то пошло не так, то возвращаем хоть что-нибудь
             }
+
+            item.Bills =
+                item.Bills.Where(x => x.Period.Year == item.Period.Year && x.Period.Month == item.Period.Month).ToList();
         }
     }
 }
