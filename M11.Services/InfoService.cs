@@ -526,6 +526,46 @@ namespace M11.Services
             var tbody = GetTagValue(content, "<tbody>", "</tbody>");
             var document = new HtmlDocument();
             document.LoadHtml(tbody);
+            item.Bills.AddRange(GetBills(document, item.ServiceName));
+
+            try
+            {
+                var paginator = GetTagValue(content, "<div class=\"paginatorview\">", "</div>");
+                var paginatorDocument = new HtmlDocument();
+                paginatorDocument.LoadHtml(paginator);
+                var i = 0;
+                while (true)
+                {
+                    i++;
+                    if (string.IsNullOrWhiteSpace(paginatorDocument.DocumentNode
+                        .SelectSingleNode($"//span[1]//a[{i}]")?.Attributes["href"]?.Value))
+                    {
+                        break;
+                    }
+
+                    var tabUrl = paginatorDocument.DocumentNode
+                        .SelectSingleNode($"//span[1]//a[{i}]")?.Attributes["href"]?.Value;
+                    var tabRequest = new RestRequest(tabUrl, Method.POST);
+                    var tabResponse = client.Execute(tabRequest);
+                    var tabContent = Regex.Replace(tabResponse.Content, @"\\t|\\n|\\r|\\", "");
+                    var tabbody = GetTagValue(tabContent, "<tbody>", "</tbody>", 2);
+                    var tabDocument = new HtmlDocument();
+                    tabDocument.LoadHtml(tabbody);
+                    item.Bills.AddRange(GetBills(tabDocument, item.ServiceName));
+                }
+            }
+            catch
+            {
+                // Если что-то пошло не так, то возвращаем хоть что-нибудь
+            }
+
+            item.Bills =
+                item.Bills.Where(x => x.Period.Year == item.Period.Year && x.Period.Month == item.Period.Month).ToList();
+        }
+
+        private static IEnumerable<Bill> GetBills(HtmlDocument document, string serviceName)
+        {
+            var result = new List<Bill>();
 
             try
             {
@@ -538,7 +578,7 @@ namespace M11.Services
                     {
                         break;
                     }
-                    var isServicePay = item.ServiceName.ToLower().Contains("ежемесячный");
+                    var isServicePay = serviceName.ToLower().Contains("ежемесячный");
                     decimal.TryParse(
                         document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 7 : 10)}]//text()")?.InnerText
                             .Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
@@ -551,15 +591,15 @@ namespace M11.Services
                         document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 9 : 12)}]//text()")?.InnerText
                             .Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
                         out var costWithTax);
-                    
-                    item.Bills.Add(new Bill
+
+                    result.Add(new Bill
                     {
                         Id = document.DocumentNode.SelectSingleNode($"//tr[{i}]").Attributes["data-obj-id"]?.Value,
                         FullPeriodName = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 2 : 3)}]//text()")?.InnerText,
                         ExitPoint = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[4]//text()")?.InnerText,
                         EntryPoint = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[5]//text()")?.InnerText,
-                        ForeigtPointComment = !isServicePay 
-                            ? document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[8]//text()")?.InnerText 
+                        ForeigtPointComment = !isServicePay
+                            ? document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[8]//text()")?.InnerText
                             : string.Empty,
                         PAN = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 6 : 7)}]//text()")?.InnerText,
                         CarClass = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[9]//text()")?.InnerText,
@@ -575,8 +615,7 @@ namespace M11.Services
                 // Если что-то пошло не так, то возвращаем хоть что-нибудь
             }
 
-            item.Bills =
-                item.Bills.Where(x => x.Period.Year == item.Period.Year && x.Period.Month == item.Period.Month).ToList();
+            return result;
         }
     }
 }

@@ -128,26 +128,20 @@ namespace M11
 	    {
 	        lock (GetAccountInfoLockObject)
 	        {
-	            if (string.IsNullOrWhiteSpace(AccountInfo?.AccountId) 
-	                || AccountInfo.RequestDate < DateTime.Now.AddMinutes(-CachingTimeInMinutes))
+	            if (!string.IsNullOrWhiteSpace(AccountInfo?.AccountId) &&
+	                AccountInfo.RequestDate >= DateTime.Now.AddMinutes(-CachingTimeInMinutes))
 	            {
-	                try
-	                {
-	                    AccountInfo = new InfoService().GetAccountInfo(
-	                        AccountBalance.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl,
-	                        AccountBalance.CookieContainer,
-	                        DateTime.Now.AddMonths(-AccountInfoMonthCount),
-	                        DateTime.Now,
-	                        GetValueFromStorage(CrossSecureStorageKeys.AccountId),
-	                        GetValueFromStorage(CrossSecureStorageKeys.DataObjectId));
-	                    CrossSecureStorage.Current.SetValue(CrossSecureStorageKeys.AccountId, AccountInfo.AccountId);
-	                    CrossSecureStorage.Current.SetValue(CrossSecureStorageKeys.DataObjectId, AccountInfo.DataObjectId);
-	                }
-	                catch (Exception e)
-	                {
-	                    throw;
-	                }
-                }
+	                return;
+	            }
+	            AccountInfo = new InfoService().GetAccountInfo(
+	                AccountBalance.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl,
+	                AccountBalance.CookieContainer,
+	                DateTime.Now.AddMonths(-AccountInfoMonthCount),
+	                DateTime.Now,
+	                GetValueFromStorage(CrossSecureStorageKeys.AccountId),
+	                GetValueFromStorage(CrossSecureStorageKeys.DataObjectId));
+	            CrossSecureStorage.Current.SetValue(CrossSecureStorageKeys.AccountId, AccountInfo.AccountId);
+	            CrossSecureStorage.Current.SetValue(CrossSecureStorageKeys.DataObjectId, AccountInfo.DataObjectId);
 	        }
         }
 
@@ -184,7 +178,8 @@ namespace M11
 	                AccountInfo.IlinkId,
 	                AccountInfo.AccountId,
 	                monthBillSummary);
-	        }
+                monthBillSummary.GroupsRequestDate = DateTime.Now;
+            }
 	        catch (Exception e)
 	        {
 	            return;
