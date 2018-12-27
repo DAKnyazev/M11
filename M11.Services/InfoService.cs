@@ -78,7 +78,7 @@ namespace M11.Services
                 var commonTable = GetTagValue(stringContent, "<table class=\"infoblock fullwidth\">", "</table>");
                 var commonInfoDocument = new HtmlDocument();
                 commonInfoDocument.LoadHtml(commonTable);
-                var ticketsSpan = GetTagValue(stringContent, "<span style=\"\" class=\"w-html-ro\">", "</span>", 3)
+                var ticketsSpan = GetTagValue(stringContent, "<span class=\"w-html-ro\" style=\"\">", "</span>", 3)
                     ?.Replace("&nbsp;", string.Empty);
                 var ticketsDocument = new HtmlDocument();
                 ticketsDocument.LoadHtml(ticketsSpan);
