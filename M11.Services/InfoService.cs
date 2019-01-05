@@ -91,7 +91,7 @@ namespace M11.Services
                     RequestDate = DateTime.Now,
                     ContractNumber =
                         commonInfoDocument.DocumentNode.SelectSingleNode(@"//tr[1]//td[2]//text()").InnerText,
-                    Phone = Regex.Replace(GetTagValue(stringContent, "<span class=\"w-text-ro\">", "</span>"), "[^+0-9.]", ""),
+                    Phone = Regex.Replace(GetTagValue(stringContent, "<span class=\"w-text-ro", "</span>", 5), "[^+0-9.]", ""),
                     Status = commonInfoDocument.DocumentNode.SelectSingleNode(@"//tr[2]//td[2]//text()").InnerText,
                     Balance = commonInfoDocument.DocumentNode.SelectSingleNode(@"//tr[3]//td[2]//text()").InnerText,
                     Tickets = GetTickets(ticketsDocument),
@@ -216,11 +216,16 @@ namespace M11.Services
 
                 startIndex = content.IndexOf(startingTag, StringComparison.InvariantCultureIgnoreCase);
             }
-            
+
+            if (!startingTag.EndsWith(">"))
+            {
+                startIndex = content.IndexOf('>', startIndex);
+            }
+
             if (startIndex > 0)
             {
                 var endIndex = content.IndexOf(endingTag, startIndex, StringComparison.InvariantCultureIgnoreCase);
-
+                
                 return content.Substring(startIndex, endIndex - startIndex + endingTag.Length);
             }
 
