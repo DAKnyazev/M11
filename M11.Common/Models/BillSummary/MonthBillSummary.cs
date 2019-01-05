@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using RestSharp;
 
 namespace M11.Common.Models.BillSummary
 {
@@ -8,6 +9,11 @@ namespace M11.Common.Models.BillSummary
     /// </summary>
     public class MonthBillSummary : BaseMonthBill
     {
+        /// <summary>
+        /// Идентификатор общей статистики расходов
+        /// </summary>
+        private static string _linkId = string.Empty;
+
         public MonthBillSummary()
         {
             Groups = new List<MonthBillGroup>();
@@ -49,8 +55,24 @@ namespace M11.Common.Models.BillSummary
         public DateTime GroupsRequestDate { get; set; }
 
         /// <summary>
-        /// Идентификатор для ссылки
+        /// Получить идентификатор общей статистики расходов
         /// </summary>
-        public string LinkId { get; set; }
+        public string GetLinkId(
+            Func<IRestClient, string, string, string, string, string> linkIdFunc,
+            IRestClient client,
+            string path, 
+            string accountPath, 
+            string accountId)
+        {
+            lock (_linkId)
+            {
+                if (string.IsNullOrWhiteSpace(_linkId))
+                {
+                    _linkId = linkIdFunc(client, path, accountPath, Id, accountId);
+                }
+            }
+
+            return _linkId;
+        }
     }
 }

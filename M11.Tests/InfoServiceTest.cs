@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Threading.Tasks;
 using M11.Common.Enums;
 using M11.Common.Models;
 using M11.Services;
@@ -13,6 +15,7 @@ namespace M11.Tests
     {
         private static readonly string Login = ConfigurationManager.AppSettings["login"];
         private static readonly string Password = ConfigurationManager.AppSettings["password"];
+        private static readonly Dictionary<string, int> Periods = new Dictionary<string, int> { { "2018.08", 47 }, { "2018.07", 21 }, { "2018.06", 5 }, { "2019.01", 2 }, { "2017.09", 1 } };
         private const int Amount = 100;
 
         private string _phone;
@@ -40,9 +43,12 @@ namespace M11.Tests
         [Test, SetUp, Order(2)]
         public void TestGetAccountInfo()
         {
-            var accountInfo = _infoService.GetAccountInfo(_accountBalance.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl,
+            var watch = new System.Diagnostics.Stopwatch();
+            watch.Start();
+            var accountInfo = _infoService.GetAccountInfo(
+                _accountBalance.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl,
                 _accountBalance.CookieContainer, 
-                DateTime.Now.AddMonths(-5), 
+                DateTime.Now.AddMonths(-App.AccountInfoMonthCount * 2), 
                 DateTime.Now);
 
             _accountId = accountInfo.AccountId;
@@ -53,15 +59,26 @@ namespace M11.Tests
             Assert.IsNotNull(accountInfo.BillSummaryList);
             try
             {
-                var groups = _infoService.GetMonthlyDetails(
-                    accountInfo.AccountLinks.FirstOrDefault(x => x.Type == AccountLinkType.Account)?.RelativeUrl,
-                    accountInfo.RestClient,
-                    accountInfo.IlinkId,
-                    accountInfo.AccountId,
-                    accountInfo.BillSummaryList.OrderByDescending(x => x.Period).FirstOrDefault());
+                //Parallel.ForEach(Periods, (period) =>
+                foreach (var period in Periods)
+                {
+                    var month = accountInfo.BillSummaryList.First(x => x.PeriodName == period.Key);
+                    var groups = _infoService.GetMonthlyDetails(
+                        accountInfo.AccountLinks.FirstOrDefault(x => x.Type == AccountLinkType.Account)?.RelativeUrl,
+                        accountInfo.RestClient,
+                        accountInfo.IlinkId,
+                        accountInfo.AccountId,
+                        month);
+                    var count = groups.SelectMany(x => x.Bills).Count();
+                    Assert.IsTrue(count == period.Value);
+                }
+                //);
+                
+                watch.Stop();
             }
             catch (Exception e)
             {
+                Assert.Fail();
             }
         }
 

@@ -91,7 +91,7 @@ namespace M11.Services
                     RequestDate = DateTime.Now,
                     ContractNumber =
                         commonInfoDocument.DocumentNode.SelectSingleNode(@"//tr[1]//td[2]//text()").InnerText,
-                    Phone = Regex.Replace(GetTagValue(stringContent, "<span class=\"w-text-ro", "</span>", 5), "[^+0-9.]", ""),
+                    Phone = Regex.Replace(GetTagValue(stringContent, "<span class=\"w-text-ro", "</span>", 5, false), "[^+0-9.]", ""),
                     Status = commonInfoDocument.DocumentNode.SelectSingleNode(@"//tr[2]//td[2]//text()").InnerText,
                     Balance = commonInfoDocument.DocumentNode.SelectSingleNode(@"//tr[3]//td[2]//text()").InnerText,
                     Tickets = GetTickets(ticketsDocument),
@@ -162,13 +162,12 @@ namespace M11.Services
         public List<MonthBillGroup> GetMonthlyDetails(string accountPath, IRestClient client, string linkId, string accountId, MonthBillSummary monthlyBillSummary)
         {
             var path = accountPath.Substring(0, accountPath.IndexOf('?'));
-            if (string.IsNullOrWhiteSpace(monthlyBillSummary.LinkId))
-            {
-                monthlyBillSummary.LinkId =
-                    GetMonthBillsLinkId(client, path, accountPath, monthlyBillSummary.Id, accountId);
-            }
-
-            var result = GetMonthBillGroups(client, path, monthlyBillSummary.Id, monthlyBillSummary.LinkId, out var groupUrlTemplate);
+            var result = GetMonthBillGroups(
+                client, 
+                path, 
+                monthlyBillSummary.Id, 
+                monthlyBillSummary.GetLinkId(GetMonthBillsLinkId, client, path, accountPath, accountId), 
+                out var groupUrlTemplate);
             Parallel.ForEach(result, item => FillBills(item, client, groupUrlTemplate));
 
             return result;
@@ -204,7 +203,7 @@ namespace M11.Services
         /// <summary>
         /// Получение содержимого тега
         /// </summary>
-        private static string GetTagValue(string content, string startingTag, string endingTag, int index = 1)
+        private static string GetTagValue(string content, string startingTag, string endingTag, int index = 1, bool isAttributesIncluded = true)
         {
             var startIndex = 0;
             for (int i = 0; i < index; i++)
@@ -217,7 +216,7 @@ namespace M11.Services
                 startIndex = content.IndexOf(startingTag, StringComparison.InvariantCultureIgnoreCase);
             }
 
-            if (!startingTag.EndsWith(">"))
+            if (!isAttributesIncluded && !startingTag.EndsWith(">"))
             {
                 startIndex = content.IndexOf('>', startIndex);
             }
