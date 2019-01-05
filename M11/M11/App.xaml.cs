@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using M11.Common.Enums;
 using M11.Common.Models;
 using M11.Common.Models.BillSummary;
@@ -194,21 +195,22 @@ namespace M11
                 return new List<Bill>();
 	        }
 
-	        foreach(var monthBillSummary in months)
-	        {
-	            if (monthBillSummary.Groups.Any() &&
-	                monthBillSummary.GroupsRequestDate > DateTime.Now.AddMinutes(-CachingTimeInMinutes))
+	        Parallel.ForEach(months, monthBillSummary =>
 	            {
-                    continue;
+	                if (monthBillSummary.Groups.Any() &&
+	                    monthBillSummary.GroupsRequestDate > DateTime.Now.AddMinutes(-CachingTimeInMinutes))
+	                {
+	                    return;
+	                }
+
+	                monthBillSummary.Groups = new InfoService().GetMonthlyDetails(
+	                    AccountInfo.AccountLinks.FirstOrDefault(x => x.Type == AccountLinkType.Account)?.RelativeUrl,
+	                    AccountInfo.RestClient,
+	                    AccountInfo.IlinkId,
+	                    AccountInfo.AccountId,
+	                    monthBillSummary);
 	            }
-                
-	            monthBillSummary.Groups = new InfoService().GetMonthlyDetails(
-	                AccountInfo.AccountLinks.FirstOrDefault(x => x.Type == AccountLinkType.Account)?.RelativeUrl,
-	                AccountInfo.RestClient,
-	                AccountInfo.IlinkId,
-	                AccountInfo.AccountId,
-	                monthBillSummary);
-            }
+	        );
 
 	        return months
                 .SelectMany(x => x.Groups.SelectMany(y => y.Bills))

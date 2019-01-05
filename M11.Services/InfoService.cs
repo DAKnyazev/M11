@@ -51,6 +51,7 @@ namespace M11.Services
             { "?", "$08" },
             { "@", "$09" }
         };
+        private static object _fillBillsLockObject = new object();
 
         /// <summary>
         /// Получение информации о договоре клиента
@@ -168,7 +169,10 @@ namespace M11.Services
                 monthlyBillSummary.Id, 
                 monthlyBillSummary.GetLinkId(GetMonthBillsLinkId, client, path, accountPath, accountId), 
                 out var groupUrlTemplate);
-            Parallel.ForEach(result, item => FillBills(item, client, groupUrlTemplate));
+            lock (_fillBillsLockObject)
+            {
+                Parallel.ForEach(result, item => FillBills(item, client, groupUrlTemplate));
+            }
 
             return result;
         }

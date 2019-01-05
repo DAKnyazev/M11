@@ -15,7 +15,14 @@ namespace M11.Tests
     {
         private static readonly string Login = ConfigurationManager.AppSettings["login"];
         private static readonly string Password = ConfigurationManager.AppSettings["password"];
-        private static readonly Dictionary<string, int> Periods = new Dictionary<string, int> { { "2018.08", 47 }, { "2018.07", 21 }, { "2018.06", 5 }, { "2019.01", 2 }, { "2017.09", 1 } };
+        private static readonly Dictionary<string, int> Periods = new Dictionary<string, int>
+        {
+            { "2018.08", 47 },
+            { "2018.07", 21 },
+            { "2018.06", 5 },
+            { "2019.01", 2 },
+            { "2017.09", 1 }
+        };
         private const int Amount = 100;
 
         private string _phone;
@@ -29,7 +36,7 @@ namespace M11.Tests
             _infoService = new InfoService();
         }
 
-        [Test, SetUp, Order(1)]
+        [Test, SetUp]
         public void TestGetInfo()
         {
             _accountBalance = _infoService.GetAccountBalance(Login, Password);
@@ -40,7 +47,7 @@ namespace M11.Tests
             Assert.IsFalse(string.IsNullOrWhiteSpace(_accountBalance.Phone));
         }
 
-        [Test, SetUp, Order(2)]
+        [Test, Order(1)]
         public void TestGetAccountInfo()
         {
             var watch = new System.Diagnostics.Stopwatch();
@@ -59,8 +66,8 @@ namespace M11.Tests
             Assert.IsNotNull(accountInfo.BillSummaryList);
             try
             {
-                //Parallel.ForEach(Periods, (period) =>
-                foreach (var period in Periods)
+                Parallel.ForEach(Periods, period =>
+                //foreach (var period in Periods)
                 {
                     var month = accountInfo.BillSummaryList.First(x => x.PeriodName == period.Key);
                     var groups = _infoService.GetMonthlyDetails(
@@ -72,7 +79,7 @@ namespace M11.Tests
                     var count = groups.SelectMany(x => x.Bills).Count();
                     Assert.IsTrue(count == period.Value);
                 }
-                //);
+                );
                 
                 watch.Stop();
             }
@@ -82,7 +89,7 @@ namespace M11.Tests
             }
         }
 
-        [Test, Order(3)]
+        [Test, Order(2)]
         public void TestGetLoginPageContent()
         {
             var content = _infoService.GetLoginPageContent(Login, Password, typeof(PaymentPage));
@@ -90,7 +97,7 @@ namespace M11.Tests
             Assert.IsFalse(string.IsNullOrWhiteSpace(content));
         }
 
-        [Test, Order(4)]
+        [Test, Order(3)]
         public void TestGetPaymentPageContent()
         {
             var content = _infoService.GetPaymentPageContent(_accountId, Amount, _phone, typeof(PaymentPage));
