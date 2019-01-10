@@ -98,22 +98,19 @@ namespace M11
                         Constraint.Constant(0),
                         Constraint.RelativeToParent(parent => parent.Width - 2 * padding),
                         Constraint.Constant(70));
-                    var ticketDescriptions = ticket.Description.Split(',');
                     layout.Children.Add(new Label
                         {
-                            Text = ticketDescriptions.Length > 2 ? ticketDescriptions[2] : string.Empty,
+                            Text = ticket.DescriptionParts.Length > 2 ? ticket.DescriptionParts[2] : string.Empty,
                             FontSize = 24
                         },
                         Constraint.Constant(2 * padding),
                         null,
                         Constraint.RelativeToParent(parent => parent.Width - 4 * padding),
                         Constraint.Constant(36));
-                    var count = ticketDescriptions.Length > 0
-                        ? Regex.Match(ticketDescriptions[0], @"\d+").Value
-                        : string.Empty;
-                    var remainingCountText = string.IsNullOrWhiteSpace(count)
+
+                    var remainingCountText = string.IsNullOrWhiteSpace(ticket.TotalTripsCount)
                         ? $"осталось поездок: {ticket.RemainingTripsCount}"
-                        : $"осталось поездок: {ticket.RemainingTripsCount} (из {count})";
+                        : $"осталось поездок: {ticket.RemainingTripsCount} (из {ticket.TotalTripsCount})";
 
                     layout.Children.Add(new Label {Text = $"{ticket.Status}, {remainingCountText}"},
                         Constraint.Constant(2 * padding),

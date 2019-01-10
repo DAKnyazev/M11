@@ -98,6 +98,11 @@ namespace M11
 
         public static HttpStatusCode TryGetInfo(string login, string password)
         {
+            if (string.IsNullOrWhiteSpace(login) || string.IsNullOrWhiteSpace(password))
+            {
+                return HttpStatusCode.Unauthorized;
+            }
+
             lock (GetAccountInfoLockObject)
             {
                 if (AccountBalance.RequestDate > DateTime.Now.AddMinutes(-CachingTimeInMinutes))
@@ -313,6 +318,16 @@ namespace M11
 	        {
 	            return string.Empty;
 	        }
+	    }
+
+	    public static AccountBalance GetAccountBalance()
+	    {
+	        if (TryGetInfo() == HttpStatusCode.OK)
+	        {
+	            return AccountBalance;
+	        }
+
+            return null;
 	    }
 	}
 }

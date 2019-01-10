@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 
 namespace M11.Common.Models
 {
@@ -7,6 +8,8 @@ namespace M11.Common.Models
     /// </summary>
     public class Ticket
     {
+        private string _description = string.Empty;
+
         /// <summary>
         /// Номер договора
         /// </summary>
@@ -20,7 +23,23 @@ namespace M11.Common.Models
         /// <summary>
         /// Описание абонемента
         /// </summary>
-        public string Description { get; set; }
+        public string Description
+        {
+            get => _description;
+            set
+            {
+                _description = value;
+                DescriptionParts = _description?.Split(',');
+                TotalTripsCount = DescriptionParts?.Length > 0
+                    ? Regex.Match(DescriptionParts[0], @"\d+").Value
+                    : string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Разбитое по запятым описание абонемента
+        /// </summary>
+        public string[] DescriptionParts { get; private set; } = new string[0];
 
         /// <summary>
         /// Дата начала использования
@@ -36,6 +55,11 @@ namespace M11.Common.Models
         /// Количество оставшихся поездок
         /// </summary>
         public int RemainingTripsCount { get; set; }
+
+        /// <summary>
+        /// Общее количество поездок
+        /// </summary>
+        public string TotalTripsCount { get; private set; }
 
         /// <summary>
         /// Статус
