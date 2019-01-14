@@ -25,6 +25,9 @@ namespace M11
 	    public static bool IsNeedReloadMainPage =>
 	        (AccountInfo?.RequestDate ?? DateTime.MinValue) < DateTime.Now.AddMinutes(-CachingTimeInMinutes);
         public static string MainColor { get; set; }
+	    public static bool IsNotificationsOn { get; set; } = true;
+	    public static bool IsNotificationsTurboOn { get; set; } = true;
+	    public static int NotificationCount { get; set; }
 
         private static readonly object GetAccountInfoLockObject = new object();
         
@@ -62,21 +65,6 @@ namespace M11
 		    {
 		        MainPage = new NavigationPage(new AuthPage());
             }
-		}
-
-	    protected override void OnStart()
-		{
-		    // Handle when your app starts
-        }
-
-		protected override void OnSleep()
-		{
-			// Handle when your app sleeps
-		}
-
-		protected override void OnResume()
-		{
-			// Handle when your app resumes
 		}
 
 	    public static void Exit()
@@ -224,18 +212,6 @@ namespace M11
                 .ToList();
 	    }
 
-        private static string GetValueFromStorage(string key)
-	    {
-	        try
-	        {
-	            return CrossSecureStorage.Current.HasKey(key) ? CrossSecureStorage.Current.GetValue(key) : string.Empty;
-	        }
-	        catch
-	        {
-	            return string.Empty;
-	        }
-	    }
-
 	    public static string GetPointName(string point)
 	    {
 	        if (point == null)
@@ -329,5 +305,54 @@ namespace M11
 
             return null;
 	    }
-	}
+
+	    public static AccountBalance GetAccountBalanceForNotification()
+	    {
+	        AccountBalance.RequestDate = DateTime.MinValue;
+
+            if (IsNotificationsOn)
+	        {
+	            if (IsNotificationsTurboOn)
+	            {
+	                return GetAccountBalance();
+	            }
+
+	            NotificationCount++;
+	            if (NotificationCount == 3)
+	            {
+	                NotificationCount = 0;
+                    return GetAccountBalance();
+                }
+            }
+
+	        return null;
+	    }
+
+        protected override void OnStart()
+	    {
+	        // Handle when your app starts
+	    }
+
+	    protected override void OnSleep()
+	    {
+	        // Handle when your app sleeps
+	    }
+
+	    protected override void OnResume()
+	    {
+	        // Handle when your app resumes
+	    }
+
+        private static string GetValueFromStorage(string key)
+	    {
+	        try
+	        {
+	            return CrossSecureStorage.Current.HasKey(key) ? CrossSecureStorage.Current.GetValue(key) : string.Empty;
+	        }
+	        catch
+	        {
+	            return string.Empty;
+	        }
+	    }
+    }
 }

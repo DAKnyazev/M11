@@ -9,7 +9,7 @@ namespace M11.Droid
     public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity
     {
         public static string ChannelId = "M11-15-58-Knyazev-ChannelId";
-        private int checkBalanceIntervalInMinutes = 15;
+        private int checkBalanceIntervalInMinutes = 3;
 
         protected override void OnCreate(Bundle bundle)
         {
@@ -50,7 +50,7 @@ namespace M11.Droid
             }
 
             var channelName = "Изменение баланса";
-            var channelDescription = "M11TestChannelDescription";
+            var channelDescription = "Уведомления об изменении баланса и количества поездок на абонементе";
             var channel = new NotificationChannel(ChannelId, channelName, NotificationImportance.Default)
             {
                 Description = channelDescription

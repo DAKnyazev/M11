@@ -4076,9 +4076,6 @@ namespace M11.Droid
 			// aapt resource value: 0x7f0a0034
 			public const int bottom_sheet_behavior = 2131361844;
 			
-			// aapt resource value: 0x7f0a003c
-			public const int channel_name = 2131361852;
-			
 			// aapt resource value: 0x7f0a0035
 			public const int character_counter_pattern = 2131361845;
 			

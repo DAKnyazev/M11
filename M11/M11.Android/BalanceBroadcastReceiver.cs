@@ -13,7 +13,7 @@ namespace M11.Droid
 
         public override void OnReceive(Context context, Intent intent)
         {
-            var accountBalance = App.GetAccountBalance();
+            var accountBalance = App.GetAccountBalanceForNotification();
             if (accountBalance == null)
             {
                 return;

@@ -4,11 +4,23 @@
              xmlns:m11="clr-namespace:M11;assembly=M11"
              x:Class="M11.SettingsPage"
              ControlTemplate="{StaticResource MainPageTemplate}">
-    <StackLayout>
-        <Label Text="Настройки"
-            VerticalOptions="CenterAndExpand" 
-            HorizontalOptions="CenterAndExpand"
-            FontSize="40"/>
-        <Button FontSize="40" TextColor="White" BackgroundColor="#CC7732" Text="Выход" Clicked="Button_OnClicked"/>
+    <StackLayout HorizontalOptions="StartAndExpand">
+        <Grid HorizontalOptions="CenterAndExpand" Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"></RowDefinition>
+                <RowDefinition Height="30"></RowDefinition>
+                <RowDefinition Height="40"></RowDefinition>
+                <RowDefinition Height="40"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="5*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+        </Grid>
+        <Switch Grid.Row="0" Grid.Column="1"/>
+        <Label Grid.Row="0" Grid.Column="0">Уведомления о тратах (~ 4 МБайт в день)</Label>
+        <Switch Grid.Row="1" Grid.Column="1"/>
+        <Label Grid.Row="1" Grid.Column="0">Расширенная частота уведомлений (~ 11 МБайт в день)</Label>
+        <!--<Button Grid.Row="4" Grid.ColumnSpan="2" HorizontalOptions="Center" FontSize="20" TextColor="White" BackgroundColor="#CC7732" Text="Выход" Clicked="Button_OnClicked"/>-->
     </StackLayout>
 </m11:BaseContentPage>

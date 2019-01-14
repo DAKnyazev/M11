@@ -9,12 +9,23 @@ namespace M11
     {
 		public SettingsPage ()
 		{
-			InitializeComponent ();
+			InitializeComponent();
+		    //NotificationsSwitch.IsToggled = App.IsNotificationsOn;
 		}
 
         private void Button_OnClicked(object sender, EventArgs e)
         {
             App.Exit();
+        }
+
+        private void Switch_OnToggled(object sender, ToggledEventArgs e)
+        {
+            App.IsNotificationsOn = e.Value;
+        }
+
+        private void SwitchTurbo_OnToggled(object sender, ToggledEventArgs e)
+        {
+            App.IsNotificationsTurboOn = e.Value;
         }
     }
 }
