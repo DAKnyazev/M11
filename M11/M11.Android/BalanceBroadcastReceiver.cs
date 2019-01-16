@@ -52,7 +52,7 @@ namespace M11.Droid
 
                         if (ticket.RemainingTripsCount != currentTicket.RemainingTripsCount)
                         {
-                            text = $"Произошло списание поездки по абонементу {ticket.ShortDescription}, остаток {currentTicket.RemainingTripsCount} (из {ticket.TotalTripsCount}) поездок.";
+                            text = $"Произошло списание поездки по абонементу {ticket.ShortDescription}, осталось поездок: {currentTicket.RemainingTripsCount} (из {ticket.TotalTripsCount}).";
                             title = "М11 - Абонемент";
                             break;
                         }
