@@ -42,6 +42,11 @@ namespace M11.Common.Models
         public string[] DescriptionParts { get; private set; } = new string[0];
 
         /// <summary>
+        /// Краткое описание абонемента
+        /// </summary>
+        public string ShortDescription => DescriptionParts.Length > 2 ? DescriptionParts[2] : string.Empty;
+
+        /// <summary>
         /// Дата начала использования
         /// </summary>
         public DateTime StartDate { get; set; }

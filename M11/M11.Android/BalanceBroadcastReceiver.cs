@@ -45,14 +45,14 @@ namespace M11.Droid
                         var currentTicket = accountBalance.Tickets?.FirstOrDefault(x => x.StartDate == ticket.StartDate);
                         if (currentTicket == null)
                         {
-                            text = $"Закончились поездки по абонементу {ticket.Description}.";
+                            text = $"Закончились поездки по абонементу {ticket.ShortDescription}.";
                             title = "М11 - Абонемент";
                             break;
                         }
 
                         if (ticket.RemainingTripsCount != currentTicket.RemainingTripsCount)
                         {
-                            text = $"Произошло списание поездки по абонементу {ticket.Description}, остаток {currentTicket.RemainingTripsCount} (из {ticket.TotalTripsCount}) поездок.";
+                            text = $"Произошло списание поездки по абонементу {ticket.ShortDescription}, остаток {currentTicket.RemainingTripsCount} (из {ticket.TotalTripsCount}) поездок.";
                             title = "М11 - Абонемент";
                             break;
                         }

@@ -100,7 +100,7 @@ namespace M11
                         Constraint.Constant(70));
                     layout.Children.Add(new Label
                         {
-                            Text = ticket.DescriptionParts.Length > 2 ? ticket.DescriptionParts[2] : string.Empty,
+                            Text = ticket.ShortDescription,
                             FontSize = 24
                         },
                         Constraint.Constant(2 * padding),

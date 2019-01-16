@@ -9,7 +9,7 @@ namespace M11.Droid
     public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity
     {
         public static string ChannelId = "M11-15-58-Knyazev-ChannelId";
-        private int checkBalanceIntervalInMinutes = 3;
+        private const int CheckBalanceIntervalInMilis = 3 * 60 * 1000;
 
         protected override void OnCreate(Bundle bundle)
         {
@@ -33,9 +33,9 @@ namespace M11.Droid
             //var interval = 10000;
 
             alarmManager.SetRepeating(
-                AlarmType.RtcWakeup, 
-                SystemClock.ElapsedRealtime() + checkBalanceIntervalInMinutes * 60 * 1000, 
-                checkBalanceIntervalInMinutes * 60 * 1000, 
+                AlarmType.ElapsedRealtimeWakeup, 
+                SystemClock.ElapsedRealtime() + CheckBalanceIntervalInMilis,
+                CheckBalanceIntervalInMilis, 
                 PendingIntent.GetBroadcast(this, 1, intentAlarm, PendingIntentFlags.CancelCurrent));
         }
 
@@ -56,7 +56,7 @@ namespace M11.Droid
                 Description = channelDescription
             };
 
-            var notificationManager = (NotificationManager)GetSystemService(NotificationService);
+            var notificationManager = (NotificationManager) GetSystemService(NotificationService);
             notificationManager.CreateNotificationChannel(channel);
         }
     }
