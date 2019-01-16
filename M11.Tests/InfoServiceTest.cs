@@ -20,7 +20,6 @@ namespace M11.Tests
             { "2018.08", 47 },
             { "2018.07", 21 },
             { "2018.06", 5 },
-            { "2019.01", 2 },
             { "2017.09", 1 }
         };
         private const int Amount = 100;
@@ -67,7 +66,6 @@ namespace M11.Tests
             try
             {
                 Parallel.ForEach(Periods, period =>
-                //foreach (var period in Periods)
                 {
                     var month = accountInfo.BillSummaryList.First(x => x.PeriodName == period.Key);
                     var groups = _infoService.GetMonthlyDetails(
@@ -78,8 +76,7 @@ namespace M11.Tests
                         month);
                     var count = groups.SelectMany(x => x.Bills).Count();
                     Assert.IsTrue(count == period.Value);
-                }
-                );
+                });
                 
                 watch.Stop();
             }
