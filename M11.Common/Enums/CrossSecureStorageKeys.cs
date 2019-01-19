@@ -6,5 +6,6 @@
         public static readonly string Password = "Password";
         public static readonly string AccountId = "AccountId";
         public static readonly string DataObjectId = "DataObjectId";
+        public static readonly string NotificationFrequency = "NotificationFrequency";
     }
 }

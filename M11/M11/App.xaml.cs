@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using M11.Common.Enums;
+using M11.Common.Extentions;
 using M11.Common.Models;
 using M11.Common.Models.BillSummary;
 using M11.Services;
@@ -23,14 +24,34 @@ namespace M11
         public static AccountBalance AccountBalance { get; set; }
         public static AccountInfo AccountInfo { get; set; }
 	    public static bool IsNeedReloadMainPage =>
-	        (AccountInfo?.RequestDate ?? DateTime.MinValue) < DateTime.Now.AddMinutes(-CachingTimeInMinutes);
+	        (AccountInfo?.RequestDate ?? DateTime.MinValue) < DateTime.Now.AddMinutes(-CachingTimeInMinutes)
+	        || string.IsNullOrWhiteSpace(AccountBalance.Balance);
         public static string MainColor { get; set; }
-	    public static bool IsNotificationsOn { get; set; } = true;
-	    public static bool IsNotificationsTurboOn { get; set; } = true;
-	    public static int NotificationCount { get; set; }
+
+	    public static NotificationFrequency NotificationFrequency
+	    {
+	        get => _notificationFrequency;
+	        set
+	        {
+	            _notificationFrequency = value;
+	            SaveNotificationFrequency(value);
+	        }
+	    }
+
+	    public static List<NotificationFrequency> NotificationFrequencies =
+	        Enum.GetValues(typeof(NotificationFrequency)).Cast<NotificationFrequency>().ToList();
+
+	    public static List<string> NotificationFrequenciesDescriptions =
+	        NotificationFrequencies.Select(x => x.GetDescription()).ToList();
+	    public static List<string> NotificationFrequenciesFullDescriptions =
+	        NotificationFrequencies.Select(x => x.GetFullDescription()).ToList();
+
+        public static int NotificationCount;
+	    public static readonly int NotificationCheckIntervalInMinutes = 3;
 
         private static readonly object GetAccountInfoLockObject = new object();
-        
+	    private static NotificationFrequency _notificationFrequency;
+
         static App()
         {
             CachingTimeInMinutes = 3;
@@ -49,7 +70,8 @@ namespace M11
 		    {
 		        Credentials.Login = GetValueFromStorage(CrossSecureStorageKeys.Login);
 		        Credentials.Password = GetValueFromStorage(CrossSecureStorageKeys.Password);
-            }
+		        SetUpNotificationFrequency();
+		    }
 		    catch
 		    {
 		        Credentials.Login = string.Empty;
@@ -93,7 +115,7 @@ namespace M11
 
             lock (GetAccountInfoLockObject)
             {
-                if (AccountBalance.RequestDate > DateTime.Now.AddMinutes(-CachingTimeInMinutes))
+                if (AccountBalance.RequestDate > DateTime.Now.AddMinutes(-CachingTimeInMinutes) && !string.IsNullOrWhiteSpace(AccountBalance.Balance))
                 {
                     return HttpStatusCode.OK;
                 }
@@ -310,15 +332,10 @@ namespace M11
 	    {
 	        AccountBalance.RequestDate = DateTime.MinValue;
 
-            if (IsNotificationsOn)
+            if (NotificationFrequency != NotificationFrequency.Off)
 	        {
-	            if (IsNotificationsTurboOn)
-	            {
-	                return GetAccountBalance();
-	            }
-
 	            NotificationCount++;
-	            if (NotificationCount == 3)
+	            if (NotificationCount == (int) NotificationFrequency)
 	            {
 	                NotificationCount = 0;
                     return GetAccountBalance();
@@ -354,5 +371,24 @@ namespace M11
 	            return string.Empty;
 	        }
 	    }
+
+	    private static void SetUpNotificationFrequency()
+	    {
+	        var value = GetValueFromStorage(CrossSecureStorageKeys.NotificationFrequency);
+	        if (!string.IsNullOrWhiteSpace(value)
+	            && Enum.TryParse(value, out NotificationFrequency frequency))
+	        {
+	            NotificationFrequency = frequency;
+	        }
+	        else
+	        {
+	            NotificationFrequency = NotificationFrequency.Off;
+	        }
+	    }
+
+	    private static void SaveNotificationFrequency(NotificationFrequency notificationFrequency)
+	    {
+	        CrossSecureStorage.Current.SetValue(CrossSecureStorageKeys.NotificationFrequency, notificationFrequency.ToString());
+        }
     }
 }

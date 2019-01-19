@@ -9,7 +9,7 @@ namespace M11.Droid
     public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity
     {
         public static string ChannelId = "M11-15-58-Knyazev-ChannelId";
-        private const int CheckBalanceIntervalInMilis = 3 * 60 * 1000;
+        private static readonly int CheckBalanceIntervalInMilis = App.NotificationCheckIntervalInMinutes * 60 * 1000;
 
         protected override void OnCreate(Bundle bundle)
         {
@@ -28,9 +28,7 @@ namespace M11.Droid
         private void StartScheduledTask()
         {
             var intentAlarm = new Intent(this, typeof(BalanceBroadcastReceiver));
-
             var alarmManager = (AlarmManager)GetSystemService(Context.AlarmService);
-            //var interval = 10000;
 
             alarmManager.SetRepeating(
                 AlarmType.ElapsedRealtimeWakeup, 

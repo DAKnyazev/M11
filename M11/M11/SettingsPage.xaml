@@ -7,20 +7,42 @@
     <StackLayout HorizontalOptions="StartAndExpand">
         <Grid HorizontalOptions="CenterAndExpand" Margin="20">
             <Grid.RowDefinitions>
-                <RowDefinition Height="30"></RowDefinition>
+                <RowDefinition Height="50"></RowDefinition>
                 <RowDefinition Height="30"></RowDefinition>
                 <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition Height="40"></RowDefinition>
+                <RowDefinition Height="200"></RowDefinition>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-                <ColumnDefinition Width="5*"></ColumnDefinition>
+                <ColumnDefinition Width="3*"></ColumnDefinition>
+                <ColumnDefinition Width="2*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
+            <Label Grid.Row="0" Grid.Column="0" FontSize="20" VerticalOptions="End">Уведомления:</Label>
+            <Picker Grid.Row="0" 
+                    Grid.Column="1"
+                    x:Name="NotificationFrequencyPicker" 
+                    Title="Уведомления" 
+                    SelectedIndexChanged="NotificationFrequencyPicker_OnSelectedIndexChanged"
+                    VerticalOptions="End" />
+            <Label Grid.Row="1"
+                   Grid.Column="0"
+                   Grid.ColumnSpan="2"
+                   x:Name="NotificationFrequencyDescriptionLabel"
+                   VerticalOptions="End"
+                   HorizontalOptions="Start"
+                   FontSize="12" />
+            <Button Grid.Row="3" 
+                    Grid.Column="0" 
+                    Grid.ColumnSpan="2" 
+                    HorizontalOptions="Center" 
+                    FontSize="12"
+                    TextColor="White" 
+                    BackgroundColor="#CC7732" 
+                    Text="Стереть пароль и выйти" 
+                    Clicked="Button_OnClicked"
+                    VerticalOptions="End" />
         </Grid>
-        <Switch Grid.Row="0" Grid.Column="1"/>
-        <Label Grid.Row="0" Grid.Column="0">Уведомления о тратах (~ 4 МБайт в день)</Label>
-        <Switch Grid.Row="1" Grid.Column="1"/>
-        <Label Grid.Row="1" Grid.Column="0">Расширенная частота уведомлений (~ 11 МБайт в день)</Label>
-        <!--<Button Grid.Row="4" Grid.ColumnSpan="2" HorizontalOptions="Center" FontSize="20" TextColor="White" BackgroundColor="#CC7732" Text="Выход" Clicked="Button_OnClicked"/>-->
+        <!--<Switch Grid.Row="1" Grid.Column="1"/>
+        <Label Grid.Row="1" Grid.Column="0">Расширенная частота уведомлений (~ 11 МБайт в день)</Label>-->
+        <!---->
     </StackLayout>
 </m11:BaseContentPage>

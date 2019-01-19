@@ -1,5 +1,5 @@
 ﻿using System;
-using Xamarin.Forms;
+using M11.Common.Extentions;
 using Xamarin.Forms.Xaml;
 
 namespace M11
@@ -10,22 +10,19 @@ namespace M11
 		public SettingsPage ()
 		{
 			InitializeComponent();
-		    //NotificationsSwitch.IsToggled = App.IsNotificationsOn;
-		}
+		    NotificationFrequencyPicker.ItemsSource = App.NotificationFrequenciesDescriptions;
+		    NotificationFrequencyPicker.SelectedItem = App.NotificationFrequency.GetDescription();
+		    NotificationFrequencyDescriptionLabel.Text = App.NotificationFrequency.GetFullDescription();
+        }
 
         private void Button_OnClicked(object sender, EventArgs e)
         {
             App.Exit();
         }
 
-        private void Switch_OnToggled(object sender, ToggledEventArgs e)
+        private void NotificationFrequencyPicker_OnSelectedIndexChanged(object sender, EventArgs e)
         {
-            App.IsNotificationsOn = e.Value;
-        }
-
-        private void SwitchTurbo_OnToggled(object sender, ToggledEventArgs e)
-        {
-            App.IsNotificationsTurboOn = e.Value;
+            App.NotificationFrequency = App.NotificationFrequencies[NotificationFrequencyPicker.SelectedIndex];
         }
     }
 }

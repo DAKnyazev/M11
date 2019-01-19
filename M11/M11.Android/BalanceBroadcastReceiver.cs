@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using Android.Accounts;
 using Android.App;
 using Android.Content;
 using Android.Support.V4.App;
@@ -6,10 +8,11 @@ using M11.Common.Models;
 
 namespace M11.Droid
 {
-    [BroadcastReceiver]
+    [BroadcastReceiver(Enabled = true)]
     public class BalanceBroadcastReceiver : BroadcastReceiver
     {
         private static AccountBalance _accountBalance;
+        private int _notificationCounter;
 
         public override void OnReceive(Context context, Intent intent)
         {
@@ -25,9 +28,20 @@ namespace M11.Droid
                 return;
             }
 
-            var text = string.Empty;
-            var title = string.Empty;
+            Fill(accountBalance, out var title, out var text);
+            _accountBalance = accountBalance;
 
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return;
+            }
+            SendNotification(context, intent, title, text);
+        }
+
+        private static void Fill(AccountBalance accountBalance, out string title, out string text)
+        {
+            title = string.Empty;
+            text = string.Empty;
             if (_accountBalance.Balance != accountBalance.Balance)
             {
                 decimal.TryParse(_accountBalance.Balance, out var oldBalance);
@@ -52,21 +66,17 @@ namespace M11.Droid
 
                         if (ticket.RemainingTripsCount != currentTicket.RemainingTripsCount)
                         {
-                            text = $"Произошло списание поездки по абонементу {ticket.ShortDescription}, осталось поездок: {currentTicket.RemainingTripsCount} (из {ticket.TotalTripsCount}).";
+                            text = $"Произошло списание поездки по абонементу {ticket.ShortDescription}, осталось {currentTicket.RemainingTripsCount} (из {ticket.TotalTripsCount}).";
                             title = "М11 - Абонемент";
                             break;
                         }
                     }
                 }
             }
+        }
 
-            _accountBalance = accountBalance;
-
-            if (string.IsNullOrWhiteSpace(text))
-            {
-                return;
-            }
-
+        private void SendNotification(Context context, Intent intent, string title, string text)
+        {
             var launchIntent = context.PackageManager.GetLaunchIntentForPackage(context.PackageName);
             intent.AddFlags(ActivityFlags.ClearTop);
 
@@ -77,18 +87,14 @@ namespace M11.Droid
                 .SetStyle(new NotificationCompat.BigTextStyle().BigText(text))
                 .SetSmallIcon(Resource.Drawable.notification_icon_background)
                 .SetColor(Resource.Color.colorPrimary)
+                .SetAutoCancel(true)
                 .SetContentIntent(pendingIntent);
 
-            // Build the notification:
             var notification = builder.Build();
-
-            // Get the notification manager:
             var notificationManager =
                 context.GetSystemService(Context.NotificationService) as NotificationManager;
 
-            // Publish the notification:
-            const int notificationId = 0;
-            notificationManager?.Notify(notificationId, notification);
+            notificationManager?.Notify(_notificationCounter++, notification);
         }
     }
 }

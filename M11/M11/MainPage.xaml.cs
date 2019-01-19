@@ -29,7 +29,7 @@ namespace M11
 
         protected override async void OnAppearing()
         {
-            if (!App.IsNeedReloadMainPage)
+            if (!App.IsNeedReloadMainPage && !string.IsNullOrWhiteSpace(BalanceLabel.Text))
             {
                 return;
             }
