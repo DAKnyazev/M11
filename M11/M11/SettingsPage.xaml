@@ -8,7 +8,7 @@
         <Grid HorizontalOptions="CenterAndExpand" Margin="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"></RowDefinition>
-                <RowDefinition Height="30"></RowDefinition>
+                <RowDefinition Height="100"></RowDefinition>
                 <RowDefinition Height="40"></RowDefinition>
                 <RowDefinition Height="200"></RowDefinition>
             </Grid.RowDefinitions>
@@ -27,9 +27,10 @@
                    Grid.Column="0"
                    Grid.ColumnSpan="2"
                    x:Name="NotificationFrequencyDescriptionLabel"
-                   VerticalOptions="End"
+                   VerticalOptions="Start"
                    HorizontalOptions="Start"
-                   FontSize="12" />
+                   FontSize="12" 
+                   LineBreakMode="WordWrap"/>
             <Button Grid.Row="3" 
                     Grid.Column="0" 
                     Grid.ColumnSpan="2" 

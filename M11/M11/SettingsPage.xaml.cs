@@ -23,6 +23,8 @@ namespace M11
         private void NotificationFrequencyPicker_OnSelectedIndexChanged(object sender, EventArgs e)
         {
             App.NotificationFrequency = App.NotificationFrequencies[NotificationFrequencyPicker.SelectedIndex];
+            NotificationFrequencyDescriptionLabel.Text =
+                App.NotificationFrequenciesFullDescriptions[NotificationFrequencyPicker.SelectedIndex];
         }
     }
 }
