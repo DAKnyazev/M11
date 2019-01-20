@@ -12,7 +12,7 @@ namespace M11.Droid
     public class BalanceBroadcastReceiver : BroadcastReceiver
     {
         private static AccountBalance _accountBalance;
-        private int _notificationCounter;
+        private static int _notificationCounter;
 
         public override void OnReceive(Context context, Intent intent)
         {
