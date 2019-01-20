@@ -3,6 +3,7 @@ using System.Linq;
 using Android.Accounts;
 using Android.App;
 using Android.Content;
+using Android.Media;
 using Android.Support.V4.App;
 using M11.Common.Models;
 
@@ -84,11 +85,13 @@ namespace M11.Droid
 
             var builder = new NotificationCompat.Builder(context, MainActivity.ChannelId)
                 .SetContentTitle(title)
+                .SetContentText(text)
                 .SetStyle(new NotificationCompat.BigTextStyle().BigText(text))
                 .SetSmallIcon(Resource.Drawable.notification_icon_background)
                 .SetColor(Resource.Color.colorPrimary)
                 .SetAutoCancel(true)
-                .SetContentIntent(pendingIntent);
+                .SetContentIntent(pendingIntent)
+                .SetSound(RingtoneManager.GetDefaultUri(RingtoneType.Notification));
 
             var notification = builder.Build();
             var notificationManager =
