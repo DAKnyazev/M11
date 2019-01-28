@@ -47,7 +47,7 @@ namespace M11
 	        NotificationFrequencies.Select(x => x.GetFullDescription()).ToList();
 
         public static int NotificationCount;
-	    public static readonly int NotificationCheckIntervalInMinutes = 3;
+	    public static readonly int NotificationCheckIntervalInMinutes = 6;
 
         private static readonly object GetAccountInfoLockObject = new object();
 	    private static NotificationFrequency _notificationFrequency;
