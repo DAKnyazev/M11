@@ -34,7 +34,6 @@ namespace M11
                 return;
             }
             BalanceTitleLabel.IsVisible = false;
-            BalanceCurrencyLabel.IsVisible = false;
             LastPaymentsLayout.IsVisible = false;
             LoadingIndicator.IsRunning = true;
             LastPaymentsIndicator.IsRunning = false;
@@ -135,7 +134,6 @@ namespace M11
             {
                 LoadingIndicator.IsRunning = false;
                 BalanceTitleLabel.IsVisible = true;
-                BalanceCurrencyLabel.IsVisible = true;
                 LastPaymentsLayout.IsVisible = true;
                 LastPaymentsIndicator.IsRunning = true;
                 LastPaymentsIndicator.IsVisible = true;
@@ -231,6 +229,14 @@ namespace M11
             {
                 // Чтобы работал остальной функционал
             }
+        }
+
+        /// <summary>
+        /// Открыть калькулятор
+        /// </summary>
+        private async void OpenCalculator(object sender, EventArgs e)
+        {
+            await Navigation.PushModalAsync(new NavigationPage(new CalculatorPage()));
         }
     }
 }
