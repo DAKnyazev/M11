@@ -11,7 +11,7 @@
         <StackLayout x:Name="TicketLayout">
         </StackLayout>
         <StackLayout x:Name="CalculatorLayout">
-            <Button Clicked="OpenCalculator" Text="Калькулятор"/>
+            <Button Clicked="OpenCalculator" Text="Калькулятор" TextColor="#996600" BackgroundColor="#F5F5DC" FontSize="24" Margin="10,0,10,0"/>
         </StackLayout>
         <StackLayout x:Name="LastPaymentsLayout">
         </StackLayout>
