@@ -28,11 +28,13 @@ namespace M11.Tests
         private string _accountId;
 
         private readonly InfoService _infoService;
+        private readonly CalculatorService _calculatorService; 
         private AccountBalance _accountBalance;
 
         public InfoServiceTest()
         {
             _infoService = new InfoService();
+            _calculatorService = new CalculatorService();
         }
 
         [Test, SetUp]
@@ -100,6 +102,15 @@ namespace M11.Tests
             var content = _infoService.GetPaymentPageContent(_accountId, Amount, _phone, typeof(PaymentPage));
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(content));
+        }
+
+        [Test, Order(4)]
+        public void TestCalculator()
+        {
+            Assert.IsTrue(_calculatorService.TryLoad());
+            var result = _calculatorService.Calculate(1);
+            Assert.IsTrue(result.CashCost > 0);
+            Assert.IsTrue(result.TransponderCost > 0);
         }
     }
 }
