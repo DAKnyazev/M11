@@ -42,8 +42,5 @@
                     Clicked="Button_OnClicked"
                     VerticalOptions="End" />
         </Grid>
-        <!--<Switch Grid.Row="1" Grid.Column="1"/>
-        <Label Grid.Row="1" Grid.Column="0">Расширенная частота уведомлений (~ 11 МБайт в день)</Label>-->
-        <!---->
     </StackLayout>
 </m11:BaseContentPage>

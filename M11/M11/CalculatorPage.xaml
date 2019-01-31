@@ -5,6 +5,53 @@
     <ContentPage.Content>
         <ScrollView>
             <StackLayout x:Name="CalculatorLayout" VerticalOptions="StartAndExpand">
+                <Label x:Name="ErrorLabel" FontSize="30" Margin="20">Произошла ошибка загрузки</Label>
+                <Grid x:Name="CalculatorGrid" HorizontalOptions="CenterAndExpand" Margin="20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50"></RowDefinition>
+                        <RowDefinition Height="50"></RowDefinition>
+                        <RowDefinition Height="50"></RowDefinition>
+                        <RowDefinition Height="60"></RowDefinition>
+                        <RowDefinition Height="50"></RowDefinition>
+                        <RowDefinition Height="50"></RowDefinition>
+                        <RowDefinition Height="50"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Picker Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="14" x:Name="DeparturePicker" Title="Точка въезда"/>
+                    <Picker Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="14" x:Name="DestinationPicker" Title="Точка выезда"/>
+
+                    <Button Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Text="ПН" HorizontalOptions="Fill"/>
+                    <Button Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="2" Text="ВТ" HorizontalOptions="Fill"/>
+                    <Button Grid.Row="2" Grid.Column="5" Grid.ColumnSpan="2" Text="СР" HorizontalOptions="Fill"/>
+                    <Button Grid.Row="2" Grid.Column="7" Grid.ColumnSpan="2" Text="ЧТ" HorizontalOptions="Fill"/>
+                    <Button Grid.Row="2" Grid.Column="9" Grid.ColumnSpan="2" Text="ПТ" HorizontalOptions="Fill"/>
+                    <Button Grid.Row="2" Grid.Column="11" Grid.ColumnSpan="2" Text="СБ" HorizontalOptions="Fill" TextColor="#ed1c24"/>
+                    <Button Grid.Row="2" Grid.Column="13" Grid.ColumnSpan="2" Text="ВС" HorizontalOptions="Fill" TextColor="#ed1c24"/>
+                    
+                    <Picker Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="14" x:Name="CategoryPicker" Title="Категория"/>
+
+                    <Button Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="14" Clicked="Calculate" Text="Рассчитать"/>
+                    
+                    <Label Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="14" x:Name="CashCostLabel"/>
+                    <Label Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="14" x:Name="TransponderCostLabel"/>
+                </Grid>
             </StackLayout>
         </ScrollView>
     </ContentPage.Content>

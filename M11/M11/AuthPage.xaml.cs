@@ -38,5 +38,10 @@ namespace M11
 
             AuthActivityIndicator.IsRunning = false;
         }
-	}
+
+        private async void OpenCalculator(object sender, EventArgs e)
+        {
+            await Navigation.PushModalAsync(new NavigationPage(new CalculatorPage()));
+        }
+    }
 }

@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using M11.Common.Models;
 using Newtonsoft.Json.Linq;
 using RestSharp;
@@ -23,7 +26,7 @@ namespace M11.Services
         /// </summary>
         public static JObject Dictionaries { get; set; }
 
-        public bool TryLoad()
+        public async Task<bool> TryLoadAsync()
         {
             if (Tariffs != null && Dictionaries != null)
             {
@@ -33,13 +36,13 @@ namespace M11.Services
             try
             {
                 var client = new RestClient(Url);
-                var request = new RestRequest(Method.GET);
-                var response = client.Execute(request);
+                var request = new RestRequest();
+                var cancellationTokenSource = new CancellationTokenSource();
+                var response = await client.ExecuteTaskAsync(request, cancellationTokenSource.Token);
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
                     return false;
                 }
-
                 var stringContent = response.Content;
                 Tariffs = JObject.Parse(GetJson(stringContent, TariffsTreeVariableName));
                 Dictionaries = JObject.Parse(GetJson(stringContent, DictionariesVariableName));

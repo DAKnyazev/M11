@@ -105,9 +105,9 @@ namespace M11.Tests
         }
 
         [Test, Order(4)]
-        public void TestCalculator()
+        public async Task TestCalculator()
         {
-            Assert.IsTrue(_calculatorService.TryLoad());
+            Assert.IsTrue(await _calculatorService.TryLoadAsync());
             var result = _calculatorService.Calculate(1);
             Assert.IsTrue(result.CashCost > 0);
             Assert.IsTrue(result.TransponderCost > 0);
