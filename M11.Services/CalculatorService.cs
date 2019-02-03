@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -43,7 +44,6 @@ namespace M11.Services
             {
                 var client = new RestClient(Url);
                 var request = new RestRequest(Method.GET);
-
                 ServicePointManager.ServerCertificateValidationCallback += OnServerCertificateValidationCallback;
                 var cancellationTokenSource = new CancellationTokenSource();
                 var response = await client.ExecuteTaskAsync(request, cancellationTokenSource.Token);
@@ -66,11 +66,11 @@ namespace M11.Services
         /// <summary>
         /// Рассчитать стоимость
         /// </summary>
-        public CalculatorResult Calculate(int category)
+        public CalculatorResult Calculate(string category, string dayweek, string time, string from, string to)
         {
             try
             {
-                var tariff = Tariffs[category.ToString()]["chetverg"]["00000100"]["moskva"]["klin89ykm"];
+                var tariff = Tariffs[category][dayweek][time][from][to];
                 if (tariff == null || tariff.Count() != 2)
                 {
                     return new CalculatorResult();
@@ -88,6 +88,32 @@ namespace M11.Services
             {
                 return new CalculatorResult();
             }
+        }
+
+        public Dictionary<string, string> GetDestinations()
+        {
+            return GetDictionary("tos");
+        }
+
+        public Dictionary<string, string> GetDepartures()
+        {
+            return GetDictionary("froms");
+        }
+
+        public List<string> GetDayWeeks()
+        {
+            return Dictionaries["dayweeks"].Children<JProperty>().Select(x => x.Name).ToList();
+        }
+
+        public List<Tuple<int, int, string>> GetTimes()
+        {
+            return Dictionaries["times"].Children<JProperty>().Select(x =>
+                new Tuple<int, int, string>(int.Parse(x.Name.Substring(0, 2)), int.Parse(x.Name.Substring(4, 2)), x.Name)).ToList();
+        }
+
+        private static Dictionary<string, string> GetDictionary(string name)
+        {
+            return Dictionaries[name].Children<JProperty>().ToDictionary(x => x.Last.Value<string>(), y => y.Name);
         }
 
         /// <summary>

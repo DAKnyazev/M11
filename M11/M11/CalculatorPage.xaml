@@ -10,8 +10,10 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="50"></RowDefinition>
                         <RowDefinition Height="50"></RowDefinition>
-                        <RowDefinition Height="50"></RowDefinition>
                         <RowDefinition Height="60"></RowDefinition>
+                        <RowDefinition Height="50"></RowDefinition>
+                        <RowDefinition Height="50"></RowDefinition>
+                        <RowDefinition Height="50"></RowDefinition>
                         <RowDefinition Height="50"></RowDefinition>
                         <RowDefinition Height="50"></RowDefinition>
                         <RowDefinition Height="50"></RowDefinition>
@@ -34,23 +36,24 @@
                         <ColumnDefinition Width="*"></ColumnDefinition>
                         <ColumnDefinition Width="*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-                    <Picker Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="14" x:Name="DeparturePicker" Title="Точка въезда"/>
-                    <Picker Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="14" x:Name="DestinationPicker" Title="Точка выезда"/>
+                    <Button Grid.Row="0" Grid.Column="14" Grid.RowSpan="2" Grid.ColumnSpan="2" x:Name="SwapButton" Text="" Clicked="SwapDepartureAndDestination" BackgroundColor="#F5F5DC" HorizontalOptions="FillAndExpand"/>
+                    <Picker Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="13" x:Name="DeparturePicker" Title="Точка въезда" SelectedIndexChanged="Calculate"/>
+                    <Picker Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="13" x:Name="DestinationPicker" Title="Точка выезда" SelectedIndexChanged="Calculate"/>
 
-                    <Button Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Text="ПН" HorizontalOptions="Fill"/>
-                    <Button Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="2" Text="ВТ" HorizontalOptions="Fill"/>
-                    <Button Grid.Row="2" Grid.Column="5" Grid.ColumnSpan="2" Text="СР" HorizontalOptions="Fill"/>
-                    <Button Grid.Row="2" Grid.Column="7" Grid.ColumnSpan="2" Text="ЧТ" HorizontalOptions="Fill"/>
-                    <Button Grid.Row="2" Grid.Column="9" Grid.ColumnSpan="2" Text="ПТ" HorizontalOptions="Fill"/>
-                    <Button Grid.Row="2" Grid.Column="11" Grid.ColumnSpan="2" Text="СБ" HorizontalOptions="Fill" TextColor="#ed1c24"/>
-                    <Button Grid.Row="2" Grid.Column="13" Grid.ColumnSpan="2" Text="ВС" HorizontalOptions="Fill" TextColor="#ed1c24"/>
-                    
-                    <Picker Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="14" x:Name="CategoryPicker" Title="Категория"/>
-
-                    <Button Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="14" Clicked="Calculate" Text="Рассчитать"/>
-                    
-                    <Label Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="14" x:Name="CashCostLabel"/>
-                    <Label Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="14" x:Name="TransponderCostLabel"/>
+                    <Button Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Text="ПН" HorizontalOptions="FillAndExpand" BorderColor="#ed1c24" BackgroundColor="#F5F5DC" Clicked="DayWeek_OnClicked"/>
+                    <Button Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="2" Text="ВТ" HorizontalOptions="FillAndExpand" BorderColor="#ed1c24" BackgroundColor="#F5F5DC" Clicked="DayWeek_OnClicked"/>
+                    <Button Grid.Row="2" Grid.Column="5" Grid.ColumnSpan="2" Text="СР" HorizontalOptions="FillAndExpand" BorderColor="#ed1c24" BackgroundColor="#F5F5DC" Clicked="DayWeek_OnClicked"/>
+                    <Button Grid.Row="2" Grid.Column="7" Grid.ColumnSpan="2" Text="ЧТ" HorizontalOptions="FillAndExpand" BorderColor="#ed1c24" BackgroundColor="#F5F5DC" Clicked="DayWeek_OnClicked"/>
+                    <Button Grid.Row="2" Grid.Column="9" Grid.ColumnSpan="2" Text="ПТ" HorizontalOptions="FillAndExpand" BorderColor="#ed1c24" BackgroundColor="#F5F5DC" Clicked="DayWeek_OnClicked"/>
+                    <Button Grid.Row="2" Grid.Column="11" Grid.ColumnSpan="2" Text="СБ" HorizontalOptions="FillAndExpand" BorderColor="#ed1c24" BackgroundColor="#F5F5DC" TextColor="#ed1c24" Clicked="DayWeek_OnClicked"/>
+                    <Button Grid.Row="2" Grid.Column="13" Grid.ColumnSpan="2" Text="ВС" HorizontalOptions="FillAndExpand" BorderColor="#ed1c24" BackgroundColor="#F5F5DC" TextColor="#ed1c24" Clicked="DayWeek_OnClicked"/>
+                    <StackLayout Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="14" Orientation="Horizontal" x:Name="TimeLayout" HorizontalOptions="CenterAndExpand">
+                    </StackLayout>
+                    <Picker Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="14" x:Name="CategoryPicker" Title="Категория ТС" SelectedIndexChanged="Calculate"/>
+                    <Label Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="14" Text="Цена по транспондеру М11 15-58 км" FontSize="20"/>
+                    <Label Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="14" x:Name="TransponderCostLabel" FontSize="30"/>
+                    <Label Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="14" Text="Цена без транспондера М11 15-58 км" FontSize="20"/>
+                    <Label Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="14" x:Name="CashCostLabel" FontSize="30"/>
                 </Grid>
             </StackLayout>
         </ScrollView>

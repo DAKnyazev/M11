@@ -108,9 +108,15 @@ namespace M11.Tests
         public async Task TestCalculator()
         {
             Assert.IsTrue(await _calculatorService.TryLoadAsync());
-            var result = _calculatorService.Calculate(1);
+            var result = _calculatorService.Calculate("1", "ponedelnik", "00000100", "moskva", "zelenograd");
             Assert.IsTrue(result.CashCost > 0);
             Assert.IsTrue(result.TransponderCost > 0);
+            var departures = _calculatorService.GetDepartures();
+            Assert.IsNotNull(departures);
+            Assert.IsTrue(departures.Count > 0);
+            var destinations = _calculatorService.GetDestinations();
+            Assert.IsNotNull(destinations);
+            Assert.IsTrue(destinations.Count > 0);
         }
     }
 }
