@@ -38,6 +38,8 @@ namespace M11
             var result = _calculatorService.Calculate(1);
             CashCostLabel.Text = result.CashCost.ToString("0");
             TransponderCostLabel.Text = result.TransponderCost.ToString("0");
+            CashCostLabel.IsVisible = true;
+            TransponderCostLabel.IsVisible = true;
         }
 
         private async Task InitializeAsync()
