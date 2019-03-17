@@ -57,5 +57,10 @@ namespace M11.Common.Models
         /// Куки, которые нужно использовать при запросах без логина/пароля
         /// </summary>
         public CookieContainer CookieContainer { get; set; }
+
+        /// <summary>
+        /// Ссылка на подключение абонемента
+        /// </summary>
+        public string TicketLink { get; set; }
     }
 }

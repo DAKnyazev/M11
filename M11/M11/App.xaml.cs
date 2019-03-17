@@ -345,6 +345,14 @@ namespace M11
 	        return null;
 	    }
 
+	    public static void SetNeedReload()
+	    {
+	        if (AccountInfo != null)
+	        {
+	            AccountInfo.RequestDate = DateTime.MinValue;
+	        }
+	    }
+
         protected override void OnStart()
 	    {
 	        // Handle when your app starts

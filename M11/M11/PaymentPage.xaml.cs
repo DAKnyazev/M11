@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
-using M11.Common.Enums;
 using M11.Services;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;

@@ -86,6 +86,7 @@ namespace M11.Services
                 var linkTable = GetTagValue(stringContent, "<div class=\"tmenu\">", "</div>");
                 var linkDocument = new HtmlDocument();
                 linkDocument.LoadHtml(linkTable);
+                var ticketLinkInput = GetTagValue(stringContent, "<input class=\"c-button\"", ">");
 
                 return new AccountBalance
                 {
@@ -97,7 +98,8 @@ namespace M11.Services
                     Balance = commonInfoDocument.DocumentNode.SelectSingleNode(@"//tr[3]//td[2]//text()").InnerText,
                     Tickets = GetTickets(ticketsDocument),
                     Links = GetLinks<LinkType>(linkDocument, "//tr[1]//td[{0}]//a[1]"),
-                    CookieContainer = cookieContainer
+                    CookieContainer = cookieContainer,
+                    TicketLink = GetTicketLink(ticketLinkInput, BaseUrl)
                 };
             }
             catch (HttpRequestException)
@@ -404,6 +406,14 @@ namespace M11.Services
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Получение ссылки на оформление абонемента
+        /// </summary>
+        private static string GetTicketLink(string ticketLinkInput, string baseUrl)
+        {
+            return baseUrl + GetAttributeValue(ticketLinkInput, "onclick=\"")?.Replace("window.open('", string.Empty).Replace("')", string.Empty);
         }
 
         /// <summary>

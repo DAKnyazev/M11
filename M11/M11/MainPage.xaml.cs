@@ -35,6 +35,7 @@ namespace M11
             }
             BalanceTitleLabel.IsVisible = false;
             LastPaymentsLayout.IsVisible = false;
+            BalanceLabel.Text = "";
             LoadingIndicator.IsRunning = true;
             LastPaymentsIndicator.IsRunning = false;
             MainLayout.Children.Add(LoadingIndicator);
@@ -237,6 +238,16 @@ namespace M11
         private async void OpenCalculator(object sender, EventArgs e)
         {
             await Navigation.PushModalAsync(new NavigationPage(new CalculatorPage()));
+        }
+
+        /// <summary>
+        /// Открыть страницу покупки абонемента
+        /// </summary>
+        private async void OpenTicketPage(object sender, EventArgs e)
+        {
+            var ticketPage = new TicketPage();
+            ticketPage.OnClosing += (o, args) => { App.SetNeedReload(); OnAppearing(); };
+            await Navigation.PushModalAsync(new NavigationPage(ticketPage));
         }
     }
 }

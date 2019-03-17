@@ -118,5 +118,13 @@ namespace M11.Tests
             Assert.IsNotNull(destinations);
             Assert.IsTrue(destinations.Count > 0);
         }
+
+        [Test, Order(5)]
+        public async Task TestTicketService()
+        {
+            var ticketService = new TicketService("https://private.15-58m11.ru/onyma/oss_task_list/form-action/?action_100110000000000000506=1&__form_data__pmodel_id=3101270000000000000033&__form_data__s$pmodel_arg=3101270000000000000033&__parent_obj__=3100520000000000056242&__form_data__group_id=3100150000000000109132&",
+                _accountBalance.CookieContainer);
+            ticketService.Start();
+        }
     }
 }
