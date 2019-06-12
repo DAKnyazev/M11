@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using M11.Common.Models;
 using M11.Common.Models.BillSummary;
 using Newtonsoft.Json;
 using RestSharp;
@@ -16,14 +17,14 @@ namespace M11.Services
         private static readonly object FillBillsLockObject = new object();
         private static readonly string MonthlyBillsPath = "month_bills2/";
 
-        public List<MonthBillSummary> GetMonthlyStatistic(
+        public ListResult<MonthBillSummary> GetMonthlyStatistic(
             IRestClient client, 
             string path, 
             DateTime start,
             DateTime end, 
             string accountId)
         {
-            var result = new List<MonthBillSummary>();
+            var result = new ListResult<MonthBillSummary>();
             var filterUrl = SaveMonthlyBillsFilter + path.Substring(path.IndexOf('?')) + $"&__parent_obj__={accountId}";
             var param = JsonConvert.SerializeObject(new List<BillsSummaryParam> { new BillsSummaryParam(start, end) });
             var filterRequest = new RestRequest(filterUrl, Method.POST);
@@ -68,6 +69,7 @@ namespace M11.Services
             }
             catch
             {
+                result.IsError = true;
                 // Если что-то пошло не так, то возвращаем хоть что-нибудь
             }
 
@@ -77,7 +79,7 @@ namespace M11.Services
         /// <summary>
         /// Получение сгруппированных расходов на услуги в указанном месяце
         /// </summary>
-        public List<MonthBillGroup> GetMonthlyDetails(string accountPath, IRestClient client, string accountId, MonthBillSummary monthlyBillSummary)
+        public ListResult<MonthBillGroup> GetMonthlyDetails(string accountPath, IRestClient client, string accountId, MonthBillSummary monthlyBillSummary)
         {
             var path = accountPath.Substring(0, accountPath.IndexOf('?'));
             var result = GetMonthBillGroups(
@@ -88,20 +90,20 @@ namespace M11.Services
                 out var groupUrlTemplate);
             lock (FillBillsLockObject)
             {
-                Parallel.ForEach(result, item => FillBills(item, client, groupUrlTemplate));
+                Parallel.ForEach(result.List, item => result.IsError = result.IsError || !TryFillBills(item, client, groupUrlTemplate));
             }
 
             return result;
         }
 
-        private List<MonthBillGroup> GetMonthBillGroups(
+        private ListResult<MonthBillGroup> GetMonthBillGroups(
             IRestClient client,
             string path,
             string monthlyBillSummaryId,
             string monthlyBillSummaryLinkId,
             out string groupUrlTemplate)
         {
-            var result = new List<MonthBillGroup>();
+            var result = new ListResult<MonthBillGroup>();
 
             var request = new RestRequest($"{path}{MonthlyBillsPath}", Method.GET);
             request.AddParameter("_parent_id", monthlyBillSummaryId);
@@ -147,6 +149,7 @@ namespace M11.Services
             }
             catch
             {
+                result.IsError = true;
                 // Если что-то пошло не так, то возвращаем хоть что-нибудь
             }
 
@@ -175,8 +178,9 @@ namespace M11.Services
             return GetParamValue(link, InfoService.IlinkIdParamName);
         }
 
-        private static void FillBills(MonthBillGroup item, IRestClient client, string groupUrlTemplate)
+        private static bool TryFillBills(MonthBillGroup item, IRestClient client, string groupUrlTemplate)
         {
+            var result = true;
             var url = groupUrlTemplate.Replace("list-action", item.Id);
             var request = new RestRequest($"{url}&simple=1", Method.GET);
             var response = client.Execute(request);
@@ -189,7 +193,9 @@ namespace M11.Services
             var tbody = GetTagValue(content, "<tbody>", "</tbody>");
             var document = new HtmlDocument();
             document.LoadHtml(tbody);
-            item.Bills.AddRange(GetBills(document, item.ServiceName));
+            var billsResult = GetBills(document, item.ServiceName);
+            result = !billsResult.IsError;
+            item.Bills.AddRange(billsResult.List);
 
             try
             {
@@ -214,21 +220,25 @@ namespace M11.Services
                     var tabbody = GetTagValue(tabContent, "<tbody>", "</tbody>", 2);
                     var tabDocument = new HtmlDocument();
                     tabDocument.LoadHtml(tabbody);
-                    item.Bills.AddRange(GetBills(tabDocument, item.ServiceName));
+                    billsResult = GetBills(tabDocument, item.ServiceName);
+                    result = result && !billsResult.IsError;
+                    item.Bills.AddRange(billsResult.List);
                 }
             }
             catch
             {
+                result = false;
                 // Если что-то пошло не так, то возвращаем хоть что-нибудь
             }
 
             item.Bills =
                 item.Bills.Where(x => x.Period.Year == item.Period.Year && x.Period.Month == item.Period.Month).ToList();
+            return result;
         }
 
-        private static IEnumerable<Bill> GetBills(HtmlDocument document, string serviceName)
+        private static ListResult<Bill> GetBills(HtmlDocument document, string serviceName)
         {
-            var result = new List<Bill>();
+            var result = new ListResult<Bill>();
 
             try
             {
@@ -275,6 +285,7 @@ namespace M11.Services
             }
             catch
             {
+                result.IsError = true;
                 // Если что-то пошло не так, то возвращаем хоть что-нибудь
             }
 

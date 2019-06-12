@@ -7,7 +7,7 @@ namespace M11.Common.Models.BillSummary
     /// Группа услуг за месяц
     /// </summary>
     [Table("MonthBillGroup")]
-    public class MonthBillGroup : BaseBill
+    public class MonthBillGroup : BaseBill, IDatabaseEntity
     {
         public MonthBillGroup()
         {
@@ -17,7 +17,13 @@ namespace M11.Common.Models.BillSummary
         /// <summary>
         /// Идентификатор группы
         /// </summary>
+        [PrimaryKey]
         public string Id { get; set; }
+
+        /// <summary>
+        /// Идентификатор месяца
+        /// </summary>
+        public string MonthBillSummaryId { get; set; }
 
         /// <summary>
         /// Идентификатор ссылки группы

@@ -10,9 +10,9 @@ namespace M11.Services
     public class CachedStatisticService
     {
         private readonly StatisticService _statisticService = new StatisticService();
-        private readonly GenericDatabase<MonthBillSummary> _repository;
+        private readonly GenericDatabase _repository;
 
-        public CachedStatisticService(GenericDatabase<MonthBillSummary> repository)
+        public CachedStatisticService(GenericDatabase repository)
         {
             _repository = repository;
         }
@@ -25,7 +25,7 @@ namespace M11.Services
             string accountId)
         {
             var result = new List<MonthBillSummary>();
-            var cachedList = _repository.GetItemsAsync().Result;
+            var cachedList = _repository.GetItemsAsync<MonthBillSummary>().Result;
             var newStart = new DateTime(start.Year, start.Month, 1);
             while (newStart <= end.Date)
             {
@@ -41,14 +41,17 @@ namespace M11.Services
 
             if (newStart <= end)
             {
-                var list = _statisticService.GetMonthlyStatistic(client, path, newStart, end, accountId);
+                var listResult = _statisticService.GetMonthlyStatistic(client, path, newStart, end, accountId);
 
-                foreach (var monthBillSummary in list)
+                if (!listResult.IsError)
                 {
-                    var count = _repository.SaveItemAsync(monthBillSummary).Result;
+                    foreach (var monthBillSummary in listResult.List)
+                    {
+                        var count = _repository.SaveItemAsync(monthBillSummary).Result;
+                    }
                 }
 
-                result.AddRange(list);
+                result.AddRange(listResult.List);
             }
 
             return result;
@@ -60,7 +63,46 @@ namespace M11.Services
             string accountId,
             MonthBillSummary monthlyBillSummary)
         {
-            return _statisticService.GetMonthlyDetails(accountPath, client, accountId, monthlyBillSummary);
+            List<MonthBillGroup> result = null;
+            if (!monthlyBillSummary.IsPeriodEquals(DateTime.Now))
+            {
+                result = _repository
+                    .GetItemsAsync<MonthBillGroup>().Result
+                    .Where(x => x.MonthBillSummaryId == monthlyBillSummary.Id)
+                    .ToList();
+                foreach (var group in result)
+                {
+                    var bills = _repository.GetItemsAsync<Bill>().Result
+                        .Where(x => x.MonthBillGroupId == group.Id)
+                        .ToList();
+                    group.Bills = bills;
+                }
+            }
+
+            if (result?.Any() == true)
+            {
+                return result;
+            }
+
+            
+            var detailsResult = _statisticService.GetMonthlyDetails(accountPath, client, accountId, monthlyBillSummary);
+            result = detailsResult.List;
+            if (!detailsResult.IsError)
+            {
+                foreach (var group in result)
+                {
+                    foreach (var bill in group.Bills)
+                    {
+                        bill.MonthBillGroupId = group.Id;
+                        var count = _repository.SaveItemAsync(bill).Result;
+                    }
+
+                    group.MonthBillSummaryId = monthlyBillSummary.Id;
+                    var groupCount = _repository.SaveItemAsync(@group).Result;
+                }
+            }
+
+            return result;
         }
     }
 }

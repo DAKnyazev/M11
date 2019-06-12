@@ -20,7 +20,7 @@ namespace M11.Services
     {
         private readonly CachedStatisticService _cachedStatisticService;
 
-        public InfoService(GenericDatabase<MonthBillSummary> monthBillSummaryRepository)
+        public InfoService(GenericDatabase monthBillSummaryRepository)
         {
             _cachedStatisticService = new CachedStatisticService(monthBillSummaryRepository);
         }
@@ -32,16 +32,11 @@ namespace M11.Services
         private readonly string _passwordParameterName = "password";
         private readonly string _submitParameterName = "submit";
         private readonly string _submitParameterValue = "Вход";
-
         private readonly string _dataObjectIdAttributeName = "data-obj-id=\"";
         private readonly string _accountIdAttributeName = "data-tree-id=\"";
         private readonly string _partyIdParamName = "_party_id=";
-        
-
         private readonly string _loginPageName = "LoginPage.html";
         private readonly string _paymentPageName = "PaymentPage.html";
-
-        private readonly StatisticService _statisticService = new StatisticService();
 
         /// <summary>
         /// Получение информации о договоре клиента
@@ -189,7 +184,7 @@ namespace M11.Services
                 while (true)
                 {
                     i++;
-                    if (string.IsNullOrWhiteSpace(span.DocumentNode.SelectSingleNode($"//tr[{i}]").InnerText))
+                    if (string.IsNullOrWhiteSpace(span.DocumentNode.SelectSingleNode($"//tr[{i}]")?.InnerText))
                     {
                         break;
                     }

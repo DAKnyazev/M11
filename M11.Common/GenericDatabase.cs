@@ -2,26 +2,43 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using M11.Common.Models.BillSummary;
 using SQLite;
 
 namespace M11.Common
 {
-    public class GenericDatabase<TEntity> where TEntity : IDatabaseEntity, new()
+    public class GenericDatabase 
     {
         private readonly SQLiteAsyncConnection _connection;
 
         public GenericDatabase(string dbPath)
         {
-            _connection = new SQLiteAsyncConnection(dbPath);
-            _connection.CreateTableAsync<TEntity>().Wait();
+            try
+            {
+                _connection = new SQLiteAsyncConnection(dbPath);
+                _connection.CreateTableAsync<MonthBillSummary>().Wait();
+                _connection.CreateTableAsync<MonthBillGroup>().Wait();
+                _connection.CreateTableAsync<Bill>().Wait();
+            }
+            catch
+            {
+                // ignored
+            }
         }
 
-        public async Task<List<TEntity>> GetItemsAsync()
+        public async Task<List<TEntity>> GetItemsAsync<TEntity>() where TEntity : IDatabaseEntity, new()
         {
-            return await _connection.Table<TEntity>().ToListAsync();
+            try
+            {
+                return await _connection.Table<TEntity>().ToListAsync();
+            }
+            catch
+            {
+                return new List<TEntity>();
+            }
         }
 
-        public async Task<int> SaveItemAsync(TEntity item)
+        public async Task<int> SaveItemAsync<TEntity>(TEntity item) where TEntity : IDatabaseEntity, new()
         {
             try
             {
@@ -33,15 +50,22 @@ namespace M11.Common
 
                 return await _connection.InsertAsync(item);
             }
-            catch (Exception e)
+            catch
             {
                 return 0;
             }
         }
 
-        public async Task<int> ClearAsync()
+        public async Task<int> ClearAsync<TEntity>() where TEntity : IDatabaseEntity, new()
         {
-            return await _connection.DeleteAllAsync<TEntity>();
+            try
+            {
+                return await _connection.DeleteAllAsync<TEntity>();
+            }
+            catch
+            {
+                return 0;
+            }
         }
     }
 }

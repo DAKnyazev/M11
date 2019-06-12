@@ -3,18 +3,19 @@
 namespace M11.Common.Models.BillSummary
 {
     [Table("Bill")]
-    public class Bill : BaseBill
+    public class Bill : BaseBill, IDatabaseEntity
     {
         /// <summary>
         /// Идентификатор
         /// </summary>
+        [PrimaryKey]
         public string Id { get; set; }
 
         /// <summary>
         /// Идентификатор группы
         /// </summary>
         /// <remarks>Внешний ключ к MonthBillGroup</remarks>
-        public string GroupId { get; set; }
+        public string MonthBillGroupId { get; set; }
 
         /// <summary>
         /// ПВП Въезда
