@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
+using SQLite;
 
 namespace M11.Common.Models.BillSummary
 {
     /// <summary>
     /// Группа услуг за месяц
     /// </summary>
+    [Table("MonthBillGroup")]
     public class MonthBillGroup : BaseBill
     {
         public MonthBillGroup()
@@ -40,6 +42,7 @@ namespace M11.Common.Models.BillSummary
         /// <summary>
         /// Список трат
         /// </summary>
+        [Ignore]
         public List<Bill> Bills { get; set; }
     }
 }

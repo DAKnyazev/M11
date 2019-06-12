@@ -21,7 +21,7 @@ namespace M11
 
         public PaymentPage()
         {
-            _infoService = new InfoService();
+            _infoService = new InfoService(App.MonthBillSummaryDatabase);
             _isNeedReload = true;
             InitializeComponent();
         }

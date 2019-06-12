@@ -7,23 +7,27 @@ using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using HtmlAgilityPack;
+using M11.Common;
 using M11.Common.Enums;
 using M11.Common.Models;
 using M11.Common.Models.BillSummary;
-using Newtonsoft.Json;
 using RestSharp;
 
 namespace M11.Services
 {
-    public class InfoService
+    public class InfoService : BaseInfoService
     {
+        private readonly CachedStatisticService _cachedStatisticService;
+
+        public InfoService(GenericDatabase<MonthBillSummary> monthBillSummaryRepository)
+        {
+            _cachedStatisticService = new CachedStatisticService(monthBillSummaryRepository);
+        }
+
         public readonly string BaseUrl = "https://private.15-58m11.ru";
         private readonly string _authPath = "onyma/";
         private readonly string _accountDetailsPath = "onyma/lk/account/";
-        private readonly string _monthlyBillsPath = "month_bills2/";
-        private const string SaveMonthlyBillsFilter = "/onyma/rm/party/bills_summary2/inline-filter/save/";
         private readonly string _loginParameterName = "login";
         private readonly string _passwordParameterName = "password";
         private readonly string _submitParameterName = "submit";
@@ -32,26 +36,12 @@ namespace M11.Services
         private readonly string _dataObjectIdAttributeName = "data-obj-id=\"";
         private readonly string _accountIdAttributeName = "data-tree-id=\"";
         private readonly string _partyIdParamName = "_party_id=";
-        private readonly string _ilinkIdParamName = "__ilink_id__=";
-        private readonly string _parentIdParamName = "_parent_id";
+        
 
         private readonly string _loginPageName = "LoginPage.html";
         private readonly string _paymentPageName = "PaymentPage.html";
-        
-        private static readonly Dictionary<string, string> RowIdEncodeDictionary = new Dictionary<string, string>
-        {
-            { "$", "$00" },
-            { "/", "$01" },
-            { "+", "$02" },
-            { "&", "$03" },
-            { ",", "$04" },
-            { ":", "$05" },
-            { ";", "$06" },
-            { "=", "$07" },
-            { "?", "$08" },
-            { "@", "$09" }
-        };
-        private static object _fillBillsLockObject = new object();
+
+        private readonly StatisticService _statisticService = new StatisticService();
 
         /// <summary>
         /// Получение информации о договоре клиента
@@ -138,7 +128,7 @@ namespace M11.Services
                 result.DataObjectId = dataObjectId;
             }
             result.PartyId = GetParamValue(path, _partyIdParamName);
-            result.IlinkId = GetParamValue(path, _ilinkIdParamName);
+            result.IlinkId = GetParamValue(path, IlinkIdParamName);
 
             var accountRequest = new RestRequest(
                 $"{_accountDetailsPath}{result.DataObjectId}/?__ilink_id__={result.IlinkId}&__parent_obj__={result.PartyId}&_party_id={result.PartyId}&simple=1",
@@ -149,32 +139,13 @@ namespace M11.Services
             var accountLinksDivHtml = new HtmlDocument();
             accountLinksDivHtml.LoadHtml(accountLinksDiv);
             result.AccountLinks = GetLinks<AccountLinkType>(accountLinksDivHtml, "/div[1]/ul[1]/li[{0}]/a[1]");
-            result.BillSummaryList = GetMonthlyStatistic(result.RestClient,
+            result.BillSummaryList = _cachedStatisticService.GetMonthlyStatistic(
+                result.RestClient,
                 result.AccountLinks.FirstOrDefault(x => x.Type == AccountLinkType.Account)?.RelativeUrl,
                 start,
                 end,
                 result.AccountId);
             result.RequestDate = DateTime.Now;
-
-            return result;
-        }
-
-        /// <summary>
-        /// Получение сгруппированных расходов на услуги в указанном месяце
-        /// </summary>
-        public List<MonthBillGroup> GetMonthlyDetails(string accountPath, IRestClient client, string linkId, string accountId, MonthBillSummary monthlyBillSummary)
-        {
-            var path = accountPath.Substring(0, accountPath.IndexOf('?'));
-            var result = GetMonthBillGroups(
-                client, 
-                path, 
-                monthlyBillSummary.Id, 
-                monthlyBillSummary.GetLinkId(GetMonthBillsLinkId, client, path, accountPath, accountId), 
-                out var groupUrlTemplate);
-            lock (_fillBillsLockObject)
-            {
-                Parallel.ForEach(result, item => FillBills(item, client, groupUrlTemplate));
-            }
 
             return result;
         }
@@ -204,74 +175,6 @@ namespace M11.Services
             var paymentPageContent = string.Format(GetEmbeddedFileContent(_paymentPageName, pageType), accountId, amount, phone);
 
             return paymentPageContent;
-        }
-
-        /// <summary>
-        /// Получение содержимого тега
-        /// </summary>
-        private static string GetTagValue(string content, string startingTag, string endingTag, int index = 1, bool isAttributesIncluded = true)
-        {
-            var startIndex = 0;
-            for (int i = 0; i < index; i++)
-            {
-                if (i != 0)
-                {
-                    content = content.Substring(startIndex + 1);
-                }
-
-                startIndex = content.IndexOf(startingTag, StringComparison.InvariantCultureIgnoreCase);
-            }
-
-            if (!isAttributesIncluded && !startingTag.EndsWith(">"))
-            {
-                startIndex = content.IndexOf('>', startIndex);
-            }
-
-            if (startIndex > 0)
-            {
-                var endIndex = content.IndexOf(endingTag, startIndex, StringComparison.InvariantCultureIgnoreCase);
-                
-                return content.Substring(startIndex, endIndex - startIndex + endingTag.Length);
-            }
-
-            return string.Empty;
-        }
-
-        /// <summary>
-        /// Получение значения аттрибута
-        /// </summary>
-        private static string GetAttributeValue(string content, string attributeName)
-        {
-            var startIndex = content.IndexOf(attributeName, StringComparison.InvariantCultureIgnoreCase);
-            var tmp = content.Substring(startIndex + attributeName.Length);
-            var endIndex = tmp.IndexOf("\"", StringComparison.InvariantCulture);
-
-            return tmp.Substring(0, endIndex);
-        }
-
-        /// <summary>
-        /// Получение значения параметра из пути
-        /// </summary>
-        private static string GetParamValue(string path, string paramName)
-        {
-            var startIndex = path.IndexOf(paramName, StringComparison.InvariantCultureIgnoreCase);
-            var tmp = path.Substring(startIndex + paramName.Length);
-            var endIndex = tmp.IndexOf("&", StringComparison.InvariantCulture);
-
-            return endIndex < 0 ? tmp : tmp.Substring(0, endIndex);
-        }
-
-        /// <summary>
-        /// Закодировать идентификатор строки аккаунта
-        /// </summary>
-        private static string EncodeRowId(string rowId)
-        {
-            foreach (var item in RowIdEncodeDictionary)
-            {
-                rowId = rowId.Replace(item.Key, item.Value);
-            }
-
-            return rowId;
         }
 
         /// <summary>
@@ -353,62 +256,6 @@ namespace M11.Services
         }
 
         /// <summary>
-        /// Получение статистики расходов по месяцам
-        /// </summary>
-        private static List<MonthBillSummary> GetMonthlyStatistic(IRestClient client, string path, DateTime start, DateTime end, string accountId)
-        {
-            var result = new List<MonthBillSummary>();
-            var filterUrl = SaveMonthlyBillsFilter + path.Substring(path.IndexOf('?')) + $"&__parent_obj__={accountId}";
-            var param = JsonConvert.SerializeObject(new List<BillsSummaryParam> { new BillsSummaryParam(start, end) });
-            var filterRequest = new RestRequest(filterUrl, Method.POST);
-            filterRequest.AddParameter("raw_state", param);
-            var request = new RestRequest(path + "&simple=1", Method.POST);
-            request.AddParameter("raw_state", param);
-            client.Execute(filterRequest);
-            var response = client.Execute(request);
-            var content = Regex.Replace(response.Content, @"\\t|\\n|\\r|\\", "");
-            var tbody = GetTagValue(content, "<tbody>", "</tbody>");
-            var document = new HtmlDocument();
-            document.LoadHtml(tbody);
-            try
-            {
-                var i = 0;
-                while (true)
-                {
-                    i++;
-                    if (string.IsNullOrWhiteSpace(document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[1]//text()")?.InnerText))
-                    {
-                        break;
-                    }
-
-                    decimal.TryParse(document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[2]//text()").InnerText.Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
-                        out var income);
-                    decimal.TryParse(document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[3]//text()").InnerText.Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
-                        out var spending);
-                    decimal.TryParse(document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[4]//text()").InnerText.Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
-                        out var startBalance);
-                    decimal.TryParse(document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[5]//text()").InnerText.Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
-                        out var endBalance);
-                    result.Add(new MonthBillSummary
-                    {
-                        Id = document.DocumentNode.SelectSingleNode($"//tr[{i}]").Attributes["data-obj-id"].Value,
-                        PeriodName = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[1]//text()").InnerText,
-                        Income = income,
-                        Spending = spending,
-                        StartBalance = startBalance,
-                        EndBalance = endBalance
-                    });
-                }
-            }
-            catch
-            {
-                // Если что-то пошло не так, то возвращаем хоть что-нибудь
-            }
-
-            return result;
-        }
-
-        /// <summary>
         /// Получение ссылки на оформление абонемента
         /// </summary>
         private static string GetTicketLink(string ticketLinkInput, string baseUrl)
@@ -447,193 +294,6 @@ namespace M11.Services
                     return reader.ReadToEnd();
                 }
             }
-        }
-
-        private string GetMonthBillsLinkId(IRestClient client, string path, string accountPath, string monthlyBillSummaryId, string accountId)
-        {
-            var request = new RestRequest($"{path}{monthlyBillSummaryId}/", Method.GET);
-            request.AddParameter(_ilinkIdParamName, GetParamValue(accountPath, _ilinkIdParamName));
-            request.AddParameter("__parent_obj__", accountId);
-            request.AddParameter("_parent_id", GetParamValue(accountPath, _parentIdParamName));
-            request.AddParameter("simple", 1);
-
-            var response = client.Execute(request);
-            var ul = new HtmlDocument();
-            ul.LoadHtml(GetTagValue(response.Content, "<ul class=\\\"nav nav-tabs\\\">", "</ul>"));
-            var link = ul.DocumentNode.SelectSingleNode("/ul[1]/li[2]/a[1]")?.Attributes["href"]?.Value;
-            if (!string.IsNullOrWhiteSpace(link))
-            {
-                link = link.Replace("\\n", "").Replace("\\\"", "");
-            }
-
-            return GetParamValue(link, _ilinkIdParamName);
-        }
-
-        private List<MonthBillGroup> GetMonthBillGroups(
-            IRestClient client, 
-            string path, 
-            string monthlyBillSummaryId, 
-            string monthlyBillSummaryLinkId, 
-            out string groupUrlTemplate)
-        {
-            var result = new List<MonthBillGroup>();
-
-            var request = new RestRequest($"{path}{_monthlyBillsPath}", Method.GET);
-            request.AddParameter("_parent_id", monthlyBillSummaryId);
-            request.AddParameter("__ilink_id__", monthlyBillSummaryLinkId);
-            request.AddParameter("simple", 1);
-
-            var response = client.Execute(request);
-            var content = Regex.Replace(response.Content, @"\\t|\\n|\\r|\\", "");
-            var tbody = GetTagValue(content, "<tbody>", "</tbody>");
-            var document = new HtmlDocument();
-            document.LoadHtml(tbody);
-
-            try
-            {
-                var i = 0;
-                while (true)
-                {
-                    i++;
-                    if (string.IsNullOrWhiteSpace(document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[1]//text()")?.InnerText))
-                    {
-                        break;
-                    }
-
-                    decimal.TryParse(document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[7]//text()").InnerText.Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
-                        out var amount);
-                    decimal.TryParse(document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[8]//text()").InnerText.Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
-                        out var cost);
-                    decimal.TryParse(document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[9]//text()").InnerText.Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
-                        out var costWithTax);
-                    result.Add(new MonthBillGroup
-                    {
-                        Id = EncodeRowId(document.DocumentNode.SelectSingleNode($"//tr[{i}]").Attributes["data-obj-id"].Value),
-                        PeriodName = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[1]//text()").InnerText,
-                        LinkId = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[2]//text()").InnerText,
-                        TariffPlan = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[4]//text()").InnerText,
-                        ServiceName = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[5]//text()").InnerText,
-                        UnitOfMeasurement = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[6]//text()").InnerText,
-                        Amount = amount,
-                        Cost = cost,
-                        CostWithTax = costWithTax
-                    });
-                }
-            }
-            catch
-            {
-                // Если что-то пошло не так, то возвращаем хоть что-нибудь
-            }
-
-            groupUrlTemplate = GetAttributeValue(GetTagValue(content, "<form", "</form>"), "action=\"");
-
-            return result;
-        }
-
-        private void FillBills(MonthBillGroup item, IRestClient client, string groupUrlTemplate)
-        {
-            var url = groupUrlTemplate.Replace("list-action", item.Id);
-            var request = new RestRequest($"{url}&simple=1", Method.GET);
-            var response = client.Execute(request);
-            var content = Regex.Replace(response.Content, @"\\t|\\n|\\r|\\", "");
-            var groupDetailsUrl = GetAttributeValue(content, "<li class=\"nav-item\"><a href=\"");
-
-            request = new RestRequest($"{groupDetailsUrl}&simple=1", Method.GET);
-            response = client.Execute(request);
-            content = Regex.Replace(response.Content, @"\\t|\\n|\\r|\\", "");
-            var tbody = GetTagValue(content, "<tbody>", "</tbody>");
-            var document = new HtmlDocument();
-            document.LoadHtml(tbody);
-            item.Bills.AddRange(GetBills(document, item.ServiceName));
-
-            try
-            {
-                var paginator = GetTagValue(content, "<div class=\"paginatorview\">", "</div>");
-                var paginatorDocument = new HtmlDocument();
-                paginatorDocument.LoadHtml(paginator);
-                var i = 0;
-                while (true)
-                {
-                    i++;
-                    if (string.IsNullOrWhiteSpace(paginatorDocument.DocumentNode
-                        .SelectSingleNode($"//span[1]//a[{i}]")?.Attributes["href"]?.Value))
-                    {
-                        break;
-                    }
-
-                    var tabUrl = paginatorDocument.DocumentNode
-                        .SelectSingleNode($"//span[1]//a[{i}]")?.Attributes["href"]?.Value;
-                    var tabRequest = new RestRequest(tabUrl, Method.POST);
-                    var tabResponse = client.Execute(tabRequest);
-                    var tabContent = Regex.Replace(tabResponse.Content, @"\\t|\\n|\\r|\\", "");
-                    var tabbody = GetTagValue(tabContent, "<tbody>", "</tbody>", 2);
-                    var tabDocument = new HtmlDocument();
-                    tabDocument.LoadHtml(tabbody);
-                    item.Bills.AddRange(GetBills(tabDocument, item.ServiceName));
-                }
-            }
-            catch
-            {
-                // Если что-то пошло не так, то возвращаем хоть что-нибудь
-            }
-
-            item.Bills =
-                item.Bills.Where(x => x.Period.Year == item.Period.Year && x.Period.Month == item.Period.Month).ToList();
-        }
-
-        private static IEnumerable<Bill> GetBills(HtmlDocument document, string serviceName)
-        {
-            var result = new List<Bill>();
-
-            try
-            {
-                var i = 0;
-                while (true)
-                {
-                    i++;
-                    if (string.IsNullOrWhiteSpace(document.DocumentNode
-                        .SelectSingleNode($"//tr[{i}]//td[1]//text()")?.InnerText))
-                    {
-                        break;
-                    }
-                    var isServicePay = serviceName.ToLower().Contains("ежемесячный");
-                    decimal.TryParse(
-                        document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 7 : 10)}]//text()")?.InnerText
-                            .Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
-                        out var amount);
-                    decimal.TryParse(
-                        document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 8 : 11)}]//text()")?.InnerText
-                            .Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
-                        out var cost);
-                    decimal.TryParse(
-                        document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 9 : 12)}]//text()")?.InnerText
-                            .Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
-                        out var costWithTax);
-
-                    result.Add(new Bill
-                    {
-                        Id = document.DocumentNode.SelectSingleNode($"//tr[{i}]").Attributes["data-obj-id"]?.Value,
-                        FullPeriodName = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 2 : 3)}]//text()")?.InnerText,
-                        ExitPoint = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[4]//text()")?.InnerText,
-                        EntryPoint = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[5]//text()")?.InnerText,
-                        ForeigtPointComment = !isServicePay
-                            ? document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[8]//text()")?.InnerText
-                            : string.Empty,
-                        PAN = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 6 : 7)}]//text()")?.InnerText,
-                        CarClass = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[9]//text()")?.InnerText,
-                        Amount = amount,
-                        Cost = cost,
-                        CostWithTax = costWithTax,
-                        IsServicePay = isServicePay
-                    });
-                }
-            }
-            catch
-            {
-                // Если что-то пошло не так, то возвращаем хоть что-нибудь
-            }
-
-            return result;
         }
     }
 }

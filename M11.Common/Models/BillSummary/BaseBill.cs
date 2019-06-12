@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using SQLite;
 
 namespace M11.Common.Models.BillSummary
 {
@@ -23,6 +24,7 @@ namespace M11.Common.Models.BillSummary
         /// <summary>
         /// Рассматриваемый месяц и год в формате yyyy.MM.dd HH:mm:ss
         /// </summary>
+        [Ignore]
         public string FullPeriodName
         {
             get => Period.ToString("yyyy.MM.dd HH:mm:ss");
