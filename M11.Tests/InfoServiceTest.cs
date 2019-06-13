@@ -21,12 +21,12 @@ namespace M11.Tests
         private static readonly string Password = ConfigurationManager.AppSettings["password"];
         private static readonly Dictionary<string, int> Periods = new Dictionary<string, int>
         {
-            { "2018.08", 47 },
-            { "2018.07", 21 },
+            { "2018.08", 49 },
+            { "2018.07", 23 },
             { "2018.06", 5 },
-            { "2019.05", 15 },
-            { "2019.01", 26 },
-            { "2019.03", 32 }
+            { "2019.05", 16 },
+            { "2019.01", 27 },
+            { "2019.03", 35 }
         };
         private const int Amount = 100;
 
@@ -80,6 +80,7 @@ namespace M11.Tests
             Assert.IsNotNull(accountInfo.BillSummaryList);
             try
             {
+                //foreach (var period in Periods)
                 Parallel.ForEach(Periods, period =>
                 {
                     var month = accountInfo.BillSummaryList.First(x => x.PeriodName == period.Key);
@@ -91,7 +92,8 @@ namespace M11.Tests
                     Assert.IsFalse(groups.IsError);
                     var count = groups.List.SelectMany(x => x.Bills).Count();
                     Assert.AreEqual(period.Value, count);
-                });
+                }
+                );
 
                 watch.Stop();
             }

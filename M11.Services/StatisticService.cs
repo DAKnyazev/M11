@@ -264,23 +264,55 @@ namespace M11.Services
                         document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 9 : 12)}]//text()")?.InnerText
                             .Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
                         out var costWithTax);
-
-                    result.Add(new Bill
+                    var bill = new Bill
                     {
                         Id = document.DocumentNode.SelectSingleNode($"//tr[{i}]").Attributes["data-obj-id"]?.Value,
-                        FullPeriodName = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 2 : 3)}]//text()")?.InnerText,
+                        FullPeriodName =
+                            document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 2 : 3)}]//text()")
+                                ?.InnerText,
                         ExitPoint = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[4]//text()")?.InnerText,
                         EntryPoint = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[5]//text()")?.InnerText,
                         ForeigtPointComment = !isServicePay
                             ? document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[8]//text()")?.InnerText
                             : string.Empty,
-                        PAN = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 6 : 7)}]//text()")?.InnerText,
+                        PAN = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 6 : 7)}]//text()")
+                            ?.InnerText,
                         CarClass = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[9]//text()")?.InnerText,
                         Amount = amount,
                         Cost = cost,
                         CostWithTax = costWithTax,
                         IsServicePay = isServicePay
-                    });
+                    };
+                    if (isServicePay || !bill.IsTicketBuy)
+                    {
+                        result.Add(bill);
+                    }
+                    else
+                    {
+                        decimal.TryParse(
+                            document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[7]//text()")?.InnerText
+                                .Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
+                            out amount);
+                        decimal.TryParse(
+                            document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[8]//text()")?.InnerText
+                                .Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
+                            out cost);
+                        decimal.TryParse(
+                            document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[9]//text()")?.InnerText
+                                .Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
+                            out costWithTax);
+                        result.Add(new Bill
+                        {
+                            Id = document.DocumentNode.SelectSingleNode($"//tr[{i}]").Attributes["data-obj-id"]?.Value,
+                            FullPeriodName =
+                                document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[2]//text()")
+                                    ?.InnerText,
+                            PAN = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[6]//text()")?.InnerText,
+                            Amount = amount,
+                            Cost = cost,
+                            CostWithTax = costWithTax
+                        });
+                    }
                 }
             }
             catch
