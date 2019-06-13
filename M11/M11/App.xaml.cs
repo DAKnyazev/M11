@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using M11.Common;
 using M11.Common.Enums;
 using M11.Common.Extentions;
 using M11.Common.Models;
@@ -17,6 +19,9 @@ namespace M11
 {
 	public partial class App : Application
 	{
+        public static GenericDatabase MonthBillSummaryDatabase = 
+            new GenericDatabase(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MonthBillSummarySQLite.db3"));
+
         public static int CachingTimeInMinutes { get; set; }
         public static int AccountInfoMonthCount { get; set; }
         public static int LastBillsMonthCount { get; set; }
@@ -51,6 +56,8 @@ namespace M11
 
         private static readonly object GetAccountInfoLockObject = new object();
 	    private static NotificationFrequency _notificationFrequency;
+	    private static readonly InfoService InfoService = new InfoService(MonthBillSummaryDatabase);
+        private static readonly CachedStatisticService CachedStatisticService = new CachedStatisticService(MonthBillSummaryDatabase);
 
         static App()
         {
@@ -99,14 +106,20 @@ namespace M11
             AccountInfo = new AccountInfo();
             Credentials = new Credentials();
 	        Current.MainPage = new AuthPage();
-        }
+	        ClearDatabase();
+	    }
 
         public static HttpStatusCode TryGetInfo()
         {
-            return TryGetInfo(Credentials.Login, Credentials.Password);
+            return TryGetInfo(Credentials.Login, Credentials.Password, false);
         }
 
-        public static HttpStatusCode TryGetInfo(string login, string password)
+	    public static HttpStatusCode TrySignIn(string login, string password)
+	    {
+	        return TryGetInfo(login, password, true);
+	    }
+
+        public static HttpStatusCode TryGetInfo(string login, string password, bool isLogin)
         {
             if (string.IsNullOrWhiteSpace(login) || string.IsNullOrWhiteSpace(password))
             {
@@ -120,7 +133,7 @@ namespace M11
                     return HttpStatusCode.OK;
                 }
 
-                var accountBalance = new InfoService().GetAccountBalance(login, password);
+                var accountBalance = new InfoService(MonthBillSummaryDatabase).GetAccountBalance(login, password);
                 if (accountBalance.StatusCode != HttpStatusCode.OK)
                 {
                     return accountBalance.StatusCode;
@@ -131,10 +144,14 @@ namespace M11
                 }
 
                 AccountBalance = accountBalance;
-                CrossSecureStorage.Current.SetValue(CrossSecureStorageKeys.Login, login);
-                CrossSecureStorage.Current.SetValue(CrossSecureStorageKeys.Password, password);
-                Credentials.Login = login;
-                Credentials.Password = password;
+                if (isLogin)
+                {
+                    ClearDatabase();
+                    CrossSecureStorage.Current.SetValue(CrossSecureStorageKeys.Login, login);
+                    CrossSecureStorage.Current.SetValue(CrossSecureStorageKeys.Password, password);
+                    Credentials.Login = login;
+                    Credentials.Password = password;
+                }
             }
 
             return HttpStatusCode.OK;
@@ -149,7 +166,7 @@ namespace M11
 	            {
 	                return;
 	            }
-	            AccountInfo = new InfoService().GetAccountInfo(
+	            AccountInfo = new InfoService(App.MonthBillSummaryDatabase).GetAccountInfo(
 	                AccountBalance.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl,
 	                AccountBalance.CookieContainer,
 	                DateTime.Now.AddMonths(-AccountInfoMonthCount),
@@ -163,7 +180,7 @@ namespace M11
 
 	    public static string GetLoginPageContent(Type type)
 	    {
-	        return new InfoService().GetLoginPageContent(
+	        return InfoService.GetLoginPageContent(
 	            Credentials.Login, 
 	            Credentials.Password,
 	            type);
@@ -171,7 +188,7 @@ namespace M11
 
 	    public static string GetPaymentPageContent(Type type)
 	    {
-	        return new InfoService().GetPaymentPageContent(
+	        return InfoService.GetPaymentPageContent(
 	            AccountInfo.AccountId, 
 	            100, 
 	            AccountBalance.Phone,
@@ -188,10 +205,9 @@ namespace M11
 	                return;
 	            }
 
-	            monthBillSummary.Groups = new InfoService().GetMonthlyDetails(
+	            monthBillSummary.Groups = CachedStatisticService.GetMonthlyDetails(
 	                AccountInfo.AccountLinks.FirstOrDefault(x => x.Type == AccountLinkType.Account)?.RelativeUrl,
 	                AccountInfo.RestClient,
-	                AccountInfo.IlinkId,
 	                AccountInfo.AccountId,
 	                monthBillSummary);
                 monthBillSummary.GroupsRequestDate = DateTime.Now;
@@ -218,10 +234,9 @@ namespace M11
 	                    return;
 	                }
 
-	                monthBillSummary.Groups = new InfoService().GetMonthlyDetails(
+	                monthBillSummary.Groups = CachedStatisticService.GetMonthlyDetails(
 	                    AccountInfo.AccountLinks.FirstOrDefault(x => x.Type == AccountLinkType.Account)?.RelativeUrl,
 	                    AccountInfo.RestClient,
-	                    AccountInfo.IlinkId,
 	                    AccountInfo.AccountId,
 	                    monthBillSummary);
 	            }
@@ -398,5 +413,9 @@ namespace M11
 	    {
 	        CrossSecureStorage.Current.SetValue(CrossSecureStorageKeys.NotificationFrequency, notificationFrequency.ToString());
         }
+
+	    private static void ClearDatabase()
+	    {
+	    }
     }
 }

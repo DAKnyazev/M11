@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using M11.Common.Extentions;
@@ -46,7 +47,7 @@ namespace M11
             App.SetUpAccountInfo();
 
             const int padding = 10;
-            foreach (var item in App.AccountInfo.BillSummaryList)
+            foreach (var item in App.AccountInfo.BillSummaryList.OrderByDescending(x => x.Period))
             {
                 var layout = new RelativeLayout();
                 var button = new Button { Text = "Подробнее", TextColor = Color.FromHex("#996600"), BackgroundColor = Color.FromRgba(0, 0, 0, 0)};

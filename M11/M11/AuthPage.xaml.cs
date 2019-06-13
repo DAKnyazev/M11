@@ -22,7 +22,7 @@ namespace M11
                 return;
             }
 
-            var status = App.TryGetInfo(LoginEntry.Text, PasswordEntry.Text);
+            var status = App.TrySignIn(LoginEntry.Text, PasswordEntry.Text);
             switch (status)
             {
                 case HttpStatusCode.OK:

@@ -52,7 +52,7 @@ namespace M11
                     layout.Children.Add(new Label { Text = groupName, FontSize = 20 },
                         Constraint.Constant(padding * 3));
                     DetailsLayout.Children.Add(layout);
-                    foreach (var bill in billGroup.OrderByDescending(x => x.Period).ThenByDescending(x =>
+                    foreach (var bill in billGroup.OrderBy(x => x.Period).ThenByDescending(x =>
                         (x.EntryPoint?.Contains("11") ?? false) && (x.EntryPoint?.Contains("58") ?? false)
                             ? 0
                             : 1))

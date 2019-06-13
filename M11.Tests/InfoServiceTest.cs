@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
+using M11.Common;
 using M11.Common.Enums;
 using M11.Common.Models;
+using M11.Common.Models.BillSummary;
 using M11.Services;
 using NUnit.Framework;
 
@@ -13,14 +15,18 @@ namespace M11.Tests
     [TestFixture]
     public class InfoServiceTest
     {
+        private static readonly GenericDatabase MonthBillSummaryDatabase =
+            new GenericDatabase(".\\MonthBillSummarySQL.db3");
         private static readonly string Login = ConfigurationManager.AppSettings["login"];
         private static readonly string Password = ConfigurationManager.AppSettings["password"];
         private static readonly Dictionary<string, int> Periods = new Dictionary<string, int>
         {
-            { "2018.08", 47 },
-            { "2018.07", 21 },
+            { "2018.08", 49 },
+            { "2018.07", 23 },
             { "2018.06", 5 },
-            { "2017.09", 1 }
+            { "2019.05", 16 },
+            { "2019.01", 27 },
+            { "2019.03", 35 }
         };
         private const int Amount = 100;
 
@@ -28,13 +34,20 @@ namespace M11.Tests
         private string _accountId;
 
         private readonly InfoService _infoService;
-        private readonly CalculatorService _calculatorService; 
+        private readonly CalculatorService _calculatorService;
+        private readonly CachedStatisticService _cachedStatisticService;
+        private readonly StatisticService _statisticService;
         private AccountBalance _accountBalance;
 
         public InfoServiceTest()
         {
-            _infoService = new InfoService();
+            //var t1 = MonthBillSummaryDatabase.ClearAsync<MonthBillSummary>().Result;
+            //var t2 = MonthBillSummaryDatabase.ClearAsync<MonthBillGroup>().Result;
+            //var t3 = MonthBillSummaryDatabase.ClearAsync<Bill>().Result;
+            _infoService = new InfoService(MonthBillSummaryDatabase);
             _calculatorService = new CalculatorService();
+            _cachedStatisticService = new CachedStatisticService(MonthBillSummaryDatabase);
+            _statisticService = new StatisticService();
         }
 
         [Test, SetUp]
@@ -55,8 +68,50 @@ namespace M11.Tests
             watch.Start();
             var accountInfo = _infoService.GetAccountInfo(
                 _accountBalance.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl,
+                _accountBalance.CookieContainer,
+                DateTime.Now.AddMonths(-App.AccountInfoMonthCount - 6),
+                DateTime.Now);
+
+            _accountId = accountInfo.AccountId;
+            Assert.IsFalse(string.IsNullOrWhiteSpace(accountInfo.AccountId));
+            Assert.IsFalse(string.IsNullOrWhiteSpace(accountInfo.DataObjectId));
+            Assert.IsFalse(string.IsNullOrWhiteSpace(accountInfo.IlinkId));
+            Assert.IsFalse(string.IsNullOrWhiteSpace(accountInfo.PartyId));
+            Assert.IsNotNull(accountInfo.BillSummaryList);
+            try
+            {
+                //foreach (var period in Periods)
+                Parallel.ForEach(Periods, period =>
+                {
+                    var month = accountInfo.BillSummaryList.First(x => x.PeriodName == period.Key);
+                    var groups = _statisticService.GetMonthlyDetails(
+                        accountInfo.AccountLinks.FirstOrDefault(x => x.Type == AccountLinkType.Account)?.RelativeUrl,
+                        accountInfo.RestClient,
+                        accountInfo.AccountId,
+                        month);
+                    Assert.IsFalse(groups.IsError);
+                    var count = groups.List.SelectMany(x => x.Bills).Count();
+                    Assert.AreEqual(period.Value, count);
+                }
+                );
+
+                watch.Stop();
+            }
+            catch (Exception e)
+            {
+                Assert.Fail();
+            }
+        }
+
+        [Test, Order(2)]
+        public void TestGetAccountInfoCached()
+        {
+            var watch = new System.Diagnostics.Stopwatch();
+            watch.Start();
+            var accountInfo = _infoService.GetAccountInfo(
+                _accountBalance.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl,
                 _accountBalance.CookieContainer, 
-                DateTime.Now.AddMonths(-App.AccountInfoMonthCount * 2), 
+                DateTime.Now.AddMonths(-App.AccountInfoMonthCount - 6),
                 DateTime.Now);
 
             _accountId = accountInfo.AccountId;
@@ -70,14 +125,13 @@ namespace M11.Tests
                 Parallel.ForEach(Periods, period =>
                 {
                     var month = accountInfo.BillSummaryList.First(x => x.PeriodName == period.Key);
-                    var groups = _infoService.GetMonthlyDetails(
+                    var groups = _cachedStatisticService.GetMonthlyDetails(
                         accountInfo.AccountLinks.FirstOrDefault(x => x.Type == AccountLinkType.Account)?.RelativeUrl,
                         accountInfo.RestClient,
-                        accountInfo.IlinkId,
                         accountInfo.AccountId,
                         month);
                     var count = groups.SelectMany(x => x.Bills).Count();
-                    Assert.IsTrue(count == period.Value);
+                    Assert.AreEqual(period.Value, count);
                 });
                 
                 watch.Stop();
@@ -88,7 +142,7 @@ namespace M11.Tests
             }
         }
 
-        [Test, Order(2)]
+        [Test, Order(3)]
         public void TestGetLoginPageContent()
         {
             var content = _infoService.GetLoginPageContent(Login, Password, typeof(PaymentPage));
@@ -96,7 +150,7 @@ namespace M11.Tests
             Assert.IsFalse(string.IsNullOrWhiteSpace(content));
         }
 
-        [Test, Order(3)]
+        [Test, Order(4)]
         public void TestGetPaymentPageContent()
         {
             var content = _infoService.GetPaymentPageContent(_accountId, Amount, _phone, typeof(PaymentPage));
@@ -104,7 +158,7 @@ namespace M11.Tests
             Assert.IsFalse(string.IsNullOrWhiteSpace(content));
         }
 
-        [Test, Order(4)]
+        [Test, Order(5)]
         public async Task TestCalculator()
         {
             Assert.IsTrue(await _calculatorService.TryLoadAsync());
@@ -117,14 +171,6 @@ namespace M11.Tests
             var destinations = _calculatorService.GetDestinations();
             Assert.IsNotNull(destinations);
             Assert.IsTrue(destinations.Count > 0);
-        }
-
-        [Test, Order(5)]
-        public async Task TestTicketService()
-        {
-            var ticketService = new TicketService("https://private.15-58m11.ru/onyma/oss_task_list/form-action/?action_100110000000000000506=1&__form_data__pmodel_id=3101270000000000000033&__form_data__s$pmodel_arg=3101270000000000000033&__parent_obj__=3100520000000000056242&__form_data__group_id=3100150000000000109132&",
-                _accountBalance.CookieContainer);
-            ticketService.Start();
         }
     }
 }

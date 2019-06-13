@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using RestSharp;
+using SQLite;
 
 namespace M11.Common.Models.BillSummary
 {
     /// <summary>
     /// Общая статистика расходов за месяц
     /// </summary>
-    public class MonthBillSummary : BaseMonthBill
+    [Table("MonthBillSummary")]
+    public class MonthBillSummary : BaseMonthBill, IDatabaseEntity
     {
         /// <summary>
         /// Идентификатор общей статистики расходов
@@ -22,6 +24,7 @@ namespace M11.Common.Models.BillSummary
         /// <summary>
         /// Идентификатор месяца
         /// </summary>
+        [PrimaryKey]
         public string Id { get; set; }
 
         /// <summary>
@@ -47,11 +50,13 @@ namespace M11.Common.Models.BillSummary
         /// <summary>
         /// Группы расходов
         /// </summary>
+        [Ignore]
         public List<MonthBillGroup> Groups { get; set; }
 
         /// <summary>
         /// Дата запроса групп расходов
         /// </summary>
+        [Ignore]
         public DateTime GroupsRequestDate { get; set; }
 
         /// <summary>

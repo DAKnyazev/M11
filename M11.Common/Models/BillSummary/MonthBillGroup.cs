@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
+using SQLite;
 
 namespace M11.Common.Models.BillSummary
 {
     /// <summary>
     /// Группа услуг за месяц
     /// </summary>
-    public class MonthBillGroup : BaseBill
+    [Table("MonthBillGroup")]
+    public class MonthBillGroup : BaseBill, IDatabaseEntity
     {
         public MonthBillGroup()
         {
@@ -15,7 +17,13 @@ namespace M11.Common.Models.BillSummary
         /// <summary>
         /// Идентификатор группы
         /// </summary>
+        [PrimaryKey]
         public string Id { get; set; }
+
+        /// <summary>
+        /// Идентификатор месяца
+        /// </summary>
+        public string MonthBillSummaryId { get; set; }
 
         /// <summary>
         /// Идентификатор ссылки группы
@@ -40,6 +48,7 @@ namespace M11.Common.Models.BillSummary
         /// <summary>
         /// Список трат
         /// </summary>
+        [Ignore]
         public List<Bill> Bills { get; set; }
     }
 }

@@ -1,11 +1,21 @@
-﻿namespace M11.Common.Models.BillSummary
+﻿using SQLite;
+
+namespace M11.Common.Models.BillSummary
 {
-    public class Bill : BaseBill
+    [Table("Bill")]
+    public class Bill : BaseBill, IDatabaseEntity
     {
         /// <summary>
         /// Идентификатор
         /// </summary>
+        [PrimaryKey]
         public string Id { get; set; }
+
+        /// <summary>
+        /// Идентификатор группы
+        /// </summary>
+        /// <remarks>Внешний ключ к MonthBillGroup</remarks>
+        public string MonthBillGroupId { get; set; }
 
         /// <summary>
         /// ПВП Въезда
@@ -40,6 +50,7 @@
         /// <summary>
         /// Это покупка абонемента?
         /// </summary>
+        [Ignore]
         public bool IsTicketBuy => string.IsNullOrWhiteSpace(EntryPoint) && string.IsNullOrWhiteSpace(ExitPoint);
     }
 }
