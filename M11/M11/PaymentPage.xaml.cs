@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using M11.Common.Enums;
 using M11.Services;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
@@ -12,12 +13,12 @@ namespace M11
     public partial class PaymentPage : BaseContentPage
     {
         private readonly InfoService _infoService;
-        private int _onNavigatedCount;
         private WebView _browser;
         private ActivityIndicator LoadingIndicator { get; set; }
         private string _paymentPageUrl = "securepayments.sberbank.ru";
+        private string _paymentPageUrlPath = "sberbank";
         private bool _isNeedReload;
-        private bool _isPaymentPageWasOpened;
+        private PaymentPageStep _currentStep = PaymentPageStep.None;
 
         public PaymentPage()
         {
@@ -28,9 +29,7 @@ namespace M11
 
         private void Init()
         {
-            _onNavigatedCount = 0;
             _browser = new WebView();
-            _browser.Navigated += Browser_OnNavigated;
             _browser.Navigating += BrowserOnNavigating;
             LoadingIndicator = new ActivityIndicator
             {
@@ -40,11 +39,7 @@ namespace M11
 
         protected override void OnAppearing()
         {
-            if (_isPaymentPageWasOpened)
-            {
-                _isNeedReload = false;
-            }
-            if (!_isNeedReload)
+            if (_currentStep >= PaymentPageStep.SberbankCardPage)
             {
                 return;
             }
@@ -52,11 +47,7 @@ namespace M11
             Init();
             LoadingIndicator.IsRunning = true;
             LoadingIndicator.IsVisible = true;
-            _browser.IsVisible = false;
-            _browser.Source = new HtmlWebViewSource
-            {
-                Html = App.GetLoginPageContent(typeof(PaymentPage))
-            };
+            RenderLoginPage();
             PaymentLayout.Children.Add(LoadingIndicator,
                 Constraint.RelativeToParent(parent => parent.Width * 0.425),
                 Constraint.RelativeToParent(parent => parent.Height * 0.425),
@@ -69,19 +60,43 @@ namespace M11
                 Constraint.RelativeToParent(parent => parent.Height));
         }
 
-        private void Browser_OnNavigated(object sender, WebNavigatedEventArgs args)
+        private void BrowserOnNavigating(object sender, WebNavigatingEventArgs args)
         {
-            if (args.Url.Contains(_paymentPageUrl))
+            switch (_currentStep)
             {
-                _isPaymentPageWasOpened = true;
-            }
-            if (_onNavigatedCount > 0)
-            {
-                return;
+                case PaymentPageStep.LoginPage:
+                    RenderMyPaymentPage();
+                    return;
+                case PaymentPageStep.MyPaymentPage:
+                    _currentStep = PaymentPageStep.SberbankCardPage;
+                    return;
+                case PaymentPageStep.SberbankCardPage:
+                    _currentStep = PaymentPageStep.ClientBankSmsPage;
+                    return;
+                case PaymentPageStep.ClientBankSmsPage:
+                    _currentStep = PaymentPageStep.ReturnFromClientBankPage;
+                    break;
             }
 
+            if (args.Url.Contains(_infoService.BaseUrl))
+            {
+                GoToMainPage();
+            }
+        }
+
+        private void RenderLoginPage()
+        {
+            _browser.IsVisible = false;
+            _browser.Source = new HtmlWebViewSource
+            {
+                Html = App.GetLoginPageContent(typeof(PaymentPage))
+            };
+            _currentStep = PaymentPageStep.LoginPage;
+        }
+
+        private void RenderMyPaymentPage()
+        {
             App.SetUpAccountInfo();
-            
             _browser.Source = new HtmlWebViewSource
             {
                 Html = App.GetPaymentPageContent(typeof(PaymentPage))
@@ -90,17 +105,11 @@ namespace M11
             LoadingIndicator.IsVisible = false;
             _browser.IsVisible = true;
             _isNeedReload = false;
-            _onNavigatedCount++;
+            _currentStep = PaymentPageStep.MyPaymentPage;
         }
 
-        private void BrowserOnNavigating(object sender, WebNavigatingEventArgs args)
+        private void GoToMainPage()
         {
-            _isNeedReload = true;
-            if (_onNavigatedCount <= 0 || !args.Url.Contains(_infoService.BaseUrl) || args.Url.Contains("sberbank"))
-            {
-                return;
-            }
-
             // Вернулись назад со страницы оплаты (нужно перезагрузить информацию о счете)
             LoadingIndicator.IsRunning = true;
             LoadingIndicator.IsVisible = true;
@@ -109,6 +118,7 @@ namespace M11
             App.AccountBalance.RequestDate = DateTime.MinValue;
             App.AccountInfo.RequestDate = DateTime.MinValue;
             Application.Current.MainPage = new TabbedMainPage();
+            _currentStep = PaymentPageStep.None;
         }
     }
 }

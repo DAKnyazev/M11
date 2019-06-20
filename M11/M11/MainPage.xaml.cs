@@ -33,9 +33,9 @@ namespace M11
             {
                 return;
             }
-            BalanceTitleLabel.IsVisible = false;
-            LastPaymentsLayout.IsVisible = false;
-            BalanceLabel.Text = "";
+            BalanceTitleLabel.IsVisible = !string.IsNullOrWhiteSpace(BalanceLabel.Text);
+            LastPaymentsLayout.IsVisible = !string.IsNullOrWhiteSpace(BalanceLabel.Text);
+            //BalanceLabel.Text = "";
             LoadingIndicator.IsRunning = true;
             LastPaymentsIndicator.IsRunning = false;
             MainLayout.Children.Add(LoadingIndicator);
