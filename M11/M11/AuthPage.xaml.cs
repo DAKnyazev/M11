@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Net;
 using Xamarin.Forms;
 
@@ -26,7 +27,7 @@ namespace M11
             switch (status)
             {
                 case HttpStatusCode.OK:
-                    Application.Current.MainPage = new TabbedMainPage();
+                    App.GoToMainPage();
                     break;
                 case HttpStatusCode.Unauthorized:
                     await DisplayAlert("Ошибка авторизации", "Некорректные логин и/или пароль", "Закрыть");

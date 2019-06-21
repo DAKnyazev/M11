@@ -16,7 +16,7 @@ namespace M11.Tests
     public class InfoServiceTest
     {
         private static readonly GenericDatabase MonthBillSummaryDatabase =
-            new GenericDatabase(".\\MonthBillSummarySQL.db3");
+            GenericDatabase.GetDatabase(".\\MonthBillSummarySQL.db3");
         private static readonly string Login = ConfigurationManager.AppSettings["login"];
         private static readonly string Password = ConfigurationManager.AppSettings["password"];
         private static readonly Dictionary<string, int> Periods = new Dictionary<string, int>
@@ -41,9 +41,6 @@ namespace M11.Tests
 
         public InfoServiceTest()
         {
-            //var t1 = MonthBillSummaryDatabase.ClearAsync<MonthBillSummary>().Result;
-            //var t2 = MonthBillSummaryDatabase.ClearAsync<MonthBillGroup>().Result;
-            //var t3 = MonthBillSummaryDatabase.ClearAsync<Bill>().Result;
             _infoService = new InfoService(MonthBillSummaryDatabase);
             _calculatorService = new CalculatorService();
             _cachedStatisticService = new CachedStatisticService(MonthBillSummaryDatabase);

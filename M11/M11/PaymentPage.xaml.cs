@@ -96,7 +96,6 @@ namespace M11
 
         private void RenderMyPaymentPage()
         {
-            App.SetUpAccountInfo();
             _browser.Source = new HtmlWebViewSource
             {
                 Html = App.GetPaymentPageContent(typeof(PaymentPage))
@@ -117,7 +116,7 @@ namespace M11
             _browser.IsVisible = false;
             App.AccountBalance.RequestDate = DateTime.MinValue;
             App.AccountInfo.RequestDate = DateTime.MinValue;
-            Application.Current.MainPage = new TabbedMainPage();
+            App.GoToMainPage();
             _currentStep = PaymentPageStep.None;
         }
     }

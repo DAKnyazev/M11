@@ -22,6 +22,8 @@ namespace M11.Services
             { "@", "$09" }
         };
 
+        private const string PhoneTextTemplate = "Телефон: ";
+
         /// <summary>
         /// Получение содержимого тега
         /// </summary>
@@ -38,7 +40,7 @@ namespace M11.Services
                 startIndex = content.IndexOf(startingTag, StringComparison.InvariantCultureIgnoreCase);
             }
 
-            if (!isAttributesIncluded && !startingTag.EndsWith(">"))
+            if (!isAttributesIncluded && !startingTag.EndsWith(">") && startIndex > 0)
             {
                 startIndex = content.IndexOf('>', startIndex);
             }
@@ -88,6 +90,13 @@ namespace M11.Services
             }
 
             return rowId;
+        }
+
+        protected static string GetPhone(string content)
+        {
+            var startIndex = content.IndexOf(PhoneTextTemplate, StringComparison.InvariantCultureIgnoreCase);
+
+            return startIndex > 0 ? content.Substring(startIndex + PhoneTextTemplate.Length, 12) : string.Empty;
         }
     }
 }

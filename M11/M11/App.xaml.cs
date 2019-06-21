@@ -20,7 +20,7 @@ namespace M11
 	public partial class App : Application
 	{
         public static GenericDatabase MonthBillSummaryDatabase = 
-            new GenericDatabase(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MonthBillSummarySQLite.db3"));
+            GenericDatabase.GetDatabase(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MonthBillSummarySQLite.db3"));
 
         public static int CachingTimeInMinutes { get; set; }
         public static int AccountInfoMonthCount { get; set; }
@@ -73,28 +73,48 @@ namespace M11
         public App()
 		{
 			InitializeComponent();
-            try
-		    {
-		        Credentials.Login = GetValueFromStorage(CrossSecureStorageKeys.Login);
-		        Credentials.Password = GetValueFromStorage(CrossSecureStorageKeys.Password);
-		        SetUpNotificationFrequency();
-		    }
-		    catch
-		    {
-		        Credentials.Login = string.Empty;
-		        Credentials.Password = string.Empty;
-		    }
-		    
-		    if (!string.IsNullOrWhiteSpace(Credentials.Login) 
-		        && !string.IsNullOrWhiteSpace(Credentials.Password))
-		    {
-		        MainPage = new NavigationPage(new TabbedMainPage());
-            }
-		    else
-		    {
-		        MainPage = new NavigationPage(new AuthPage());
-            }
 		}
+
+	    private void Init()
+	    {
+	        try
+	        {
+	            Credentials.Login = GetValueFromStorage(CrossSecureStorageKeys.Login);
+	            Credentials.Password = GetValueFromStorage(CrossSecureStorageKeys.Password);
+	            SetUpNotificationFrequency();
+	        }
+	        catch
+	        {
+	            Credentials.Login = string.Empty;
+	            Credentials.Password = string.Empty;
+	        }
+
+	        try
+	        {
+	            if (TryGetInfo() != HttpStatusCode.OK)
+	            {
+	                MainPage = new NavigationPage(new AuthPage());
+                    return;
+	            }
+
+	            GoToMainPage();
+	        }
+	        catch (Exception e)
+	        {
+	            MainPage = new NavigationPage(new AuthPage());
+            }
+        }
+
+	    public static void GoToMainPage()
+	    {
+            if (TryGetInfo() != HttpStatusCode.OK)
+            {
+                Current.MainPage = new NavigationPage(new AuthPage());
+                return;
+            }
+            SetUpAccountInfo();
+	        Current.MainPage = new TabbedMainPage();
+        }
 
 	    public static void Exit()
 	    {
@@ -109,7 +129,7 @@ namespace M11
 	        ClearDatabase();
 	    }
 
-        public static HttpStatusCode TryGetInfo()
+        private static HttpStatusCode TryGetInfo()
         {
             return TryGetInfo(Credentials.Login, Credentials.Password, false);
         }
@@ -119,7 +139,7 @@ namespace M11
 	        return TryGetInfo(login, password, true);
 	    }
 
-        public static HttpStatusCode TryGetInfo(string login, string password, bool isLogin)
+        private static HttpStatusCode TryGetInfo(string login, string password, bool isLogin)
         {
             if (string.IsNullOrWhiteSpace(login) || string.IsNullOrWhiteSpace(password))
             {
@@ -157,7 +177,7 @@ namespace M11
             return HttpStatusCode.OK;
         }
 
-	    public static void SetUpAccountInfo()
+	    private static void SetUpAccountInfo()
 	    {
 	        lock (GetAccountInfoLockObject)
 	        {
@@ -191,7 +211,7 @@ namespace M11
 	        return InfoService.GetPaymentPageContent(
 	            AccountInfo.AccountId, 
 	            100, 
-	            AccountBalance.Phone,
+	            AccountBalance.Phone ?? string.Empty,
 	            type);
 	    }
 
@@ -370,7 +390,8 @@ namespace M11
 
         protected override void OnStart()
 	    {
-	        // Handle when your app starts
+            // Handle when your app starts
+	        Init();
 	    }
 
 	    protected override void OnSleep()
@@ -380,8 +401,9 @@ namespace M11
 
 	    protected override void OnResume()
 	    {
-	        // Handle when your app resumes
-	    }
+            // Handle when your app resumes
+	        Init();
+        }
 
         private static string GetValueFromStorage(string key)
 	    {
@@ -416,6 +438,10 @@ namespace M11
 
 	    private static void ClearDatabase()
 	    {
+	        lock (GetAccountInfoLockObject)
+	        {
+	            AsyncHelpers.RunSync(() => MonthBillSummaryDatabase.ClearTablesAsync());
+	        }
 	    }
     }
 }

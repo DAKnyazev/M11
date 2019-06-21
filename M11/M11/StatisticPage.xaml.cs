@@ -38,14 +38,6 @@ namespace M11
 
         private async Task InitializeAsync()
         {
-            if (App.TryGetInfo() != HttpStatusCode.OK)
-            {
-                Application.Current.MainPage = new AuthPage();
-                return;
-            }
-
-            App.SetUpAccountInfo();
-
             const int padding = 10;
             foreach (var item in App.AccountInfo.BillSummaryList.OrderByDescending(x => x.Period))
             {

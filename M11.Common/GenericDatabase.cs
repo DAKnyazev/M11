@@ -1,29 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using M11.Common.Extentions;
 using M11.Common.Models.BillSummary;
 using SQLite;
 
 namespace M11.Common
 {
-    public class GenericDatabase 
+    public class GenericDatabase
     {
-        private readonly SQLiteAsyncConnection _connection;
+        private static GenericDatabase _database;
+        private static SQLiteAsyncConnection _connection;
 
-        public GenericDatabase(string dbPath)
+        private GenericDatabase() {}
+
+        public static GenericDatabase GetDatabase(string dbPath)
         {
-            try
+            if (_database == null)
             {
+                _database = new GenericDatabase();
                 _connection = new SQLiteAsyncConnection(dbPath);
-                _connection.CreateTableAsync<MonthBillSummary>().Wait();
-                _connection.CreateTableAsync<MonthBillGroup>().Wait();
-                _connection.CreateTableAsync<Bill>().Wait();
+                AsyncHelpers.RunSync(() => _connection.CreateTablesAsync<MonthBillSummary, MonthBillGroup, Bill>());
             }
-            catch
-            {
-                // ignored
-            }
+
+            return _database;
         }
 
         public async Task<List<TEntity>> GetItemsAsync<TEntity>() where TEntity : IDatabaseEntity, new()
@@ -32,7 +34,7 @@ namespace M11.Common
             {
                 return await _connection.Table<TEntity>().ToListAsync();
             }
-            catch
+            catch (Exception e)
             {
                 return new List<TEntity>();
             }
@@ -42,7 +44,7 @@ namespace M11.Common
         {
             try
             {
-                var oldItem = _connection.Table<TEntity>().ToListAsync().Result.FirstOrDefault(x => x.Id == item.Id);
+                var oldItem = AsyncHelpers.RunSync(() => _connection.Table<TEntity>().ToListAsync()).FirstOrDefault(x => x.Id == item.Id);
                 if (oldItem != null)
                 {
                     return await _connection.UpdateAsync(item);
@@ -50,19 +52,22 @@ namespace M11.Common
 
                 return await _connection.InsertAsync(item);
             }
-            catch
+            catch (Exception e)
             {
                 return 0;
             }
         }
 
-        public async Task<int> ClearAsync<TEntity>() where TEntity : IDatabaseEntity, new()
+        public async Task<int> ClearTablesAsync()
         {
             try
             {
-                return await _connection.DeleteAllAsync<TEntity>();
+                var result = await _connection.DeleteAllAsync<Bill>();
+                result += await _connection.DeleteAllAsync<MonthBillGroup>();
+                result += await _connection.DeleteAllAsync<MonthBillSummary>();
+                return result;
             }
-            catch
+            catch (Exception e)
             {
                 return 0;
             }

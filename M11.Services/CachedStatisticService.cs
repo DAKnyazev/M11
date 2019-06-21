@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using M11.Common;
+using M11.Common.Extentions;
 using M11.Common.Models.BillSummary;
 using RestSharp;
 
@@ -25,7 +26,7 @@ namespace M11.Services
             string accountId)
         {
             var result = new List<MonthBillSummary>();
-            var cachedList = _repository.GetItemsAsync<MonthBillSummary>().Result;
+            var cachedList = AsyncHelpers.RunSync(() => _repository.GetItemsAsync<MonthBillSummary>());
             var newStart = new DateTime(start.Year, start.Month, 1);
             while (newStart <= end.Date)
             {
@@ -47,7 +48,7 @@ namespace M11.Services
                 {
                     foreach (var monthBillSummary in listResult.List)
                     {
-                        var count = _repository.SaveItemAsync(monthBillSummary).Result;
+                        AsyncHelpers.RunSync(() => _repository.SaveItemAsync(monthBillSummary));
                     }
                 }
 
@@ -66,13 +67,12 @@ namespace M11.Services
             List<MonthBillGroup> result = null;
             if (!monthlyBillSummary.IsPeriodEquals(DateTime.Now))
             {
-                result = _repository
-                    .GetItemsAsync<MonthBillGroup>().Result
+                result = AsyncHelpers.RunSync(() =>_repository.GetItemsAsync<MonthBillGroup>())
                     .Where(x => x.MonthBillSummaryId == monthlyBillSummary.Id)
                     .ToList();
                 foreach (var group in result)
                 {
-                    var bills = _repository.GetItemsAsync<Bill>().Result
+                    var bills = AsyncHelpers.RunSync(() => _repository.GetItemsAsync<Bill>())
                         .Where(x => x.MonthBillGroupId == group.Id)
                         .ToList();
                     group.Bills = bills;
@@ -94,11 +94,11 @@ namespace M11.Services
                     foreach (var bill in group.Bills)
                     {
                         bill.MonthBillGroupId = group.Id;
-                        var count = _repository.SaveItemAsync(bill).Result;
+                        AsyncHelpers.RunSync(() => _repository.SaveItemAsync(bill));
                     }
 
                     group.MonthBillSummaryId = monthlyBillSummary.Id;
-                    var groupCount = _repository.SaveItemAsync(@group).Result;
+                    AsyncHelpers.RunSync(() => _repository.SaveItemAsync(group));
                 }
             }
 

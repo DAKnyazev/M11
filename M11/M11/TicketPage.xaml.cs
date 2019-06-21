@@ -15,14 +15,14 @@ namespace M11
         public TicketPage()
         {
             this.Title = "Абонемент";
-            _ticketLink = App.GetAccountBalance().TicketLink;
+            _ticketLink = App.AccountBalance?.TicketLink;
             InitializeComponent();
             LoadingIndicator.Color = Color.FromHex(App.MainColor);
         }
 
         protected override void OnAppearing()
         {
-            if (_isLoginPageLoaded)
+            if (_isLoginPageLoaded && !string.IsNullOrWhiteSpace(_ticketLink))
             {
                 _isTicketPageLoaded = true;
                 Browser.Source = new HtmlWebViewSource

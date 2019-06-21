@@ -44,14 +44,7 @@ namespace M11
 
         private async Task InitializeAsync()
 	    {
-	        if (App.TryGetInfo() != HttpStatusCode.OK)
-	        {
-	            Application.Current.MainPage = new AuthPage();
-                return;
-            }
-
 	        InitializeBalanceAndTickets();
-            App.SetUpAccountInfo();
 	        InitializeLastBills();
 	    }
 
