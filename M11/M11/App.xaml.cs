@@ -391,7 +391,7 @@ namespace M11
         protected override void OnStart()
 	    {
             // Handle when your app starts
-	        Init();
+            Init();
 	    }
 
 	    protected override void OnSleep()

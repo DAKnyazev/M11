@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="21" android:versionName="5.3" package="com.companyname.M11" android:installLocation="auto">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="22" android:versionName="5.4" package="com.companyname.M11" android:installLocation="auto">
 	<uses-sdk android:minSdkVersion="19" android:targetSdkVersion="28" />
 	<application android:label="M11.Android"></application>
 </manifest>

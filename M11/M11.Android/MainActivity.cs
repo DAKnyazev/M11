@@ -5,7 +5,13 @@ using Android.OS;
 
 namespace M11.Droid
 {
-    [Activity(Label = "M11", Icon = "@mipmap/icon", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation, ScreenOrientation = ScreenOrientation.Portrait)]
+    [Activity(
+        Label = "M11", 
+        Icon = "@mipmap/icon", 
+        Theme = "@style/MainTheme", 
+        MainLauncher = false, 
+        ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation, 
+        ScreenOrientation = ScreenOrientation.Portrait)]
     public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity
     {
         public static string ChannelId = "M11-15-58-Knyazev-ChannelId";

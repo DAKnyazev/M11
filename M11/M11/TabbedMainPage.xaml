@@ -6,7 +6,8 @@
             xmlns:android="clr-namespace:Xamarin.Forms.PlatformConfiguration.AndroidSpecific;assembly=Xamarin.Forms.Core"
             android:TabbedPage.ToolbarPlacement="Bottom"
             android:TabbedPage.BarItemColor="Black"
-            android:TabbedPage.BarSelectedItemColor="#cc7732">
+            android:TabbedPage.BarSelectedItemColor="#cc7732"
+            BackgroundColor="White">
     <TabbedPage.Children>
         <NavigationPage Title="Баланс" Icon="home.png">
             <x:Arguments>

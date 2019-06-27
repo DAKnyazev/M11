@@ -2,7 +2,8 @@
 <local:BaseContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:M11"
-             x:Class="M11.AuthPage">
+             x:Class="M11.AuthPage"
+             BackgroundColor="White">
     <StackLayout VerticalOptions="StartAndExpand" HorizontalOptions="CenterAndExpand" Margin="0,20,0,0">
         <Label TextColor="Black" FontSize="14" WidthRequest="250" HorizontalTextAlignment="Center" Margin="0,0,0,20">
             Введите свои имя пользователя и пароль от личного кабинета трассы М11 15-58км
