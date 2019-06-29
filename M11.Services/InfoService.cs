@@ -61,14 +61,14 @@ namespace M11.Services
                     return new AccountBalance { StatusCode = response.StatusCode };
                 }
 
-                var commonTable = GetTagValue(stringContent, "<table class=\"infoblock fullwidth\">", "</table>");
-                var commonInfoDocument = new HtmlDocument();
-                commonInfoDocument.LoadHtml(commonTable);
+                var mainPage = new HtmlDocument();
+                mainPage.LoadHtml(stringContent);
+
                 var ticketsSpan = GetTagValue(stringContent, "<span class=\"w-html-ro\" style=\"\">", "</span>", 3)
                     ?.Replace("&nbsp;", string.Empty);
                 var ticketsDocument = new HtmlDocument();
                 ticketsDocument.LoadHtml(ticketsSpan);
-                var linkTable = GetTagValue(stringContent, "<div class=\"tmenu\">", "</div>");
+                var linkTable = mainPage.DocumentNode.SelectSingleNode("//div[contains(@class,'tmenu')]").InnerHtml;
                 var linkDocument = new HtmlDocument();
                 linkDocument.LoadHtml(linkTable);
                 var ticketLinkInput = GetTagValue(stringContent, "<input class=\"c-button\"", ">");
@@ -77,12 +77,12 @@ namespace M11.Services
                 {
                     RequestDate = DateTime.Now,
                     ContractNumber =
-                        commonInfoDocument.DocumentNode.SelectSingleNode(@"//tr[1]//td[2]//text()").InnerText,
+                        mainPage.DocumentNode.SelectSingleNode("//li[contains(@class,'dog-info')]//div[1]//div[1]//span[2]//text()")?.InnerText,
                     Phone = Regex.Replace(GetPhone(stringContent), "[^+0-9.]", ""),
-                    Status = commonInfoDocument.DocumentNode.SelectSingleNode(@"//tr[2]//td[2]//text()").InnerText,
-                    Balance = commonInfoDocument.DocumentNode.SelectSingleNode(@"//tr[3]//td[2]//text()").InnerText,
+                    Status = mainPage.DocumentNode.SelectSingleNode("//li[contains(@class,'dog-info')]//div[1]//div[2]//span[2]//text()")?.InnerText,
+                    Balance = mainPage.DocumentNode.SelectSingleNode("//li[contains(@class,'dog-info')]//div[1]//div[3]//span[2]//text()")?.InnerText,
                     Tickets = GetTickets(ticketsDocument),
-                    Links = GetLinks<LinkType>(linkDocument, "//tr[1]//td[{0}]//a[1]"),
+                    Links = GetLinks<LinkType>(linkDocument, "//ul[1]//li[{0}]//a[1]"),
                     CookieContainer = cookieContainer,
                     TicketLink = GetTicketLink(ticketLinkInput, BaseUrl)
                 };

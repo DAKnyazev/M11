@@ -55,6 +55,7 @@ namespace M11.Tests
             Assert.IsNotNull(_accountBalance);
             Assert.IsFalse(string.IsNullOrWhiteSpace(_accountBalance.ContractNumber));
             Assert.IsNotNull(_accountBalance.Links);
+            Assert.IsNotNull(_accountBalance.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl);
             Assert.IsFalse(string.IsNullOrWhiteSpace(_accountBalance.Phone));
         }
 
