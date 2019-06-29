@@ -29,7 +29,7 @@ namespace M11
 
         protected override async void OnAppearing()
         {
-            if (!App.IsNeedReloadMainPage && !string.IsNullOrWhiteSpace(BalanceLabel.Text))
+            if (!App.IsNeedReloadMainPage && !string.IsNullOrWhiteSpace(BalanceLabel.Text) && BalanceLabel.Text == App.AccountBalance.Balance + " ₽")
             {
                 return;
             }

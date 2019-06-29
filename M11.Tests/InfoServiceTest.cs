@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using M11.Common;
 using M11.Common.Enums;
 using M11.Common.Models;
-using M11.Common.Models.BillSummary;
 using M11.Services;
 using NUnit.Framework;
 

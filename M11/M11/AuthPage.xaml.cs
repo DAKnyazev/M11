@@ -27,7 +27,7 @@ namespace M11
             switch (status)
             {
                 case HttpStatusCode.OK:
-                    App.GoToMainPage();
+                    App.GoToMainPage(false);
                     break;
                 case HttpStatusCode.Unauthorized:
                     await DisplayAlert("Ошибка авторизации", "Некорректные логин и/или пароль", "Закрыть");

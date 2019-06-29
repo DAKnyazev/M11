@@ -97,7 +97,7 @@ namespace M11
                     return;
 	            }
 
-	            GoToMainPage();
+	            GoToMainPage(false);
 	        }
 	        catch (Exception e)
 	        {
@@ -105,7 +105,7 @@ namespace M11
             }
         }
 
-	    public static void GoToMainPage()
+	    public static void GoToMainPage(bool isNeedOpenMainTab)
 	    {
             if (TryGetInfo() != HttpStatusCode.OK)
             {
@@ -113,6 +113,14 @@ namespace M11
                 return;
             }
             SetUpAccountInfo();
+	        if (Current.MainPage is TabbedMainPage tabbedMainPage)
+	        {
+	            if (isNeedOpenMainTab)
+	            {
+	                tabbedMainPage.CurrentPage = tabbedMainPage.Children[0];
+	            }
+	            return;
+	        }
 	        Current.MainPage = new TabbedMainPage();
         }
 

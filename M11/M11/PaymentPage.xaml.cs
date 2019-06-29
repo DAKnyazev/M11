@@ -39,7 +39,7 @@ namespace M11
 
         protected override void OnAppearing()
         {
-            if (_currentStep >= PaymentPageStep.SberbankCardPage)
+            if (_currentStep >= PaymentPageStep.MyPaymentPage)
             {
                 return;
             }
@@ -115,8 +115,7 @@ namespace M11
             Thread.Sleep(3000);
             _browser.IsVisible = false;
             App.AccountBalance.RequestDate = DateTime.MinValue;
-            App.AccountInfo.RequestDate = DateTime.MinValue;
-            App.GoToMainPage();
+            App.GoToMainPage(true);
             _currentStep = PaymentPageStep.None;
         }
     }
