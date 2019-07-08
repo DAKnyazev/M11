@@ -15,12 +15,12 @@ namespace M11.Tests
     public class InfoServiceTest
     {
         private static readonly GenericDatabase MonthBillSummaryDatabase =
-            GenericDatabase.GetDatabase(".\\MonthBillSummarySQL.db3");
+            GenericDatabase.GetDatabase(".\\MonthBillSummarySQL2.db3");
         private static readonly string Login = ConfigurationManager.AppSettings["login"];
         private static readonly string Password = ConfigurationManager.AppSettings["password"];
         private static readonly Dictionary<string, int> Periods = new Dictionary<string, int>
         {
-            { "2018.08", 49 },
+            { "2018.08", 49 }, // Многостраничные траты
             { "2018.07", 23 },
             { "2018.06", 5 },
             { "2019.05", 16 },

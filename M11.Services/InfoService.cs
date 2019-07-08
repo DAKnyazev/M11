@@ -184,7 +184,7 @@ namespace M11.Services
                 while (true)
                 {
                     i++;
-                    if (string.IsNullOrWhiteSpace(span.DocumentNode.SelectSingleNode($"//tr[{i}]")?.InnerText))
+                    if (string.IsNullOrWhiteSpace(span.DocumentNode.SelectSingleNode($"//tr[{i}]//td[2]")?.InnerText))
                     {
                         break;
                     }

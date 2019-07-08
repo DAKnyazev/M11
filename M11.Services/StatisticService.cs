@@ -212,12 +212,12 @@ namespace M11.Services
                         break;
                     }
 
-                    var tabUrl = paginatorDocument.DocumentNode
-                        .SelectSingleNode($"//span[1]//a[{i}]")?.Attributes["href"]?.Value;
-                    var tabRequest = new RestRequest(tabUrl, Method.POST);
+                    var pageIndex = paginatorDocument.DocumentNode
+                        .SelectSingleNode($"//span[1]//a[{i}]//text()")?.InnerText;
+                    var tabRequest = new RestRequest($"{groupDetailsUrl}&page={pageIndex}&simple=1", Method.POST);
                     var tabResponse = client.Execute(tabRequest);
                     var tabContent = Regex.Replace(tabResponse.Content, @"\\t|\\n|\\r|\\", "");
-                    var tabbody = GetTagValue(tabContent, "<tbody>", "</tbody>", 2);
+                    var tabbody = GetTagValue(tabContent, "<tbody>", "</tbody>", 1);
                     var tabDocument = new HtmlDocument();
                     tabDocument.LoadHtml(tabbody);
                     billsResult = GetBills(tabDocument, item.ServiceName);
@@ -253,66 +253,37 @@ namespace M11.Services
                     }
                     var isServicePay = serviceName.ToLower().Contains("ежемесячный");
                     decimal.TryParse(
-                        document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 7 : 10)}]//text()")?.InnerText
+                        document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[@data-name='useserv']//text()")?.InnerText
                             .Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
                         out var amount);
                     decimal.TryParse(
-                        document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 8 : 11)}]//text()")?.InnerText
+                        document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[@data-name='amount']//text()")?.InnerText
                             .Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
                         out var cost);
                     decimal.TryParse(
-                        document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 9 : 12)}]//text()")?.InnerText
+                        document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[@data-name='amount_tax']//text()")?.InnerText
                             .Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
                         out var costWithTax);
                     var bill = new Bill
                     {
                         Id = document.DocumentNode.SelectSingleNode($"//tr[{i}]").Attributes["data-obj-id"]?.Value,
                         FullPeriodName =
-                            document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 2 : 3)}]//text()")
+                            document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[@data-name='mdate']//text()")
                                 ?.InnerText,
-                        ExitPoint = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[4]//text()")?.InnerText,
-                        EntryPoint = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[5]//text()")?.InnerText,
+                        ExitPoint = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[@data-name='tdfid']//text()")?.InnerText,
+                        EntryPoint = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[@data-name='remark']//text()")?.InnerText,
                         ForeigtPointComment = !isServicePay
-                            ? document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[8]//text()")?.InnerText
+                            ? document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[7]//text()")?.InnerText
                             : string.Empty,
-                        PAN = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[{(isServicePay ? 6 : 7)}]//text()")
+                        PAN = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[@data-name='fid']//text()")
                             ?.InnerText,
-                        CarClass = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[9]//text()")?.InnerText,
+                        CarClass = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[@data-name='tdid']//text()")?.InnerText,
                         Amount = amount,
                         Cost = cost,
                         CostWithTax = costWithTax,
                         IsServicePay = isServicePay
                     };
-                    if (isServicePay || !bill.IsTicketBuy)
-                    {
-                        result.Add(bill);
-                    }
-                    else
-                    {
-                        decimal.TryParse(
-                            document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[7]//text()")?.InnerText
-                                .Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
-                            out amount);
-                        decimal.TryParse(
-                            document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[8]//text()")?.InnerText
-                                .Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
-                            out cost);
-                        decimal.TryParse(
-                            document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[9]//text()")?.InnerText
-                                .Replace(" ", ""), NumberStyles.Any, CultureInfo.InvariantCulture,
-                            out costWithTax);
-                        result.Add(new Bill
-                        {
-                            Id = document.DocumentNode.SelectSingleNode($"//tr[{i}]").Attributes["data-obj-id"]?.Value,
-                            FullPeriodName =
-                                document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[2]//text()")
-                                    ?.InnerText,
-                            PAN = document.DocumentNode.SelectSingleNode($"//tr[{i}]//td[6]//text()")?.InnerText,
-                            Amount = amount,
-                            Cost = cost,
-                            CostWithTax = costWithTax
-                        });
-                    }
+                    result.Add(bill);
                 }
             }
             catch
