@@ -27,7 +27,7 @@ namespace M11
             };
 		}
 
-        protected override async void OnAppearing()
+        protected override void OnAppearing()
         {
             if (!App.IsNeedReloadMainPage && !string.IsNullOrWhiteSpace(BalanceLabel.Text) && BalanceLabel.Text == App.AccountBalance.Balance + " ₽")
             {
@@ -39,7 +39,7 @@ namespace M11
             LoadingIndicator.IsRunning = true;
             LastPaymentsIndicator.IsRunning = false;
             MainLayout.Children.Add(LoadingIndicator);
-            await Task.Run(async () => await InitializeAsync());
+            Task.Run(async () => await InitializeAsync());
 	    }
 
         private async Task InitializeAsync()

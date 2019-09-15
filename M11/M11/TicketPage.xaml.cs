@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -18,6 +19,7 @@ namespace M11
             _ticketLink = App.AccountBalance?.TicketLink;
             InitializeComponent();
             LoadingIndicator.Color = Color.FromHex(App.MainColor);
+            Browser.Navigating += BrowserOnNavigating;
         }
 
         protected override void OnAppearing()
@@ -52,11 +54,19 @@ namespace M11
 
         private void BrowserOnNavigating(object sender, WebNavigatingEventArgs e)
         {
-            if (_isLoginPageLoaded)
+            if (_isLoginPageLoaded && !e.Url.Contains("search"))
             {
-                Browser.IsVisible = true;
-                LoadingIndicator.IsRunning = false;
-                LoadingIndicator.IsVisible = false;
+                OpenTicketPage();
+                Task.Run(async () =>
+                {                    
+                    await Task.Delay(5000);
+                    Device.BeginInvokeOnMainThread(() =>
+                    {
+                        Browser.IsVisible = true;
+                        LoadingIndicator.IsRunning = false;
+                        LoadingIndicator.IsVisible = false;
+                    });
+                });                
             }
             else
             {
@@ -64,7 +74,7 @@ namespace M11
             }
         }
 
-        private void Browser_OnNavigated(object sender, WebNavigatedEventArgs e)
+        private void OpenTicketPage()
         {
             if (_isTicketPageLoaded)
             {
@@ -75,7 +85,7 @@ namespace M11
             Browser.Source = new UrlWebViewSource
             {
                 Url = _ticketLink
-            };
+            };            
         }
     }
 }

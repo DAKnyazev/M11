@@ -19,9 +19,7 @@
                         RelativeLayout.HeightConstraint="{ConstraintExpression Type=RelativeToParent, Property=Height, Factor=1}"
                         VerticalOptions="FillAndExpand" 
                         HorizontalOptions="FillAndExpand" 
-                        IsVisible="True" 
-                        Navigated="Browser_OnNavigated" 
-                        Navigating="BrowserOnNavigating"/>
+                        IsVisible="True"/>
         </RelativeLayout>
     </ContentPage.Content>
 </ContentPage>
