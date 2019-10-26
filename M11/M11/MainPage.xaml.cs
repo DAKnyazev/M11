@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Linq;
-using System.Net;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using M11.Common.Enums;
-using M11.Services;
 using Xamarin.Forms;
 
 namespace M11
 {
-	public partial class MainPage : BaseContentPage
+    public partial class MainPage : BaseContentPage
     {
         private ActivityIndicator LoadingIndicator { get; set; }
         private ActivityIndicator LastPaymentsIndicator { get; set; }
