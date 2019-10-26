@@ -239,7 +239,6 @@ namespace M11
         private async void OpenTicketPage(object sender, EventArgs e)
         {
             var ticketPage = new TicketPage();
-            ticketPage.OnClosing += (o, args) => { App.SetNeedReload(); OnAppearing(); };
             await Navigation.PushModalAsync(new NavigationPage(ticketPage));
         }
     }

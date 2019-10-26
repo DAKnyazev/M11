@@ -393,7 +393,8 @@ namespace M11
 	        if (AccountInfo != null)
 	        {
 	            AccountInfo.RequestDate = DateTime.MinValue;
-	        }
+                TryGetInfo();
+            }
 	    }
 
         protected override void OnStart()

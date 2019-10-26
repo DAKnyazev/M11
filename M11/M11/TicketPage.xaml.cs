@@ -8,7 +8,6 @@ namespace M11
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class TicketPage : ContentPage
     {
-        public event EventHandler<EventArgs> OnClosing;
         private readonly string _ticketLink;
         private bool _isLoginPageLoaded;
         private bool _isTicketPageLoaded;
@@ -48,8 +47,9 @@ namespace M11
         }
 
         protected override void OnDisappearing()
-        {
-            OnClosing?.Invoke(this, EventArgs.Empty);
+        {            
+            App.AccountBalance.RequestDate = DateTime.MinValue;
+            App.GoToMainPage(true);
         }
 
         private void BrowserOnNavigating(object sender, WebNavigatingEventArgs e)

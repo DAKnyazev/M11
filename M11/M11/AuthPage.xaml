@@ -12,7 +12,7 @@
         <Entry x:Name="LoginEntry" Text="" Keyboard="Keyboard.Telephone" FontSize="28" TextColor="#CC7732" HorizontalTextAlignment="Center"/>
         <Label x:Name="PasswordLabel" Text="Пароль" FontSize="28" HorizontalTextAlignment="Center"/>
         <Entry x:Name="PasswordEntry" Text="" IsPassword="True" FontSize="28" TextColor="#CC7732" HorizontalTextAlignment="Center"/>
-        <ActivityIndicator x:Name="AuthActivityIndicator" Color="#CC7732" />
+        <ActivityIndicator x:Name="AuthActivityIndicator" Color="#CC7732" IsVisible="True"/>
         <Button x:Name="EntryButton" Text="Войти" TextColor="White" BackgroundColor="#CC7732" FontSize="28" Clicked="EntryButton_OnClicked" WidthRequest="200" />
         <Label TextColor="Black" FontSize="14" WidthRequest="250" HorizontalTextAlignment="Center" Margin="0,20,0,0">
             Данные для входа будут сохранены только на вашем устройстве
