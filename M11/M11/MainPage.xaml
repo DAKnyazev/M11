@@ -2,7 +2,6 @@
 <m11:BaseContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:m11="clr-namespace:M11;assembly=M11"
-             xmlns:pullToRefresh="clr-namespace:Refractored.XamForms.PullToRefresh;assembly=Refractored.XamForms.PullToRefresh"
              x:Class="M11.MainPage"
              ControlTemplate="{StaticResource MainPageTemplate}">
     <StackLayout x:Name="MainLayout" VerticalOptions="Center" HorizontalOptions="FillAndExpand">
