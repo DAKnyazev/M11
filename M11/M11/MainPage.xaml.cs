@@ -25,7 +25,8 @@ namespace M11
 		    {
 		        Color = Color.FromHex(App.MainColor)
             };
-		}
+            BalanceLabel.FontFamily = "Resources/fonts/Roboto-Bold.ttf#Roboto-Bold";
+        }
 
         protected override void OnAppearing()
         {
@@ -35,7 +36,6 @@ namespace M11
             }
             BalanceTitleLabel.IsVisible = !string.IsNullOrWhiteSpace(BalanceLabel.Text);
             LastPaymentsLayout.IsVisible = !string.IsNullOrWhiteSpace(BalanceLabel.Text);
-            //BalanceLabel.Text = "";
             LoadingIndicator.IsRunning = true;
             LastPaymentsIndicator.IsRunning = false;
             MainLayout.Children.Add(LoadingIndicator);

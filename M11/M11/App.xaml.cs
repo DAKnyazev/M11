@@ -68,6 +68,11 @@ namespace M11
 	        AccountBalance = new AccountBalance();
             AccountInfo = new AccountInfo();
             MainColor = "#996600";
+            if (ServicePointManager.SecurityProtocol != SecurityProtocolType.Tls12)
+            {
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            }
+            ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
         }
 
         public App()
