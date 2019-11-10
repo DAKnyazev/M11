@@ -10,6 +10,8 @@ namespace M11
         public AuthPage()
 	    {
 	        InitializeComponent();
+            LoginEntry.Text = App.Credentials.Login;
+            PasswordEntry.Text = App.Credentials.Password;
         }
 
         private async void EntryButton_OnClicked(object sender, EventArgs e)
