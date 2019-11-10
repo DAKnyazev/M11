@@ -28,7 +28,9 @@ namespace M11
         public static Credentials Credentials { get; set; }
         public static AccountBalance AccountBalance { get; set; }
         public static AccountInfo AccountInfo { get; set; }
-	    public static bool IsNeedReloadMainPage =>
+        public static decimal AutodorCalculatorPrice { get; set; }
+
+        public static bool IsNeedReloadMainPage =>
 	        (AccountInfo?.RequestDate ?? DateTime.MinValue) < DateTime.Now.AddMinutes(-CachingTimeInMinutes)
 	        || string.IsNullOrWhiteSpace(AccountBalance.Balance);
         public static string MainColor { get; set; }

@@ -7,6 +7,7 @@
         <ScrollView>
             <StackLayout x:Name="CalculatorLayout" VerticalOptions="StartAndExpand" BackgroundColor="White">
                 <Label x:Name="ErrorLabel" FontSize="30" Margin="20">Произошла ошибка загрузки</Label>
+                <Button HorizontalOptions="Center" Text="+ Другой участок" BackgroundColor="#F5F5DC" Clicked="OpenAutodorCalculator"/>
                 <Grid x:Name="CalculatorGrid" HorizontalOptions="CenterAndExpand" Margin="20">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="50"></RowDefinition>
@@ -54,9 +55,9 @@
                     </StackLayout>
                     <Picker Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="14" x:Name="CategoryPicker" Title="Категория ТС" SelectedIndexChanged="Calculate"/>
                     <Label Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="14" Text="Цена по транспондеру М11 15-58 км" FontSize="20"/>
-                    <Label Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="14" x:Name="TransponderCostLabel" FontSize="30"/>
+                    <Label Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="14" x:Name="TransponderCostLabel" FontSize="28"/>
                     <Label Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="14" Text="Цена без транспондера М11 15-58 км" FontSize="20"/>
-                    <Label Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="14" x:Name="CashCostLabel" FontSize="30"/>
+                    <Label Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="14" x:Name="CashCostLabel" FontSize="28"/>
                     <Label Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="14" FontSize="14">Калькулятор предоставляет справочную информацию, подробности на сайте: www.15-58m11.ru</Label>
                     <Label Grid.Row="10" Grid.Column="1" Grid.ColumnSpan="14">В праздничные и предпраздничные дни цены могут быть увеличены.</Label>
                 </Grid>

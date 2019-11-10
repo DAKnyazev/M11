@@ -73,6 +73,11 @@ namespace M11
                 DestinationDictionary[DestinationPicker.SelectedItem.ToString()]);
             CashCostLabel.Text = result.CashCost.ToString("0") + " ₽";
             TransponderCostLabel.Text = result.TransponderCost.ToString("0") + " ₽";
+            if (App.AutodorCalculatorPrice > 0)
+            {
+                CashCostLabel.Text += $" (+{App.AutodorCalculatorPrice} = {(result.CashCost + App.AutodorCalculatorPrice).ToString("0")})";
+                TransponderCostLabel.Text += $" (+{App.AutodorCalculatorPrice} = {(result.TransponderCost + App.AutodorCalculatorPrice).ToString("0")})";
+            }
         }
 
         private async Task InitializeAsync()
@@ -214,6 +219,11 @@ namespace M11
             var destination = DestinationPicker.SelectedItem;
             DestinationPicker.SelectedItem = DeparturePicker.SelectedItem;
             DeparturePicker.SelectedItem = destination;
+        }
+
+        private async void OpenAutodorCalculator(object sender, EventArgs e)
+        {
+            await Navigation.PushModalAsync(new NavigationPage(new AutodorCalculatorPage()));
         }
     }
 }
