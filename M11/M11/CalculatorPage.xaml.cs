@@ -71,13 +71,16 @@ namespace M11
                 Time,
                 DepartureDictionary[DeparturePicker.SelectedItem.ToString()],
                 DestinationDictionary[DestinationPicker.SelectedItem.ToString()]);
-            CashCostLabel.Text = result.CashCost.ToString("0") + " ₽";
-            TransponderCostLabel.Text = result.TransponderCost.ToString("0") + " ₽";
+            CashCostLabel.Text = result.CashCost.ToString("0");
+            TransponderCostLabel.Text = result.TransponderCost.ToString("0");
             if (App.AutodorCalculatorPrice > 0)
             {
                 CashCostLabel.Text += $" (+{App.AutodorCalculatorPrice} = {(result.CashCost + App.AutodorCalculatorPrice).ToString("0")})";
                 TransponderCostLabel.Text += $" (+{App.AutodorCalculatorPrice} = {(result.TransponderCost + App.AutodorCalculatorPrice).ToString("0")})";
             }
+
+            CashCostLabel.Text += " ₽";
+            TransponderCostLabel.Text += " ₽";
         }
 
         private async Task InitializeAsync()
