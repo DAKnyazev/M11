@@ -7,5 +7,6 @@
         public static readonly string AccountId = "AccountId";
         public static readonly string DataObjectId = "DataObjectId";
         public static readonly string NotificationFrequency = "NotificationFrequency";
+        public static readonly string SettingsBadge = "SettingsBadge";
     }
 }

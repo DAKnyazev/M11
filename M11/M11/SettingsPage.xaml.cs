@@ -8,12 +8,17 @@ namespace M11
 	[XamlCompilation(XamlCompilationOptions.Compile)]
 	public partial class SettingsPage : BaseContentPage
     {
-		public SettingsPage ()
+		public SettingsPage()
 		{
 			InitializeComponent();
 		    NotificationFrequencyPicker.ItemsSource = App.NotificationFrequenciesDescriptions;
 		    NotificationFrequencyPicker.SelectedItem = App.NotificationFrequency.GetDescription();
 		    NotificationFrequencyDescriptionLabel.Text = App.NotificationFrequency.GetFullDescription();
+        }
+
+        protected override void OnAppearing()
+        {
+            App.ClearSettingsBadge();
         }
 
         private void Button_OnClicked(object sender, EventArgs e)

@@ -9,6 +9,7 @@ using M11.Common.Enums;
 using M11.Common.Extentions;
 using M11.Common.Models;
 using M11.Common.Models.BillSummary;
+using M11.Resources;
 using M11.Services;
 using Plugin.SecureStorage;
 using Xamarin.Forms;
@@ -74,13 +75,14 @@ namespace M11
             {
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             }
-            ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+            ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;            
         }
 
         public App()
 		{
 			InitializeComponent();
-		}
+            Resources["GlobalResources"] = GlobalResources.Current;
+        }
 
 	    private void Init()
 	    {
@@ -88,8 +90,9 @@ namespace M11
 	        {
 	            Credentials.Login = GetValueFromStorage(CrossSecureStorageKeys.Login);
 	            Credentials.Password = GetValueFromStorage(CrossSecureStorageKeys.Password);
-	            SetUpNotificationFrequency();
-	        }
+	            SetNotificationFrequency();
+                SetSettingsBadge();
+            }
 	        catch
 	        {
 	            Credentials.Login = string.Empty;
@@ -404,6 +407,17 @@ namespace M11
             }
 	    }
 
+        public static void ClearSettingsBadge()
+        {
+            if (Current.MainPage is TabbedMainPage tabbedMainPage
+                && tabbedMainPage.CurrentPage is NavigationPage navigationPage
+                && navigationPage.CurrentPage is SettingsPage)
+            {
+                CrossSecureStorage.Current.SetValue(CrossSecureStorageKeys.SettingsBadge, "True");
+                GlobalResources.Current.SettingsBadge = string.Empty;
+            }
+        }
+
         protected override void OnStart()
 	    {
             // Handle when your app starts
@@ -433,7 +447,7 @@ namespace M11
 	        }
 	    }
 
-	    private static void SetUpNotificationFrequency()
+	    private static void SetNotificationFrequency()
 	    {
 	        var value = GetValueFromStorage(CrossSecureStorageKeys.NotificationFrequency);
 	        if (!string.IsNullOrWhiteSpace(value)
@@ -446,6 +460,17 @@ namespace M11
 	            NotificationFrequency = NotificationFrequency.Off;
 	        }
 	    }
+
+        private static void SetSettingsBadge()
+        {
+            var value = GetValueFromStorage(CrossSecureStorageKeys.SettingsBadge);
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                GlobalResources.Current.SettingsBadge = "1";
+                return;
+            }
+            GlobalResources.Current.SettingsBadge = string.Empty;
+        }
 
 	    private static void SaveNotificationFrequency(NotificationFrequency notificationFrequency)
 	    {

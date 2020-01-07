@@ -4,6 +4,7 @@
              xmlns:m11="clr-namespace:M11;assembly=M11"
              x:Class="M11.TabbedMainPage"
             xmlns:android="clr-namespace:Xamarin.Forms.PlatformConfiguration.AndroidSpecific;assembly=Xamarin.Forms.Core"
+            xmlns:plugin="clr-namespace:Plugin.Badge.Abstractions;assembly=Plugin.Badge.Abstractions" 
             android:TabbedPage.ToolbarPlacement="Bottom"
             android:TabbedPage.BarItemColor="Black"
             android:TabbedPage.BarSelectedItemColor="#cc7732"
@@ -26,7 +27,7 @@
         </NavigationPage>
         <NavigationPage Title="Настройки" Icon="settings.png">
             <x:Arguments>
-                <m11:SettingsPage />
+                <m11:SettingsPage plugin:TabBadge.BadgeText="{Binding SettingsBadge, Source={StaticResource GlobalResources}}" />
             </x:Arguments>
         </NavigationPage>
     </TabbedPage.Children>
