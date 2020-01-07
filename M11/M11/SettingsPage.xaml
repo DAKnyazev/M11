@@ -8,7 +8,8 @@
         <Grid HorizontalOptions="CenterAndExpand" Margin="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"></RowDefinition>
-                <RowDefinition Height="100"></RowDefinition>
+                <RowDefinition Height="80"></RowDefinition>
+                <RowDefinition Height="50"></RowDefinition>
                 <RowDefinition Height="40"></RowDefinition>
                 <RowDefinition Height="200"></RowDefinition>
             </Grid.RowDefinitions>
@@ -31,7 +32,25 @@
                    HorizontalOptions="Start"
                    FontSize="12" 
                    LineBreakMode="WordWrap"/>
-            <Button Grid.Row="3" 
+            <Label Grid.Row="2"
+                   Grid.Column="0"
+                   Grid.ColumnSpan="2"
+                   VerticalOptions="End"
+                   HorizontalOptions="CenterAndExpand"
+                   FontSize="16"
+                   FontFamily="Bold,700"
+                   HorizontalTextAlignment="Center"
+                   Text="Если вам нравится это приложение, то вы можете:"
+                   LineBreakMode="WordWrap" />
+            <Button Grid.Row="3"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    Clicked="DonateButton_Clicked"
+                    TextColor="White" 
+                    BackgroundColor="#CC7732"
+                    FontSize="16"
+                    Text="Поблагодарить разработчика"/>
+            <Button Grid.Row="4" 
                     Grid.Column="0" 
                     Grid.ColumnSpan="2" 
                     HorizontalOptions="Center" 

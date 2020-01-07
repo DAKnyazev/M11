@@ -1,5 +1,6 @@
 ﻿using System;
 using M11.Common.Extentions;
+using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
 namespace M11
@@ -25,6 +26,11 @@ namespace M11
             App.NotificationFrequency = App.NotificationFrequencies[NotificationFrequencyPicker.SelectedIndex];
             NotificationFrequencyDescriptionLabel.Text =
                 App.NotificationFrequenciesFullDescriptions[NotificationFrequencyPicker.SelectedIndex];
+        }
+
+        private async void DonateButton_Clicked(object sender, EventArgs e)
+        {
+            await Navigation.PushModalAsync(new NavigationPage(new DonatePage()));
         }
     }
 }
