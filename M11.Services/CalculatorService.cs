@@ -113,7 +113,7 @@ namespace M11.Services
 
         private static Dictionary<string, string> GetDictionary(string name)
         {
-            return Dictionaries[name].Children<JProperty>().ToDictionary(x => x.Last.Value<string>(), y => y.Name);
+            return Dictionaries[name].Children<JProperty>().ToDictionary(x => x.Last.First.Last.ToString(), y => y.Name);
         }
 
         /// <summary>
