@@ -71,6 +71,7 @@ namespace M11
                 Time,
                 DepartureDictionary[DeparturePicker.SelectedItem.ToString()],
                 DestinationDictionary[DestinationPicker.SelectedItem.ToString()]);
+            DetourLabel.IsVisible = result.IsComposite;
             CashCostLabel.Text = result.CashCost.ToString("0");
             TransponderCostLabel.Text = result.TransponderCost.ToString("0");
             if (App.AutodorCalculatorPrice > 0)

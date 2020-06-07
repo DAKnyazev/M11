@@ -21,6 +21,7 @@
                         <RowDefinition Height="50"></RowDefinition>
                         <RowDefinition Height="70"></RowDefinition>
                         <RowDefinition Height="70"></RowDefinition>
+                        <RowDefinition Height="70"></RowDefinition>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"></ColumnDefinition>
@@ -60,6 +61,7 @@
                     <Label Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="14" x:Name="CashCostLabel" FontSize="28"/>
                     <Label Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="14" FontSize="14">Калькулятор предоставляет справочную информацию, подробности на сайте: www.15-58m11.ru</Label>
                     <Label Grid.Row="10" Grid.Column="1" Grid.ColumnSpan="14">В праздничные и предпраздничные дни цены могут быть увеличены.</Label>
+                    <Label x:Name="DetourLabel" IsVisible="False" Grid.Row="11" Grid.Column="1" Grid.ColumnSpan="14">Объезд г. Тверь осуществляется по М-10.</Label>
                 </Grid>
             </StackLayout>
         </ScrollView>

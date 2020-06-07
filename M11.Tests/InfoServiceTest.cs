@@ -162,6 +162,12 @@ namespace M11.Tests
             var result = _calculatorService.Calculate("1", "ponedelnik", "00000100", "moskva", "zelenograd");
             Assert.IsTrue(result.CashCost > 0);
             Assert.IsTrue(result.TransponderCost > 0);
+            var compositeResult = _calculatorService.Calculate("1", "ponedelnik", "00000100", "moskva", "sanktpeterburg684ykm");
+            Assert.IsTrue(compositeResult.CashCost > 0);
+            Assert.IsTrue(compositeResult.TransponderCost > 0);
+            var compositeBackResult = _calculatorService.Calculate("1", "ponedelnik", "00000100", "sanktpeterburg684ykm", "moskva");
+            Assert.IsTrue(compositeBackResult.CashCost > 0);
+            Assert.IsTrue(compositeBackResult.TransponderCost > 0);
             var departures = _calculatorService.GetDepartures();
             Assert.IsNotNull(departures);
             Assert.IsTrue(departures.Count > 0);

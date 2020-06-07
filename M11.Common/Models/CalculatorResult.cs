@@ -14,5 +14,10 @@
         /// Цена за наличные или по стороннему транспондеру
         /// </summary>
         public decimal CashCost { get; set; }
+
+        /// <summary>
+        /// Составной ли маршрут?
+        /// </summary>
+        public bool IsComposite { get; set; }
     }
 }
