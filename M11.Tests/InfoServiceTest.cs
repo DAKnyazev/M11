@@ -15,7 +15,7 @@ namespace M11.Tests
     public class InfoServiceTest
     {
         private static readonly GenericDatabase MonthBillSummaryDatabase =
-            GenericDatabase.GetDatabase(".\\MonthBillSummarySQL2.db3");
+            GenericDatabase.GetDatabase("D:\\MonthBillSummarySQL2.db3");
         private static readonly string Login = ConfigurationManager.AppSettings["login"];
         private static readonly string Password = ConfigurationManager.AppSettings["password"];
         private static readonly Dictionary<string, int> Periods = new Dictionary<string, int>
@@ -66,8 +66,8 @@ namespace M11.Tests
             var accountInfo = _infoService.GetAccountInfo(
                 _accountBalance.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl,
                 _accountBalance.CookieContainer,
-                DateTime.Now.AddMonths(-App.AccountInfoMonthCount - 6),
-                DateTime.Now);
+                new DateTime(2018, 5, 1),
+                new DateTime(2018, 5, 1).AddMonths(App.AccountInfoMonthCount + 6));
 
             _accountId = accountInfo.AccountId;
             Assert.IsFalse(string.IsNullOrWhiteSpace(accountInfo.AccountId));
@@ -77,7 +77,6 @@ namespace M11.Tests
             Assert.IsNotNull(accountInfo.BillSummaryList);
             try
             {
-                //foreach (var period in Periods)
                 Parallel.ForEach(Periods, period =>
                 {
                     var month = accountInfo.BillSummaryList.First(x => x.PeriodName == period.Key);
@@ -89,8 +88,7 @@ namespace M11.Tests
                     Assert.IsFalse(groups.IsError);
                     var count = groups.List.SelectMany(x => x.Bills).Count();
                     Assert.AreEqual(period.Value, count);
-                }
-                );
+                });
 
                 watch.Stop();
             }
@@ -107,9 +105,9 @@ namespace M11.Tests
             watch.Start();
             var accountInfo = _infoService.GetAccountInfo(
                 _accountBalance.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl,
-                _accountBalance.CookieContainer, 
-                DateTime.Now.AddMonths(-App.AccountInfoMonthCount - 6),
-                DateTime.Now);
+                _accountBalance.CookieContainer,
+                new DateTime(2018, 5, 1),
+                new DateTime(2018, 5, 1).AddMonths(App.AccountInfoMonthCount + 6));
 
             _accountId = accountInfo.AccountId;
             Assert.IsFalse(string.IsNullOrWhiteSpace(accountInfo.AccountId));
