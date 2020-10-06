@@ -21,7 +21,6 @@ namespace M11
 		    {
 		        Color = Color.FromHex(App.MainColor)
             };
-            BalanceLabel.FontFamily = "Resources/fonts/Roboto-Bold.ttf#Roboto-Bold";
         }
 
         protected override void OnAppearing()
