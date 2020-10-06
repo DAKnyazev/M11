@@ -14,7 +14,7 @@ namespace M11.Services
 {
     public class CalculatorService
     {
-        public const string Url = "https://www.15-58m11.ru";
+        public const string Url = "https://m11-neva.ru";
         public const string TariffsTreeVariableName = "var tariffs_tree = ";
         public const string DictionariesVariableName = "var dictionaries = ";
         public const string AutodorPointsVariableName = "var points_avtodor = ";
