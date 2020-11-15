@@ -176,7 +176,7 @@ namespace M11.Services
         /// <summary>
         /// Обработка результата проверки сертификата
         /// </summary>
-        /// <remarks>Используем из-за проблемы с сертификатом сайта https://www.15-58m11.ru</remarks>
+        /// <remarks>Используем из-за проблемы с сертификатом сайта https://m11-neva.ru</remarks>
         private static bool OnServerCertificateValidationCallback(object sender, X509Certificate cert, X509Chain chain,
             SslPolicyErrors sslPolicyErrors)
         {

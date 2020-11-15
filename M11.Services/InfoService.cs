@@ -25,7 +25,7 @@ namespace M11.Services
             _cachedStatisticService = new CachedStatisticService(monthBillSummaryRepository);
         }
 
-        public readonly string BaseUrl = "https://private.15-58m11.ru";
+        public readonly string BaseUrl = "https://private.m11-neva.ru";
         private readonly string _authPath = "onyma/";
         private readonly string _accountDetailsPath = "onyma/lk/account/";
         private readonly string _loginParameterName = "login";

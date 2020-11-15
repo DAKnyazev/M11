@@ -18,5 +18,6 @@
             Данные для входа будут сохранены только на вашем устройстве
         </Label>
         <Button Clicked="OpenCalculator" Text="Калькулятор поездки" TextColor="#996600" BackgroundColor="#F5F5DC" FontSize="24" Margin="10,30,10,0"/>
+        <Button Clicked="OpenPasswordRecovery" Text="Восстановление пароля" TextColor="#996600" BackgroundColor="#F5F5DC" FontSize="24" Margin="10,30,10,0"/>
     </StackLayout>
 </local:BaseContentPage>

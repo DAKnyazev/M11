@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.Net;
+using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace M11
@@ -45,6 +46,11 @@ namespace M11
         private async void OpenCalculator(object sender, EventArgs e)
         {
             await Navigation.PushModalAsync(new NavigationPage(new CalculatorPage()));
+        }
+
+        private async void OpenPasswordRecovery(object sender, EventArgs e)
+        {
+            await Navigation.PushModalAsync(new NavigationPage(new PasswordRecoveryPage()));
         }
     }
 }
