@@ -4,17 +4,6 @@
              xmlns:m11="clr-namespace:M11;assembly=M11"
              x:Class="M11.MainPage"
              ControlTemplate="{StaticResource MainPageTemplate}">
-    <StackLayout x:Name="MainLayout" VerticalOptions="Center" HorizontalOptions="FillAndExpand">
-        <Label FontSize="30" />
-        <Label x:Name="BalanceTitleLabel" FontSize="18" Text="Баланс:" HorizontalTextAlignment="Center"/>
-        <Label x:Name="BalanceLabel" FontSize="55" FontFamily="Bold,700" HorizontalTextAlignment="Center" TextColor="#996600" />
-        <StackLayout x:Name="TicketLayout">
-        </StackLayout>
-        <StackLayout x:Name="CalculatorLayout">
-            <Button Clicked="OpenCalculator" Text="Калькулятор" TextColor="#996600" BackgroundColor="#F5F5DC" FontSize="24" Margin="10,0,10,0"/>
-            <Button Clicked="OpenTicketPage" Text="Купить абонемент" TextColor="#996600" BackgroundColor="#F5F5DC" FontSize="24" Margin="10,0,10,0" />
-        </StackLayout>
-        <StackLayout x:Name="LastPaymentsLayout">
-        </StackLayout>
-    </StackLayout>
+    <RelativeLayout x:Name="MainPageLayout" VerticalOptions="Center" HorizontalOptions="FillAndExpand">
+    </RelativeLayout>
 </m11:BaseContentPage>
