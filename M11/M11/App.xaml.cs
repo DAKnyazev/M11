@@ -61,6 +61,7 @@ namespace M11
 	    private static NotificationFrequency _notificationFrequency;
 	    private static readonly InfoService InfoService = new InfoService(MonthBillSummaryDatabase);
         private static readonly CachedStatisticService CachedStatisticService = new CachedStatisticService(MonthBillSummaryDatabase);
+		private static readonly TokenService TokenService = new TokenService();
 
         static App()
         {
@@ -190,7 +191,9 @@ namespace M11
                     Credentials.Login = login;
                     Credentials.Password = password;
                 }
-            }
+
+				Credentials.Token = GetToken(login, password);
+			}
 
             return HttpStatusCode.OK;
         }
@@ -484,5 +487,12 @@ namespace M11
 	            AsyncHelpers.RunSync(() => MonthBillSummaryDatabase.ClearTablesAsync());
 	        }
 	    }
+
+		private static string GetToken(string login, string password)
+        {
+			var token = AsyncHelpers.RunSync(() => TokenService.GetTokenAsync(login, password));
+
+			return token;
+		}
     }
 }
