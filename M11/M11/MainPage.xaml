@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<m11:BaseContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+<m111:BaseWebViewPage  xmlns:m111="clr-namespace:M11.Base" xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:m11="clr-namespace:M11;assembly=M11"
              x:Class="M11.MainPage"
              ControlTemplate="{StaticResource MainPageTemplate}">
     <RelativeLayout x:Name="MainPageLayout" VerticalOptions="Center" HorizontalOptions="FillAndExpand">
     </RelativeLayout>
-</m11:BaseContentPage>
+</m111:BaseWebViewPage>

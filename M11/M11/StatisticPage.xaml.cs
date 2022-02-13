@@ -1,101 +1,22 @@
 ﻿using System;
-using System.Globalization;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using M11.Common.Extentions;
+using M11.Base;
 using Xamarin.Forms;
 
 namespace M11
 {
-	public partial class StatisticPage : BaseContentPage
-    { 
-        private ActivityIndicator LoadingIndicator { get; set; }
-        private bool IsLoaded { get; set; }
+    public partial class StatisticPage : BaseWebViewPage
+    {
+        private const string DetailsPageUrl = "https://lk.m11-neva.ru/#/balance/details";
 
-        public StatisticPage()
+        public StatisticPage() : base(DetailsPageUrl)
 		{
 			InitializeComponent();
-		    LoadingIndicator = new ActivityIndicator
-		    {
-                Color = Color.FromHex(App.MainColor)
-		    };
+            Setup();
         }
 
-        protected override async void OnAppearing()
+        protected override RelativeLayout GetLayout()
         {
-            if (!App.IsNeedReloadMainPage && IsLoaded)
-            {
-                return;
-            }
-            LoadingIndicator.IsRunning = true;
-            StatisticLayout.Padding = new Thickness(0, 200, 0, 0);
-            StatisticLayout.Children.Clear();
-            StatisticLayout.Children.Add(LoadingIndicator);
-            await Task.Run(async () => await InitializeAsync());
-            IsLoaded = true;
-        }
-
-        private async Task InitializeAsync()
-        {
-            const int padding = 10;
-            foreach (var item in App.AccountInfo.BillSummaryList.OrderByDescending(x => x.Period))
-            {
-                var layout = new RelativeLayout();
-                var button = new Button { Text = "Подробнее", TextColor = Color.FromHex("#996600"), BackgroundColor = Color.FromRgba(0, 0, 0, 0)};
-                button.Clicked += async (s, e) =>
-                {
-                    await Navigation.PushModalAsync(new NavigationPage(new StatisticDetailsPage(item)));
-                };
-                layout.Children.Add(new BoxView { BackgroundColor = Color.FromHex("#F5F5DC") },
-                    Constraint.Constant(padding),
-                    Constraint.Constant(0),
-                    Constraint.RelativeToParent(parent => parent.Width - 2 * padding),
-                    Constraint.Constant(65));
-                layout.Children.Add(new Label { Text = item.Period.ToString("MMMM yyyy").FirstCharToUpper(), FontSize = 18 },
-                    Constraint.Constant(2 * padding),
-                    Constraint.Constant(0),
-                    Constraint.RelativeToParent(parent => parent.Width - 4 * padding),
-                    Constraint.Constant(36));
-                layout.Children.Add(button,
-                    Constraint.Constant(padding),
-                    Constraint.Constant(25),
-                    Constraint.Constant(120),
-                    Constraint.Constant(36));
-                layout.Children.Add(new Label { Text = "+", TextColor = Color.Green, FontSize = 30 },
-                    Constraint.RelativeToParent(parent => parent.Width / 2),
-                    Constraint.Constant(-3),
-                    Constraint.Constant(2 * padding),
-                    Constraint.Constant(4 * padding));
-                layout.Children.Add(new Label { Text = item.Income.ToString("G", CultureInfo.InvariantCulture), FontSize = 26 },
-                    Constraint.RelativeToParent(parent => parent.Width / 2 + 2 * padding),
-                    Constraint.Constant(0),
-                    Constraint.RelativeToParent(parent => parent.Width / 2 - 4 * padding),
-                    Constraint.Constant(4 * padding));
-                layout.Children.Add(new Label { Text = "-", TextColor = Color.Red, FontSize = 30 },
-                    Constraint.RelativeToParent(parent => parent.Width / 2),
-                    Constraint.Constant(3 * padding - 5),
-                    Constraint.Constant(2 * padding),
-                    Constraint.Constant(4 * padding));
-                layout.Children.Add(new Label { Text = item.Spending.ToString("G", CultureInfo.InvariantCulture), FontSize = 26 },
-                    Constraint.RelativeToParent(parent => parent.Width / 2 + 2 * padding),
-                    Constraint.Constant(3 * padding),
-                    Constraint.RelativeToParent(parent => parent.Width / 2 - 4 * padding),
-                    Constraint.Constant(4 * padding));
-
-                Device.BeginInvokeOnMainThread(() => { StatisticLayout.Children.Add(layout); });
-            }
-
-            //if (StatisticLayout.Children.Count == App.AccountInfoMonthCount)
-            //{
-
-            //}
-
-            Device.BeginInvokeOnMainThread(() =>
-            {
-                LoadingIndicator.IsRunning = false;
-                StatisticLayout.Padding = new Thickness(0, 0, 0, 0);
-            });
+            return StatisticLayout;
         }
     }
 }
