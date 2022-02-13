@@ -2,29 +2,19 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
-using M11.Common;
 using M11.Common.Enums;
 using M11.Common.Models;
-using M11.Common.Models.BillSummary;
 using RestSharp;
 
 namespace M11.Services
 {
     public class InfoService : BaseInfoService
     {
-        private readonly CachedStatisticService _cachedStatisticService;
-
-        public InfoService(GenericDatabase monthBillSummaryRepository)
-        {
-            _cachedStatisticService = new CachedStatisticService(monthBillSummaryRepository);
-        }
-
         public readonly string BaseUrl = "https://private.m11-neva.ru";
         private readonly string _authPath = "onyma/";
         private readonly string _accountDetailsPath = "onyma/lk/account/";
@@ -134,12 +124,6 @@ namespace M11.Services
             var accountLinksDivHtml = new HtmlDocument();
             accountLinksDivHtml.LoadHtml(accountLinksDiv);
             result.AccountLinks = GetLinks<AccountLinkType>(accountLinksDivHtml, "/div[1]/ul[1]/li[{0}]/a[1]");
-            result.BillSummaryList = _cachedStatisticService.GetMonthlyStatistic(
-                result.RestClient,
-                result.AccountLinks.FirstOrDefault(x => x.Type == AccountLinkType.Account)?.RelativeUrl,
-                start,
-                end,
-                result.AccountId);
             result.RequestDate = DateTime.Now;
 
             return result;
@@ -270,17 +254,15 @@ namespace M11.Services
             {
                 if (stream == null)
                 {
-                    using (var androidAssembly = assembly.GetManifestResourceStream($"M11.Android.Resources.{fileName}"))
+                    using var androidAssembly = assembly.GetManifestResourceStream($"M11.Android.Resources.{fileName}");
+                    if (androidAssembly == null)
                     {
-                        if (androidAssembly == null)
-                        {
-                            return string.Empty;
-                        }
-                        using (var reader = new StreamReader(androidAssembly))
-                        {
-                            return reader.ReadToEnd();
-                        }
+                        return string.Empty;
                     }
+
+                    using var reader = new StreamReader(androidAssembly);
+
+                    return reader.ReadToEnd();
 
                 }
 

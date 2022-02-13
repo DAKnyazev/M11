@@ -12,7 +12,8 @@ namespace M11.Droid
         MainLauncher = true, 
         NoHistory = true, 
         ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation, 
-        ScreenOrientation = ScreenOrientation.Portrait)]
+        ScreenOrientation = ScreenOrientation.Portrait,
+        Exported = true)]
     public class SplashActivity : AppCompatActivity
     {
         // Launches the startup task

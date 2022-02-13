@@ -7,6 +7,7 @@
     <StackLayout HorizontalOptions="StartAndExpand">
         <Grid HorizontalOptions="CenterAndExpand" Margin="20">
             <Grid.RowDefinitions>
+                <RowDefinition Height="100"></RowDefinition>
                 <RowDefinition Height="50"></RowDefinition>
                 <RowDefinition Height="80"></RowDefinition>
                 <RowDefinition Height="50"></RowDefinition>
@@ -17,14 +18,25 @@
                 <ColumnDefinition Width="3*"></ColumnDefinition>
                 <ColumnDefinition Width="2*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <Label Grid.Row="0" Grid.Column="0" FontSize="20" VerticalOptions="End">Уведомления:</Label>
-            <Picker Grid.Row="0" 
+            <Button Grid.Row="0" 
+                    Grid.Column="0" 
+                    Grid.ColumnSpan="2" 
+                    HorizontalOptions="Center" 
+                    FontSize="24"
+                    Margin="10,30,10,0"
+                    TextColor="White" 
+                    BackgroundColor="#CC7732" 
+                    Text="Калькулятор" 
+                    Clicked="OpenCalculator"
+                    VerticalOptions="End" />
+            <Label Grid.Row="1" Grid.Column="0" FontSize="20" VerticalOptions="End">Уведомления:</Label>
+            <Picker Grid.Row="1" 
                     Grid.Column="1"
                     x:Name="NotificationFrequencyPicker" 
                     Title="Уведомления" 
                     SelectedIndexChanged="NotificationFrequencyPicker_OnSelectedIndexChanged"
                     VerticalOptions="End" />
-            <Label Grid.Row="1"
+            <Label Grid.Row="2"
                    Grid.Column="0"
                    Grid.ColumnSpan="2"
                    x:Name="NotificationFrequencyDescriptionLabel"
@@ -32,7 +44,7 @@
                    HorizontalOptions="Start"
                    FontSize="12" 
                    LineBreakMode="WordWrap"/>
-            <Label Grid.Row="2"
+            <Label Grid.Row="3"
                    Grid.Column="0"
                    Grid.ColumnSpan="2"
                    VerticalOptions="End"
@@ -42,7 +54,7 @@
                    HorizontalTextAlignment="Center"
                    Text="Если вам нравится это приложение, то вы можете:"
                    LineBreakMode="WordWrap" />
-            <Button Grid.Row="3"
+            <Button Grid.Row="4"
                     Grid.Column="0"
                     Grid.ColumnSpan="2"
                     Clicked="DonateButton_Clicked"
@@ -50,7 +62,7 @@
                     BackgroundColor="#CC7732"
                     FontSize="16"
                     Text="Поблагодарить разработчика"/>
-            <Button Grid.Row="4" 
+            <Button Grid.Row="5" 
                     Grid.Column="0" 
                     Grid.ColumnSpan="2" 
                     HorizontalOptions="Center" 

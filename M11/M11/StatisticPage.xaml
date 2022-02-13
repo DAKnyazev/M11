@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<m11:BaseContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+<m111:BaseWebViewPage  xmlns:m111="clr-namespace:M11.Base" xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:m11="clr-namespace:M11;assembly=M11"
              x:Class="M11.StatisticPage"
              ControlTemplate="{StaticResource MainPageTemplate}">
-    <StackLayout x:Name="StatisticLayout" VerticalOptions="CenterAndExpand" HorizontalOptions="FillAndExpand">
-    </StackLayout>
-</m11:BaseContentPage>
+    <RelativeLayout x:Name="StatisticLayout" VerticalOptions="Center" HorizontalOptions="FillAndExpand">
+    </RelativeLayout>
+</m111:BaseWebViewPage>

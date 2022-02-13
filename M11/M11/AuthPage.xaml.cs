@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Configuration;
 using System.Net;
-using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace M11
 {
-	public partial class AuthPage : BaseContentPage
+    public partial class AuthPage : BaseContentPage
     {
         public AuthPage()
 	    {
 	        InitializeComponent();
-            LoginEntry.Text = App.Credentials.Login;
+            LoginEntry.Text = string.IsNullOrWhiteSpace(App.Credentials.Login) ? "31.52." : App.Credentials.Login;
             PasswordEntry.Text = App.Credentials.Password;
         }
 

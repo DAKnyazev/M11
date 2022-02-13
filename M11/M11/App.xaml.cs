@@ -1,28 +1,21 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
-using M11.Common;
 using M11.Common.Enums;
 using M11.Common.Extentions;
 using M11.Common.Models;
-using M11.Common.Models.BillSummary;
 using M11.Resources;
 using M11.Services;
 using Plugin.SecureStorage;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
-[assembly: XamlCompilation (XamlCompilationOptions.Skip)]
+[assembly: XamlCompilation(XamlCompilationOptions.Skip)]
 namespace M11
 {
-	public partial class App : Application
+    public partial class App : Application
 	{
-        public static GenericDatabase MonthBillSummaryDatabase = 
-            GenericDatabase.GetDatabase(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MonthBillSummarySQLite.db3"));
-
         public static int CachingTimeInMinutes { get; set; }
         public static int AccountInfoMonthCount { get; set; }
         public static int LastBillsMonthCount { get; set; }
@@ -30,10 +23,6 @@ namespace M11
         public static AccountBalance AccountBalance { get; set; }
         public static AccountInfo AccountInfo { get; set; }
         public static decimal AutodorCalculatorPrice { get; set; }
-
-        public static bool IsNeedReloadMainPage =>
-	        (AccountInfo?.RequestDate ?? DateTime.MinValue) < DateTime.Now.AddMinutes(-CachingTimeInMinutes)
-	        || string.IsNullOrWhiteSpace(AccountBalance.Balance);
         public static string MainColor { get; set; }
 
 	    public static NotificationFrequency NotificationFrequency
@@ -59,8 +48,8 @@ namespace M11
 
         private static readonly object GetAccountInfoLockObject = new object();
 	    private static NotificationFrequency _notificationFrequency;
-	    private static readonly InfoService InfoService = new InfoService(MonthBillSummaryDatabase);
-        private static readonly CachedStatisticService CachedStatisticService = new CachedStatisticService(MonthBillSummaryDatabase);
+	    private static readonly InfoService InfoService = new InfoService();
+		private static readonly TokenService TokenService = new TokenService();
 
         static App()
         {
@@ -144,7 +133,6 @@ namespace M11
             AccountInfo = new AccountInfo();
             Credentials = new Credentials();
 	        Current.MainPage = new AuthPage();
-	        ClearDatabase();
 	    }
 
         private static HttpStatusCode TryGetInfo()
@@ -171,7 +159,7 @@ namespace M11
                     return HttpStatusCode.OK;
                 }
 
-                var accountBalance = new InfoService(MonthBillSummaryDatabase).GetAccountBalance(login, password);
+                var accountBalance = new InfoService().GetAccountBalance(login, password);
                 if (accountBalance.StatusCode != HttpStatusCode.OK)
                 {
                     return accountBalance.StatusCode;
@@ -184,13 +172,14 @@ namespace M11
                 AccountBalance = accountBalance;
                 if (isLogin)
                 {
-                    ClearDatabase();
                     CrossSecureStorage.Current.SetValue(CrossSecureStorageKeys.Login, login);
                     CrossSecureStorage.Current.SetValue(CrossSecureStorageKeys.Password, password);
                     Credentials.Login = login;
                     Credentials.Password = password;
                 }
-            }
+
+				Credentials.Token = GetToken(login, password);
+			}
 
             return HttpStatusCode.OK;
         }
@@ -204,7 +193,7 @@ namespace M11
 	            {
 	                return;
 	            }
-	            AccountInfo = new InfoService(App.MonthBillSummaryDatabase).GetAccountInfo(
+	            AccountInfo = new InfoService().GetAccountInfo(
 	                AccountBalance.Links.FirstOrDefault(x => x.Type == LinkType.Account)?.RelativeUrl,
 	                AccountBalance.CookieContainer,
 	                DateTime.Now.AddMonths(-AccountInfoMonthCount),
@@ -233,144 +222,6 @@ namespace M11
 	            type);
 	    }
 
-	    public static void FillGroups(MonthBillSummary monthBillSummary)
-	    {
-	        try
-	        {
-	            if (monthBillSummary.Groups.Any()
-	                && monthBillSummary.GroupsRequestDate > DateTime.Now.AddMinutes(-CachingTimeInMinutes))
-	            {
-	                return;
-	            }
-
-	            monthBillSummary.Groups = CachedStatisticService.GetMonthlyDetails(
-	                AccountInfo.AccountLinks.FirstOrDefault(x => x.Type == AccountLinkType.Account)?.RelativeUrl,
-	                AccountInfo.RestClient,
-	                AccountInfo.AccountId,
-	                monthBillSummary);
-                monthBillSummary.GroupsRequestDate = DateTime.Now;
-            }
-	        catch (Exception e)
-	        {
-	            return;
-	        }
-        }
-
-	    public static List<Bill> GetLastBills()
-	    {
-	        var months = AccountInfo.BillSummaryList.OrderByDescending(x => x.Period).Take(LastBillsMonthCount).ToList();
-	        if (!months.Any())
-	        {
-                return new List<Bill>();
-	        }
-
-	        Parallel.ForEach(months, monthBillSummary =>
-	            {
-	                if (monthBillSummary.Groups.Any() &&
-	                    monthBillSummary.GroupsRequestDate > DateTime.Now.AddMinutes(-CachingTimeInMinutes))
-	                {
-	                    return;
-	                }
-
-	                monthBillSummary.Groups = CachedStatisticService.GetMonthlyDetails(
-	                    AccountInfo.AccountLinks.FirstOrDefault(x => x.Type == AccountLinkType.Account)?.RelativeUrl,
-	                    AccountInfo.RestClient,
-	                    AccountInfo.AccountId,
-	                    monthBillSummary);
-	            }
-	        );
-
-	        return months
-                .SelectMany(x => x.Groups.SelectMany(y => y.Bills))
-                .Distinct()
-	            .OrderByDescending(x => x.Period)
-                .ToList();
-	    }
-
-	    public static string GetPointName(string point)
-	    {
-	        if (point == null)
-	        {
-	            return string.Empty;
-	        }
-
-	        var lowerPoint = point.ToLower();
-
-            if (lowerPoint.Contains("зеленоград"))
-	        {
-	            return "Зеленоград";
-	        }
-
-	        if (lowerPoint.Contains("клин"))
-	        {
-	            return "Клин";
-	        }
-
-	        if (lowerPoint.Contains("москва"))
-	        {
-	            return "Москва";
-	        }
-
-	        if (lowerPoint.Contains("солнечн"))
-	        {
-	            if (lowerPoint.Contains("67"))
-	            {
-	                return "Солнечногорск (Пятн. ш.)";
-	            }
-	            return "Солнечногорск (М-10)";
-	        }
-
-	        if (lowerPoint.Contains("ямуга"))
-	        {
-	            return "Ямуга";
-	        }
-
-	        if (lowerPoint.Contains("107"))
-	        {
-	            return "Бетонка (А-107)";
-	        }
-
-	        if (lowerPoint.Contains("шереметьево"))
-	        {
-	            if (lowerPoint.Contains("1"))
-	            {
-	                return "Шереметьево-1";
-	            }
-
-	            return "Шереметьево-2";
-	        }
-
-	        if (lowerPoint.Contains("11") && lowerPoint.Contains("58"))
-	        {
-	            return "Конец участка";
-	        }
-                 
-	        return point;
-	    }
-
-	    public static string GetTicketDescription(string pan)
-	    {
-	        if (string.IsNullOrWhiteSpace(pan))
-	        {
-	            return string.Empty;
-	        }
-
-	        try
-	        {
-	            var startIndex = pan.IndexOf("на", StringComparison.InvariantCultureIgnoreCase);
-	            var endIndex = pan.IndexOf(",", startIndex, StringComparison.InvariantCultureIgnoreCase);
-	            var result = $"Абонемент {pan.Substring(startIndex, endIndex - startIndex)}";
-	            startIndex = pan.IndexOf(",", endIndex + 1, StringComparison.InvariantCultureIgnoreCase);
-	            endIndex = pan.IndexOf("(", startIndex, StringComparison.InvariantCultureIgnoreCase);
-
-	            return $"{result}\r\n({pan.Substring(startIndex + 2, endIndex - startIndex - 3)})";
-            }
-	        catch
-	        {
-	            return string.Empty;
-	        }
-	    }
-
 	    public static AccountBalance GetAccountBalance()
 	    {
 	        if (TryGetInfo() == HttpStatusCode.OK)
@@ -396,15 +247,6 @@ namespace M11
             }
 
 	        return null;
-	    }
-
-	    public static void SetNeedReload()
-	    {
-	        if (AccountInfo != null)
-	        {
-	            AccountInfo.RequestDate = DateTime.MinValue;
-                TryGetInfo();
-            }
 	    }
 
         public static void ClearSettingsBadge()
@@ -477,12 +319,11 @@ namespace M11
 	        CrossSecureStorage.Current.SetValue(CrossSecureStorageKeys.NotificationFrequency, notificationFrequency.ToString());
         }
 
-	    private static void ClearDatabase()
-	    {
-	        lock (GetAccountInfoLockObject)
-	        {
-	            AsyncHelpers.RunSync(() => MonthBillSummaryDatabase.ClearTablesAsync());
-	        }
-	    }
+		private static string GetToken(string login, string password)
+        {
+			var token = AsyncHelpers.RunSync(() => TokenService.GetTokenAsync(login, password));
+
+			return token;
+		}
     }
 }

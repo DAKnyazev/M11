@@ -5,7 +5,7 @@ namespace M11
     /// <summary>
     /// Базовая страница (без навигационного заголовка)
     /// </summary>
-    public abstract partial class BaseContentPage : ContentPage
+    public abstract class BaseContentPage : ContentPage
     {
         protected BaseContentPage()
         {

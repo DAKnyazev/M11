@@ -5,7 +5,7 @@ namespace M11
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class TabbedMainPage : BaseTabbedContentPage
     {
-        public TabbedMainPage ()
+        public TabbedMainPage()
         {
             InitializeComponent();
         }

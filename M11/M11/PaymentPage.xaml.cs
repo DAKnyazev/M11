@@ -22,7 +22,7 @@ namespace M11
 
         public PaymentPage()
         {
-            _infoService = new InfoService(App.MonthBillSummaryDatabase);
+            _infoService = new InfoService();
             _isNeedReload = true;
             InitializeComponent();
         }
@@ -57,7 +57,7 @@ namespace M11
                 Constraint.Constant(0),
                 Constraint.Constant(0),
                 Constraint.RelativeToParent(parent => parent.Width),
-                Constraint.RelativeToParent(parent => parent.Height));
+                Constraint.RelativeToParent(parent => parent.Height * 1.5));
         }
 
         private void BrowserOnNavigating(object sender, WebNavigatingEventArgs args)
