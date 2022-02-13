@@ -6,7 +6,7 @@ using Android.Support.V7.App;
 namespace M11.Droid
 {
     [Activity(
-        Label = "m11", 
+        Label = "M11", 
         Icon = "@mipmap/icon", 
         Theme = "@style/MainTheme.Splash", 
         MainLauncher = true, 
