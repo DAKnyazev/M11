@@ -37,5 +37,10 @@ namespace M11
         {
             await Navigation.PushModalAsync(new NavigationPage(new DonatePage()));
         }
+
+        private async void OpenCalculator(object sender, EventArgs e)
+        {
+            await Navigation.PushModalAsync(new NavigationPage(new CalculatorPage()));
+        }
     }
 }

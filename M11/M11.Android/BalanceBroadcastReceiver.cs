@@ -79,7 +79,7 @@ namespace M11.Droid
             var launchIntent = context.PackageManager.GetLaunchIntentForPackage(context.PackageName);
             intent.AddFlags(ActivityFlags.ClearTop);
 
-            var pendingIntent = PendingIntent.GetActivity(context, 0, launchIntent, PendingIntentFlags.CancelCurrent);
+            var pendingIntent = PendingIntent.GetActivity(context, 0, launchIntent, PendingIntentFlags.Immutable);
 
             var builder = new NotificationCompat.Builder(context, MainActivity.ChannelId)
                 .SetContentTitle(title)

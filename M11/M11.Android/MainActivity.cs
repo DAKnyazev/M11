@@ -41,7 +41,7 @@ namespace M11.Droid
                 AlarmType.ElapsedRealtimeWakeup, 
                 SystemClock.ElapsedRealtime() + CheckBalanceIntervalInMilis,
                 CheckBalanceIntervalInMilis, 
-                PendingIntent.GetBroadcast(this, 1, intentAlarm, PendingIntentFlags.CancelCurrent));
+                PendingIntent.GetBroadcast(this, 1, intentAlarm, PendingIntentFlags.Immutable));
         }
 
         private void CreateNotificationChannel()

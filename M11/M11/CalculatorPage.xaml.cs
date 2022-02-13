@@ -13,7 +13,7 @@ namespace M11
         public CalculatorPage()
         {
             InitializeComponent();
-            this.Title = "Благодарность разработчику";
+            this.Title = "Расчет путешествия";
         }
 
         protected override void OnAppearing()

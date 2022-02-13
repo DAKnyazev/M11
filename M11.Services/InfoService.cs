@@ -15,10 +15,6 @@ namespace M11.Services
 {
     public class InfoService : BaseInfoService
     {
-        public InfoService()
-        {
-        }
-
         public readonly string BaseUrl = "https://private.m11-neva.ru";
         private readonly string _authPath = "onyma/";
         private readonly string _accountDetailsPath = "onyma/lk/account/";
@@ -258,17 +254,15 @@ namespace M11.Services
             {
                 if (stream == null)
                 {
-                    using (var androidAssembly = assembly.GetManifestResourceStream($"M11.Android.Resources.{fileName}"))
+                    using var androidAssembly = assembly.GetManifestResourceStream($"M11.Android.Resources.{fileName}");
+                    if (androidAssembly == null)
                     {
-                        if (androidAssembly == null)
-                        {
-                            return string.Empty;
-                        }
-                        using (var reader = new StreamReader(androidAssembly))
-                        {
-                            return reader.ReadToEnd();
-                        }
+                        return string.Empty;
                     }
+
+                    using var reader = new StreamReader(androidAssembly);
+
+                    return reader.ReadToEnd();
 
                 }
 
