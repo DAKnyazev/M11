@@ -7,8 +7,8 @@ using M11.Common.Models;
 
 namespace M11.Droid
 {
-    [BroadcastReceiver(Label = "M11 Widget")]
-    [IntentFilter(new string[] { "android.appwidget.action.APPWIDGET_UPDATE" })]
+    [BroadcastReceiver(Label = "m11 widget", Exported = true)]
+    [IntentFilter(new string[] { "android.appwidget.action.appwidget_update" })]
     [MetaData("android.appwidget.provider", Resource = "@xml/appwidgetprovider")]
     public class AppWidget : AppWidgetProvider
     {

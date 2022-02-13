@@ -11,7 +11,8 @@ namespace M11.Droid
         Theme = "@style/MainTheme", 
         MainLauncher = false, 
         ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation, 
-        ScreenOrientation = ScreenOrientation.Portrait)]
+        ScreenOrientation = ScreenOrientation.Portrait,
+        Exported = true)]
     public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity
     {
         public static string ChannelId = "M11-15-58-Knyazev-ChannelId";

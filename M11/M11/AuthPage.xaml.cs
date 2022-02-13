@@ -11,7 +11,7 @@ namespace M11
         public AuthPage()
 	    {
 	        InitializeComponent();
-            LoginEntry.Text = App.Credentials.Login;
+            LoginEntry.Text = string.IsNullOrWhiteSpace(App.Credentials.Login) ? "31.52." : App.Credentials.Login;
             PasswordEntry.Text = App.Credentials.Password;
         }
 

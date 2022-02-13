@@ -1,69 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="M11.CalculatorPage"
-             BackgroundColor="White">
-    <ContentPage.Content>
-        <ScrollView>
-            <StackLayout x:Name="CalculatorLayout" VerticalOptions="StartAndExpand" BackgroundColor="White">
-                <Label x:Name="ErrorLabel" FontSize="30" Margin="20">Произошла ошибка загрузки</Label>
-                <Button HorizontalOptions="Center" Text="+ Другой участок" BackgroundColor="#F5F5DC" Clicked="OpenAutodorCalculator"/>
-                <Grid x:Name="CalculatorGrid" HorizontalOptions="CenterAndExpand" Margin="20">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="50"></RowDefinition>
-                        <RowDefinition Height="50"></RowDefinition>
-                        <RowDefinition Height="60"></RowDefinition>
-                        <RowDefinition Height="50"></RowDefinition>
-                        <RowDefinition Height="50"></RowDefinition>
-                        <RowDefinition Height="50"></RowDefinition>
-                        <RowDefinition Height="50"></RowDefinition>
-                        <RowDefinition Height="50"></RowDefinition>
-                        <RowDefinition Height="50"></RowDefinition>
-                        <RowDefinition Height="70"></RowDefinition>
-                        <RowDefinition Height="70"></RowDefinition>
-                        <RowDefinition Height="70"></RowDefinition>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                    </Grid.ColumnDefinitions>
-                    <Button Grid.Row="0" Grid.Column="14" Grid.RowSpan="2" Grid.ColumnSpan="2" x:Name="SwapButton" Text="" Clicked="SwapDepartureAndDestination" BackgroundColor="#F5F5DC" HorizontalOptions="FillAndExpand"/>
-                    <Picker Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="13" x:Name="DeparturePicker" Title="Точка въезда" SelectedIndexChanged="Calculate"/>
-                    <Picker Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="13" x:Name="DestinationPicker" Title="Точка выезда" SelectedIndexChanged="Calculate"/>
-
-                    <Button Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Text="ПН" HorizontalOptions="FillAndExpand" BorderColor="#ed1c24" BackgroundColor="#F5F5DC" Clicked="DayWeek_OnClicked"/>
-                    <Button Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="2" Text="ВТ" HorizontalOptions="FillAndExpand" BorderColor="#ed1c24" BackgroundColor="#F5F5DC" Clicked="DayWeek_OnClicked"/>
-                    <Button Grid.Row="2" Grid.Column="5" Grid.ColumnSpan="2" Text="СР" HorizontalOptions="FillAndExpand" BorderColor="#ed1c24" BackgroundColor="#F5F5DC" Clicked="DayWeek_OnClicked"/>
-                    <Button Grid.Row="2" Grid.Column="7" Grid.ColumnSpan="2" Text="ЧТ" HorizontalOptions="FillAndExpand" BorderColor="#ed1c24" BackgroundColor="#F5F5DC" Clicked="DayWeek_OnClicked"/>
-                    <Button Grid.Row="2" Grid.Column="9" Grid.ColumnSpan="2" Text="ПТ" HorizontalOptions="FillAndExpand" BorderColor="#ed1c24" BackgroundColor="#F5F5DC" Clicked="DayWeek_OnClicked"/>
-                    <Button Grid.Row="2" Grid.Column="11" Grid.ColumnSpan="2" Text="СБ" HorizontalOptions="FillAndExpand" BorderColor="#ed1c24" BackgroundColor="#F5F5DC" TextColor="#ed1c24" Clicked="DayWeek_OnClicked"/>
-                    <Button Grid.Row="2" Grid.Column="13" Grid.ColumnSpan="2" Text="ВС" HorizontalOptions="FillAndExpand" BorderColor="#ed1c24" BackgroundColor="#F5F5DC" TextColor="#ed1c24" Clicked="DayWeek_OnClicked"/>
-                    <StackLayout Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="14" Orientation="Horizontal" x:Name="TimeLayout" HorizontalOptions="CenterAndExpand">
-                    </StackLayout>
-                    <Picker Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="14" x:Name="CategoryPicker" Title="Категория ТС" SelectedIndexChanged="Calculate"/>
-                    <Label Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="14" Text="Цена по транспондеру М11 15-58 км" FontSize="20"/>
-                    <Label Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="14" x:Name="TransponderCostLabel" FontSize="28"/>
-                    <Label Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="14" Text="Цена без транспондера М11 15-58 км" FontSize="20"/>
-                    <Label Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="14" x:Name="CashCostLabel" FontSize="28"/>
-                    <Label Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="14" FontSize="14">Калькулятор предоставляет справочную информацию, подробности на сайте: m11-neva.ru</Label>
-                    <Label Grid.Row="10" Grid.Column="1" Grid.ColumnSpan="14">В праздничные и предпраздничные дни цены могут быть увеличены.</Label>
-                    <Label x:Name="DetourLabel" IsVisible="False" Grid.Row="11" Grid.Column="1" Grid.ColumnSpan="14">Объезд г. Тверь осуществляется по М-10.</Label>
-                </Grid>
-            </StackLayout>
-        </ScrollView>
-    </ContentPage.Content>
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="M11.CalculatorPage">
+    <RelativeLayout x:Name="CalculatorLayout" VerticalOptions="CenterAndExpand" HorizontalOptions="FillAndExpand">
+    </RelativeLayout>
 </ContentPage>

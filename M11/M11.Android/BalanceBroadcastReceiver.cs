@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using Android.Accounts;
+﻿using System.Linq;
 using Android.App;
 using Android.Content;
 using Android.Media;
@@ -9,7 +7,7 @@ using M11.Common.Models;
 
 namespace M11.Droid
 {
-    [BroadcastReceiver(Enabled = true)]
+    [BroadcastReceiver(Enabled = true, Exported = true)]
     public class BalanceBroadcastReceiver : BroadcastReceiver
     {
         private static AccountBalance _accountBalance;
