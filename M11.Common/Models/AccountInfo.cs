@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using M11.Common.Enums;
-using M11.Common.Models.BillSummary;
 using RestSharp;
 
 namespace M11.Common.Models
@@ -34,11 +33,6 @@ namespace M11.Common.Models
         /// Идентификатор IlinkId, для запросов по лицевому счёту
         /// </summary>
         public string IlinkId { get; set; }
-
-        /// <summary>
-        /// Список статистика расходов по месяцам
-        /// </summary>
-        public List<MonthBillSummary> BillSummaryList { get; set; }
 
         /// <summary>
         /// Ссылки на основные страницы

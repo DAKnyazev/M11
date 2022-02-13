@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Configuration;
 using System.Net;
-using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace M11
 {
-	public partial class AuthPage : BaseContentPage
+    public partial class AuthPage : BaseContentPage
     {
         public AuthPage()
 	    {

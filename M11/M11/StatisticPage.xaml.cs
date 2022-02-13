@@ -1,5 +1,4 @@
-﻿using System;
-using M11.Base;
+﻿using M11.Base;
 using Xamarin.Forms;
 
 namespace M11
